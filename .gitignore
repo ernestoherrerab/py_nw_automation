@@ -1,5 +1,10 @@
 .env
 network_automation/ise_mac_bypass/mac_bypass/csv_data/
+network_automation/topology_builder/graphviz/config/
+network_automation/topology_builder/graphviz/inventory/
+network_automation/topology_builder/graphviz/diagrams/
+network_automation/topology_builder/graphviz/nornir.log
+network_automation/topology_builder/graphviz/hosts.yml
 archive/
 __pycache__/
 test.py
