@@ -6,6 +6,7 @@ from decouple import config
 from flask import render_template, request, session, current_app, redirect, url_for
 from pathlib import Path
 from werkzeug.utils import secure_filename
+from yaml import dump
 from network_automation.topology_builder import topology_builder
 import network_automation.topology_builder.graphviz.recursive_graph as do_graph
 
@@ -21,8 +22,12 @@ def home():
 
 @topology_builder.route("/yml_upload")
 def yml_upload():
-    Path("network_automation/topology_builder/graphviz/inventory/").mkdir(exist_ok=True)
+    Path(GRAPHVIZ_UPLOAD_DIR).mkdir(exist_ok=True)
     return render_template(f"{template_dir}/yml_upload.html")
+
+@topology_builder.route("/manual_upload", methods = ['GET', 'POST'])
+def manual_upload():
+    return render_template(f"{template_dir}/manual_upload.html")
 
 @topology_builder.route("/tacacs_login", methods = ['GET', 'POST'])
 def tacacs_login():
@@ -38,7 +43,6 @@ def tacacs_login():
             return render_template(f"{template_dir}/tacacs_login.html", file_name=file_name, success=success)
         else:
             text_data = request.form
-            host_list = []
             for text in text_data.items():
                 if 'outputtext' in text:
                     success = "Data Captured!"
@@ -47,15 +51,19 @@ def tacacs_login():
                     for data in data_input:
                         data = data.split(",")
                         if data != ['']:
-                            endpoint = {}
-                            mac_add = data[0]
-                            dev_type = data[1]
-                            endpoint["MAC Address"] = mac_add
-                            endpoint["Device Type"] = dev_type
-                            host_list.append(endpoint)
-            session["host_list"] = host_list
-            print(f"Manual Input {host_list}")
-            return render_template(f"{template_dir}/tacacs_login.html", host_list=host_list)
+                            print(f"The data from the textarea is {data}")
+                            host = {}
+                            hostname = data[0]
+                            ip_add = data[1]
+                            nos = data[2]
+                            host[hostname] = {}
+                            host[hostname]["groups"] = [nos + "_devices"]
+                            host[hostname]["hostname"] = ip_add
+            host_yaml = dump(host, default_flow_style=False)
+            with open(GRAPHVIZ_UPLOAD_DIR / "hosts.yml", "w") as open_file:
+                open_file.write(host_yaml)
+            print(f"Manual Input {host_yaml}")
+            return render_template(f"{template_dir}/tacacs_login.html", host=host)
 
 @topology_builder.route("/tacacs_auth", methods = ['POST', 'GET'])
 def tacacs_auth():
@@ -63,24 +71,19 @@ def tacacs_auth():
         if "username" in request.form:
             username=request.form['username']
             password=request.form['password']
-            if not session.get("host_list") is None:
-                manual_data = session.get("endpoint_list")
-                print(f"The manual data is: {manual_data}")
-                return redirect(url_for('topology_builder.ise_auth_error'))
-            else:
-                do_graph.graph_build(username, password)
-                return redirect(url_for('topology_builder.graph_upload'))
-#            else:
-#                result = bypass.mac_bypass(username, password)
-#            if result == 401:
-#                return redirect(url_for('ise_mac_bypass.ise_auth_error'))
-#            elif result == {201}:
-#                return redirect(url_for('ise_mac_bypass.ise_upload'))
-#            else: 
-#                return redirect(url_for('ise_mac_bypass.ise_upload_error'))
+            dev_failed = do_graph.graph_build(username, password)
+            return render_template(f"{template_dir}/graph_upload.html", dev_failed=dev_failed)
 
 ### ERROR & SUCCESS VIEWS ###
 
 @topology_builder.route("/graph_upload")
 def graph_upload():
     return render_template(f"{template_dir}/graph_upload.html")
+
+@topology_builder.route("/tacacs_auth_error")
+def tacacs_auth_error():
+    return render_template(f"{template_dir}/tacacs_auth_error.html")
+
+@topology_builder.route("/upload_error")
+def upload_error():
+    return render_template(f"{template_dir}/upload_error.html")

@@ -11,9 +11,11 @@ from nornir import InitNornir
 from nornir_scrapli.tasks import send_commands
 from yaml import dump,load, SafeDumper
 from yaml.loader import FullLoader
+from yaml.scanner import ScannerError
 import network_automation.topology_builder.graphviz.graph_builder as graph
 from tqdm import tqdm
 
+dev_auth_fail_list = set()
 
 class NoAliasDumper(SafeDumper):
     def ignore_aliases(self, data):
@@ -22,7 +24,7 @@ class NoAliasDumper(SafeDumper):
         return super(NoAliasDumper, self).increase_indent(flow, False)
 
 def del_files():
-    host_file = Path("inventory/hosts.yml")
+    host_file = Path("network_automation/topology_builder/graphviz/inventory/hosts.yml")
     if host_file.exists():
         Path.unlink(host_file)
 
@@ -36,7 +38,10 @@ def build_sites(results, nornir_session):
     return dict_output
 
 def init_nornir(username, password):
-    nr = InitNornir(config_file="network_automation/topology_builder/graphviz/config/config.yml")
+    try:
+        nr = InitNornir(config_file="network_automation/topology_builder/graphviz/config/config.yml")
+    except Exception as e:
+        return e
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
     with tqdm(total=len(nr.inventory.hosts)) as progress_bar:
@@ -44,9 +49,11 @@ def init_nornir(username, password):
     hosts_failed = list(results.failed_hosts.keys())
     if hosts_failed != []:
         auth_fail_list = list(results.failed_hosts.keys())
+        for dev in auth_fail_list:
+            dev_auth_fail_list.add(dev)
         print(f"Authentication Failed: {auth_fail_list}")
         print(f"{len(list(results.failed_hosts.keys()))}/{len(nr.inventory.hosts)} devices failed authentication...")
-    return nr, results
+    return nr, results, dev_auth_fail_list
 
 def get_data_task(task, progress_bar):
     """
@@ -110,7 +117,7 @@ def graph_build(username, password):
     """
     ### FIRST LEVEL ###
     print("Initializing connections to devices...")
-    nr, results = init_nornir(username, password)
+    nr, results, dev_auth_fail_list = init_nornir(username, password)
 
     print("Parsing generated output...")
     ### CREATE SITE ID DICTIONARIES ###
@@ -125,7 +132,7 @@ def graph_build(username, password):
 
     ### SECOND LEVEL ###
     print("Initializing connections to devices in SECOND inventory file...")
-    nr, results = init_nornir(username, password)
+    nr, results, dev_auth_fail_list = init_nornir(username, password)
 
     ### CREATE SITE ID DICTIONARIES ###
     print("Parsing generated output...")
@@ -143,7 +150,7 @@ def graph_build(username, password):
 
     ### THIRD LEVEL ###
     print("Initializing connections to devices in THIRD inventory file...")
-    nr, results = init_nornir(username, password)  
+    nr, results, dev_auth_fail_list = init_nornir(username, password)  
     
     ### CREATE SITE ID DICTIONARIES ###
     print("Parsing generated output...")
@@ -158,7 +165,7 @@ def graph_build(username, password):
         open_file.write("\n" + yaml_inv)
     
     print("Initializing connections to devices in FINAL inventory file...")
-    nr, results = init_nornir(username, password)      
+    nr, results, dev_auth_fail_list = init_nornir(username, password)      
     ### MERGE YAML OBJECTS TO UPDATE INVENTORY FILE ###
     print("Parse data from FINAL Inventory")
     inv_dict_output = build_sites(results, nr)
@@ -195,5 +202,4 @@ def graph_build(username, password):
         site_path = diagrams_path / f"{site_id}_site"
         graph.gen_graph(f"{site_id}_site", cdp_tuple, site_path)
     del_files()
-    return_str = "Graphs Uploaded"
-    return return_str
+    return dev_auth_fail_list
