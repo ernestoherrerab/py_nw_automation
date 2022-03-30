@@ -201,3 +201,4 @@ def graph_build(username, password):
         graph.gen_graph(f"{site_id}_site", cdp_tuple, site_path)
     del_files()
     return dev_auth_fail_list, diagrams_file_list
+

@@ -70,6 +70,8 @@ def tacacs_auth():
         if "username" in request.form:
             username=request.form['username']
             password=request.form['password']
+            dev_failed = []
+            diagrams_list = []
             dev_failed, diagrams_list = do_graph.graph_build(username, password)
             session["diagrams_list"] = diagrams_list
             return render_template(f"{template_dir}/graph_upload.html", dev_failed=dev_failed, diagrams_list=diagrams_list)
