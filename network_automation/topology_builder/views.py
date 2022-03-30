@@ -3,7 +3,7 @@
 Creates the views (routes) for the secondary app
 """
 from decouple import config
-from flask import render_template, request, session, current_app, redirect, url_for
+from flask import render_template, request, current_app
 from pathlib import Path
 from werkzeug.utils import secure_filename
 from yaml import dump

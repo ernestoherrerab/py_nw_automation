@@ -11,7 +11,6 @@ from nornir import InitNornir
 from nornir_scrapli.tasks import send_commands
 from yaml import dump,load, SafeDumper
 from yaml.loader import FullLoader
-from yaml.scanner import ScannerError
 import network_automation.topology_builder.graphviz.graph_builder as graph
 from tqdm import tqdm
 
