@@ -37,10 +37,7 @@ def build_sites(results, nornir_session):
     return dict_output
 
 def init_nornir(username, password):
-    try:
-        nr = InitNornir(config_file="network_automation/topology_builder/graphviz/config/config.yml")
-    except Exception as e:
-        return e
+    nr = InitNornir(config_file="network_automation/topology_builder/graphviz/config/config.yml")
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
     with tqdm(total=len(nr.inventory.hosts)) as progress_bar:
