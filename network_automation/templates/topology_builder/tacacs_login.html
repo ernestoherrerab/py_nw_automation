@@ -6,16 +6,16 @@
     </head>
     <body>
         <div class="alert alert-info" role="alert">
-        <h1>ISE MAC Bypass<br><br></h1>
+        <h1>Topology Builder<br><br></h1>
         <h4>{{success}}<br><br></h4>
-        <h5>Enter ISE Credentials:<br><br></h5>
-        <form action="{{url_for('ise_mac_bypass.ise_auth')}}" method = "POST" role="form">
+        <h5>Enter TACACS Credentials:<br><br></h5>
+        <form action="{{url_for('topology_builder.tacacs_auth')}}" method = "POST" role="form">
             <div class="row g-3 align-items-center">
 				<div class="col-auto">
 					<label for="username">Username:</label>
-					<input type="text" class="form-control" id="username" name="username" placeholder="ISE Username">
+					<input type="text" class="form-control" id="username" name="username" placeholder="TACACS Username">
 					<label for="password">Password:</label>
-					<input type="password" class="form-control" id="password" name="password" placeholder="ISE Password"><br>
+					<input type="password" class="form-control" id="password" name="password" placeholder="TACACS Password"><br>
 				</div>
 			</div>
             <button type="submit" class="btn btn-success">Log In</button>
