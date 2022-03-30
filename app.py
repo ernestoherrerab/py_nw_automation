@@ -7,7 +7,6 @@ import sys
 sys.dont_write_bytecode = True
 from decouple import config
 from waitress import serve
-from flask import Flask 
 from network_automation import app
 
 def parse_args():
@@ -34,7 +33,8 @@ SERVER_PORT = int(config("FLASK_SERVER_PORT"))
 if __name__ == "__main__":
     args = parse_args()
     if args.environment == "dev":
-        ### EXECUTE THE APP ###
+        ### EXECUTE THE APP IN FLASK ###
         app.run(debug=DEBUG_MODE, host=FLASK_SERVER, port=SERVER_PORT)
     elif args.environment == "prod":
+        ### EXECUTE THE APP IN WAITRESS ###
         serve(app, host=FLASK_SERVER, port=SERVER_PORT)

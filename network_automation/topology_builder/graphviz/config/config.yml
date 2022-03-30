@@ -1,0 +1,12 @@
+---
+inventory:
+  plugin: SimpleInventory
+  options:
+    host_file: "network_automation/topology_builder/graphviz/inventory/hosts.yml"
+    group_file: "network_automation/topology_builder/graphviz/inventory/groups.yml"
+    defaults_file: "network_automation/topology_builder/graphviz/inventory/defaults.yml"
+
+runner:
+  plugin: threaded
+  options:
+    num_workers: 650
