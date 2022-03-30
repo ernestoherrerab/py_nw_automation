@@ -8,7 +8,9 @@
         <div class="alert alert-info" role="alert">
         <h1>Topology Builder<br><br></h1>
         <h4>Diagrams and .dot Files Successfully Uploaded!!!<br><br></h4> 
-        <a class="btn btn-primary" href="{{url_for('home')}}" role="button">Back To Home</a><br><br>
+        <a class="btn btn-primary" href="{{url_for('home')}}" role="button">Back To Home</a>
+        <a class="btn btn-primary" href="{{url_for('topology_builder.download_diag_file')}}" role="button">Download Diagram File</a>
+        <a class="btn btn-primary" href="{{url_for('topology_builder.download_dot_file')}}" role="button">Download DOT File</a><br><br>
         The following devices failed authentication: 
         {% for dev in dev_failed %} 
          - {{ dev }} <br>

@@ -109,6 +109,7 @@ def graph_build(username, password):
     inv_path_file = Path("network_automation/topology_builder/graphviz/inventory/") / "hosts.yml"   
     diagrams_path = Path("network_automation/topology_builder/graphviz/diagrams/")
     cdp_tuples_list = []
+    diagrams_file_list = []
 
     ### INITIALIZE NORNIR ###
     """
@@ -199,6 +200,7 @@ def graph_build(username, password):
         site_id = cdp_tuple[0][0].split("-")
         site_id = site_id[0]
         site_path = diagrams_path / f"{site_id}_site"
+        diagrams_file_list.append(site_id + "_site")
         graph.gen_graph(f"{site_id}_site", cdp_tuple, site_path)
     del_files()
-    return dev_auth_fail_list
+    return dev_auth_fail_list, diagrams_file_list
