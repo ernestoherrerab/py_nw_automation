@@ -1,0 +1,23 @@
+### THE BELOW VERSIONS ARE CURRENTLY WORKING IN THE PRODUCTION ENVIRONMENT ###
+
+Flask==2.0.3
+genie==22.2
+graphviz==0.19.1
+nornir==3.2.0
+nornir-scrapli==2022.1.30
+pyats==22.2
+python-decouple==3.6
+PyYAML==6.0
+requests==2.27.1
+tqdm==4.63.1
+urllib3==1.26.9
+waitress==2.1.1
+Werkzeug==2.0.3
+xmltodict==0.12.0
+yamllint==1.26.3
+
+### IN ADDITION TO THE ABOVE PYTHON LIBRARIES, THE BELOW MUST ALSO BE INSTALLED VIA APT-GET INSTALL OR APT-GET
+# python3-pip
+# python3-venv
+# graphviz
+# nginx
