@@ -17,13 +17,17 @@ from tqdm import tqdm
 dev_auth_fail_list = set()
 
 class NoAliasDumper(SafeDumper):
+    """ USED FOR ERROR HANDLING AND FORMATTING """
+    
     def ignore_aliases(self, data):
         return True
     def increase_indent(self, flow=False, indentless=False):
         return super(NoAliasDumper, self).increase_indent(flow, False)
 
 def del_files():
-    host_file = Path("network_automation/topology_builder/graphviz/inventory/hosts.yml")
+    """ CLEANS UP HOSTS FILES """
+
+    host_file = Path("network_automation/mac_finder/mac_finder/inventory/hosts.yml")
     if host_file.exists():
         Path.unlink(host_file)
 
@@ -37,7 +41,9 @@ def build_sites(results, nornir_session):
     return dict_output
 
 def init_nornir(username, password):
-    nr = InitNornir(config_file="network_automation/topology_builder/graphviz/config/config.yml")
+    """ INITIALIZES NORNIR SESSIONS """
+
+    nr = InitNornir(config_file="network_automation/mac_finder/mac_finder/config/config.yml")
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
     with tqdm(total=len(nr.inventory.hosts)) as progress_bar:
@@ -55,6 +61,7 @@ def get_data_task(task, progress_bar):
     """
     Task to send commands to Devices via Nornir/Scrapli
     """
+
     commands =["show cdp neighbors detail"]
     data_results = task.run(task=send_commands, commands=commands)
     progress_bar.update()
@@ -64,6 +71,7 @@ def get_data_task(task, progress_bar):
 
 def rebuild_inventory(results, input_dict, nornir_session):
     """ Rebuild inventory file from CDP output on core switches """
+
     DOMAIN_NAME_1 = config("DOMAIN_NAME_1")
     DOMAIN_NAME_2 = config("DOMAIN_NAME_2")
     output_dict = {}
