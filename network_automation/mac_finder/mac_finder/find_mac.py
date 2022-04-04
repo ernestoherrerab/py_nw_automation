@@ -1,47 +1,81 @@
 #! /usr/bin/env python
 """
-Define Access Device Class"""
-
+Script to find MAC addresses"""
+import sys
+sys.dont_write_bytecode = True
 import re
-from DeviceCore import DeviceCore
-from DeviceAccess import DeviceAccess
-from DeviceAccessNxos import DeviceAccessNxos
+from network_automation.mac_finder.mac_finder.DeviceCore import DeviceCore
+from network_automation.mac_finder.mac_finder.DeviceAccess import DeviceAccess
+from network_automation.mac_finder.mac_finder.DeviceAccessNxos import DeviceAccessNxos
 
-def main():
-
-    ### TMP VARIABLES ###
-    find_ip = "10.45.31.51"
-    hostname = "cph-as01"
+def find_mac(hostname, host_ip, find_ip, username, password):
+    """
+    Searches for a MAC address based on a given IP.
+    """
+    ### VARIABLES ###
     host_type = re.findall(r'^\w+-([a-z]+|[A-Z]+)', hostname)
     host_type = host_type[0].lower()
-    host_ip = "10.45.225.50"
-    username = "adminehb"
-    password = "3lM@t@d104574"
     loop_break = True
-    nos_type = 'ios'
-    mac_address =  "6012.8bd3.5125"
-    vlan = "Vlan27"
-
-    
-    if host_type == "cs":
-        core_dev = DeviceCore(host_ip, username, password)
-        core_output = core_dev.get_data()
-        arp_output = core_dev.arp_to_mac(core_output, find_ip)
-        mac_if = core_dev.mac_to_if(arp_output[0], arp_output[1], core_output)
-        if mac_if[1] == False:
-            print(f"The MAC is found on interface {mac_if[0]} on switch {hostname}")
-        else:
-            pass
-    elif host_type == "as" and nos_type =="nxos":
-        access_dev = DeviceAccessNxos(host_ip, username, password)
-        access_output = access_dev.get_data()
-        mac_if = access_dev.mac_to_if(mac_address, vlan, access_output)
-    elif host_type == "as" and nos_type == "ios":
-        access_dev = DeviceAccess(host_ip, username, password)
-        access_output = access_dev.get_data()
-        mac_if = access_dev.mac_to_if(mac_address, vlan, access_output)
-        print(mac_if)
-        
-
-if __name__ == '__main__':
-    main()
+ 
+    while loop_break == True:
+        if host_type == "cs":
+            core_dev = DeviceCore(host_ip, username, password)
+            core_output = core_dev.get_data()
+            mac_add, vlan = core_dev.arp_to_mac(core_output, find_ip)
+            neighbor_ip, nos_type, neighbor_name = core_dev.mac_to_if(mac_add, vlan, core_output) 
+            if neighbor_name == None:
+                result = f"The MAC is found on interface {neighbor_ip} on switch {hostname}"
+                print(f"The MAC is found on interface {neighbor_ip} on switch {hostname}")
+                loop_break = False
+                return result
+            else:
+                host_ip = neighbor_ip
+                hostname = neighbor_name
+                host_type = re.findall(r'^\w+-([a-z]+|[A-Z]+)', hostname)
+                host_type = host_type[0].lower()
+                if "NX-OS" in nos_type:
+                    nos_type = "nxos"
+                    print(f"Neighbor: {hostname}, NOS: {nos_type} is type: {host_type}")
+                else:
+                    nos_type = "ios"  
+                    print(f"Neighbor: {hostname}, NOS: {nos_type} is type: {host_type}")
+        elif nos_type =="nxos":
+            access_dev = DeviceAccessNxos(host_ip, username, password)
+            access_output = access_dev.get_data()
+            neighbor_ip, nos_type, neighbor_name = access_dev.mac_to_if(mac_add, vlan, access_output)
+            if neighbor_name == None:
+                result = f"The MAC is found on interface {neighbor_ip} on switch {hostname}"
+                print(f"The MAC is found on interface {neighbor_ip} on switch {hostname}")
+                loop_break = False
+                return result
+            else:
+                host_ip = neighbor_ip
+                hostname = neighbor_name
+                host_type = re.findall(r'^\w+-([a-z]+|[A-Z]+)', hostname)
+                host_type = host_type[0].lower()
+                if "NX-OS" in nos_type:
+                    nos_type = "nxos"
+                    print(f"Neighbor: {hostname}, NOS: {nos_type} is type: {host_type}")
+                else:
+                    nos_type = "ios"  
+                    print(f"Neighbor: {hostname}, NOS: {nos_type} is type: {host_type}")
+        elif nos_type == "ios":
+            access_dev = DeviceAccess(host_ip, username, password)
+            access_output = access_dev.get_data()
+            neighbor_ip, nos_type, neighbor_name = access_dev.mac_to_if(mac_add, vlan, access_output)
+            if neighbor_name == None:
+                result = f"The MAC is found on interface {neighbor_ip} on switch {hostname}"
+                print(f"The MAC is found on interface {neighbor_ip} on switch {hostname}")
+                loop_break = False
+                return result
+            else:
+                host_ip = neighbor_ip
+                hostname = neighbor_name
+                host_type = re.findall(r'^\w+-([a-z]+|[A-Z]+)', hostname)
+                host_type = host_type[0].lower()
+                if "NX-OS" in nos_type:
+                    nos_type = "nxos"
+                    print(f"Neighbor: {hostname}, NOS: {nos_type} is type: {host_type}")
+                else:
+                    nos_type = "ios"  
+                    print(f"Neighbor: {hostname}, NOS: {nos_type} is type: {host_type}")
