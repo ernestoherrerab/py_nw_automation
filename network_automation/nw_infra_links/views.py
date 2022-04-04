@@ -33,7 +33,6 @@ MAA_VSPHERE_URL=config("MAA_VSPHERE_URL")
 ABE_VSPHERE_URL=config("ABE_VSPHERE_URL")
 SLC_VSPHERE_URL=config("SLC_VSPHERE_URL")
 
-
 ### VIEW TO CREATE DATA ###
 @nw_infra_links.route("/home")
 def home():
