@@ -10,19 +10,19 @@ from DeviceAccessNxos import DeviceAccessNxos
 def main():
 
     ### TMP VARIABLES ###
-    find_ip = ""
-    hostname = ""
+    find_ip = "10.45.31.51"
+    hostname = "cph-as01"
     host_type = re.findall(r'^\w+-([a-z]+|[A-Z]+)', hostname)
     host_type = host_type[0].lower()
-    host_ip = ""
-    username = ""
-    password = ""
+    host_ip = "10.45.225.50"
+    username = "adminehb"
+    password = "3lM@t@d104574"
     loop_break = True
-    nos_type = ''
-    mac_address =  ""
-    vlan = ""
+    nos_type = 'ios'
+    mac_address =  "6012.8bd3.5125"
+    vlan = "Vlan27"
 
-
+    
     if host_type == "cs":
         core_dev = DeviceCore(host_ip, username, password)
         core_output = core_dev.get_data()
