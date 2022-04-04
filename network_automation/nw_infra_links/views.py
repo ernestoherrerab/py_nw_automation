@@ -32,8 +32,6 @@ CPH_VSPHERE_URL=config("CPH_VSPHERE_URL")
 MAA_VSPHERE_URL=config("MAA_VSPHERE_URL")
 ABE_VSPHERE_URL=config("ABE_VSPHERE_URL")
 SLC_VSPHERE_URL=config("SLC_VSPHERE_URL")
-AU_VSPHERE_URL=config("AU_VSPHERE_URL")
-
 
 ### VIEW TO CREATE DATA ###
 @nw_infra_links.route("/home")
@@ -62,7 +60,6 @@ def home():
                 CPH_VSPHERE_URL=CPH_VSPHERE_URL,
                 MAA_VSPHERE_URL=MAA_VSPHERE_URL,
                 ABE_VSPHERE_URL=ABE_VSPHERE_URL,
-                SLC_VSPHERE_URL=SLC_VSPHERE_URL,
-                AU_VSPHERE_URL=AU_VSPHERE_URL
+                SLC_VSPHERE_URL=SLC_VSPHERE_URL
             )
 

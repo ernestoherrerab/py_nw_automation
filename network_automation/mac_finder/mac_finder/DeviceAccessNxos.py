@@ -3,7 +3,7 @@
 Define Child Access Device Class For NXOS Devices
 """
 from scrapli.driver.core import NXOSDriver
-from Device import Device
+from network_automation.mac_finder.mac_finder.Device import Device
 
 class DeviceAccessNxos(Device):
     def get_data(self):
@@ -36,17 +36,19 @@ class DeviceAccessNxos(Device):
         #### CHECK THE CDP NEIGHBOR ###
         for neighbor_if in output_dict["show_cdp_neighbors_detail"]["index"].values():
             if interface[0] == neighbor_if["local_interface"]:
-                neighbor = neighbor_if["device_id"]
-                neighbor = neighbor.split(".")
-                neighbor = neighbor[0]
+                neighbor_name = neighbor_if["device_id"]
+                neighbor_name = neighbor_name.split(".")
+                neighbor_name = neighbor_name[0]
                 if neighbor_if["management_addresses"] != {}:
                     neighbor_ip = list(neighbor_if["management_addresses"].keys())
                     neighbor_ip = neighbor_ip[0]
                     neighbor_nos = neighbor_if["software_version"]
-                    return neighbor_ip, neighbor_nos
+                    return neighbor_ip, neighbor_nos, neighbor_name
                 elif neighbor_if["entry_addresses"] != {}:
                     neighbor_ip = list(neighbor_if["entry_addresses"].keys())
                     neighbor_ip = neighbor_ip[0]
                     neighbor_nos = neighbor_if["software_version"]
-                    return neighbor_ip, neighbor_nos
-        return interface[0], False
+                    return neighbor_ip, neighbor_nos, neighbor_name
+        neighbor_nos= None
+        neighbor_name= None
+        return interface[0], False, neighbor_name
