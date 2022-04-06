@@ -1,68 +1,82 @@
-The following guide has been followed with some modifications to allow for the reverse proxy:
-https://dev.to/thetrebelcc/how-to-run-a-flask-app-over-https-using-waitress-and-nginx-2020-235c
+# NGINX Reverse Proxy Settings
 
-You can skip the steps until you reach the section that says: "Our Web Server rules will be at".
-There is no need to delete the default files.
+The following guide has been followed with some modifications to allow for the [Reverse proxy](https://dev.to/thetrebelcc/how-to-run-a-flask-app-over-https-using-waitress-and-nginx-2020-235c)
 
-The following are the settings that are used in the /etc/nginx/sites-available/"your_domain" file
--------------------------------------------------------------------------------------------------
-server {
-        listen 443 ssl;
-        listen [::]:443 ssl;
-        include snippets/self-signed.conf;
-        include snippets/ssl-params.conf;
+**You can skip the steps until you reach the section that says: *"Our Web Server rules will be at"*.
+There is no need to delete the default files.**
 
-        root /var/www/your_domain/html;
-        index index.html index.htm index.nginx-debian.html;
+## Settings
 
-        server_name devbox_name.your_domain;
+Below are the settings that are used for NGINX which can be edited by:
 
-        location / {
+    nano /etc/nginx/sites-available/"your_domain"
 
-            proxy_pass http://devbox_ip_address:8080;
-            proxy_set_header X-Real-IP $remote_addr;
-                
-        }
-}
+---
 
-server {
-    listen 80;
-    listen [::]:80;
+    server {
+            listen 443 ssl;
+            listen [::]:443 ssl;
+            include snippets/self-signed.conf;
+            include snippets/ssl-params.conf;
 
-    server_name devbox_name.your_domain;
+            root /var/www/your_domain/html;
+            index index.html index.htm index.nginx-debian.html;
 
-    return 302 https://$server_name$request_uri;
-}
+            server_name devbox_name.your_domain;
 
--------------------------------------------------------------------------------------------------
-Finally restart the service with sudo systemctl status nginx.
+            location / {
 
-Verify that the /etc/nginx/sites-enabled/"your_domain" looks like this too (it should since we created a simlink)
--------------------------------------------------------------------------------------------------
-server {
-        listen 443 ssl;
-        listen [::]:443 ssl;
-        include snippets/self-signed.conf;
-        include snippets/ssl-params.conf;
+                proxy_pass http://devbox_ip_address:8080;
+                proxy_set_header X-Real-IP $remote_addr;
 
-        root /var/www/your_domain/html;
-        index index.html index.htm index.nginx-debian.html;
+            }
+    }
+
+    server {
+        listen 80;
+        listen [::]:80;
 
         server_name devbox_name.your_domain;
 
-        location / {
+        return 302 https://$server_name$request_uri;
+    }
 
-            proxy_pass http://devbox_ip_address:8080;
-            proxy_set_header X-Real-IP $remote_addr;
-                
-        }
-}
+---
 
-server {
-    listen 80;
-    listen [::]:80;
+Finally restart the service:
 
-    server_name devbox_name.your_domain;
+    sudo systemctl status nginx.
 
-    return 302 https://$server_name$request_uri;
-}
+Verify that the below file looks like this too (it should since we created a simlink during the setup):
+
+    /etc/nginx/sites-enabled/"your_domain" 
+
+---
+
+    server {
+            listen 443 ssl;
+            listen [::]:443 ssl;
+            include snippets/self-signed.conf;
+            include snippets/ssl-params.conf;
+
+            root /var/www/your_domain/html;
+            index index.html index.htm index.nginx-debian.html;
+
+            server_name devbox_name.your_domain;
+
+            location / {
+
+                proxy_pass http://devbox_ip_address:8080;
+                proxy_set_header X-Real-IP $remote_addr;
+
+            }
+    }
+
+    server {
+        listen 80;
+        listen [::]:80;
+
+        server_name devbox_name.your_domain;
+
+        return 302 https://$server_name$request_uri;
+    }

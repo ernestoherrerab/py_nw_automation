@@ -4,13 +4,13 @@ Script to add MAC addresses to the ISE
 Guest MAB ID Group
 """
 import sys
-sys.dont_write_bytecode = True
 import csv
 from decouple import config
 from pathlib import Path
 import urllib3
 import network_automation.ise_mac_bypass.mac_bypass.api_calls as api
 
+sys.dont_write_bytecode = True
 
 def csv_to_dict(filename: str) -> dict:
     """
@@ -22,6 +22,7 @@ def csv_to_dict(filename: str) -> dict:
     return data
 
 def del_files():
+    """ Delete CSV Files """
     csv_directory = Path("network_automation/ise_mac_bypass/mac_bypass/csv_data/")
     try:
         for hostname_file in csv_directory.iterdir():
@@ -33,16 +34,17 @@ def del_files():
         print(e)
 
 def mac_bypass(username, password, manual_data=None):
+    """ Main Function"""
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    
-    ### VARIABLES ### 
+
+    ### VARIABLES ###
     src_dir = Path("network_automation/ise_mac_bypass/mac_bypass/csv_data/")
     URL = config("ISE_URL_VAR")
     GUEST_MAB_ID = config("ISE_GUEST_MAB_ID")
     mac_list = []
     endpoint_list = []
-    post_results = set()  
-    
+    post_results = set()
+
     ### EVALUATE IF DATA COMES FROM FILE OR MANUAL INPUT ###
     dir_contents = any(src_dir.iterdir())
     if dir_contents:
@@ -64,16 +66,23 @@ def mac_bypass(username, password, manual_data=None):
             print("Searching Device Type Profile ID...")
             endpoint_data["ERSEndPoint"]["staticProfileAssignment"] = "true"
             profile_name = mac["Device Type"]
-            profiles_data = api.get_operations(f"profilerprofile?filter=name.EQ.{profile_name}", URL, username, password)   
+            profiles_data = api.get_operations(
+                f"profilerprofile?filter=name.EQ.{profile_name}",
+                URL,
+                username,
+                password,
+            )
             if profiles_data == 401:
-                del_files()     
+                del_files()
                 return profiles_data
             for profile in profiles_data["SearchResult"]["resources"]:
-                endpoint_data["ERSEndPoint"]["profileId"] = profile["id"]    
+                endpoint_data["ERSEndPoint"]["profileId"] = profile["id"]
         endpoint_list.append(endpoint_data)
-            
-    ### GET ALL MACS IN THE GUEST-MAB GROUP TO REMOVE ALREADY EXISTING ENTRIES ###  
-    guest_mab = api.get_operations(f"endpoint?filter=groupId.EQ.{GUEST_MAB_ID}", URL, username, password)
+
+    ### GET ALL MACS IN THE GUEST-MAB GROUP TO REMOVE ALREADY EXISTING ENTRIES ###
+    guest_mab = api.get_operations(
+        f"endpoint?filter=groupId.EQ.{GUEST_MAB_ID}", URL, username, password
+    )
     if guest_mab == 401:
         del_files()
         return guest_mab
@@ -82,9 +91,9 @@ def mac_bypass(username, password, manual_data=None):
         if guest_mac["name"] in mac_list:
             print(f'{guest_mac["name"]} exists already...removing...')
             guest_mac_id = guest_mac["id"]
-            api.del_operations(f'endpoint/{guest_mac_id}', URL, username, password)         
+            api.del_operations(f"endpoint/{guest_mac_id}", URL, username, password)
 
-    ### ADD ENDPOINTS FROM CSV ###        
+    ### ADD ENDPOINTS FROM CSV ###
     for endpoint in endpoint_list:
         mac_address = endpoint["ERSEndPoint"]["mac"]
         print(f"Adding MAC address {mac_address} to the Guest-MAB endpoint group")
@@ -92,11 +101,11 @@ def mac_bypass(username, password, manual_data=None):
         post_results.add(post_result)
     del_files()
     return post_results
-    
-def del_endpoints(username, password, manual_data=None):
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)        
 
-    ### VARIABLES ### 
+def del_endpoints(username, password, manual_data=None):
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    ### VARIABLES ###
     src_dir = Path("network_automation/ise_mac_bypass/mac_bypass/csv_data/")
     URL = config("ISE_URL_VAR")
     GUEST_MAB_ID = config("ISE_GUEST_MAB_ID")
@@ -107,16 +116,18 @@ def del_endpoints(username, password, manual_data=None):
     dir_contents = any(src_dir.iterdir())
     if dir_contents:
         for csv_file in src_dir.iterdir():
-                filename = csv_file
-                mac_data = csv_to_dict(filename)
-                for mac_add in mac_data:
-                    mac = mac_add["MAC Address"]
-                    mac_list.append(mac)
+            filename = csv_file
+            mac_data = csv_to_dict(filename)
+            for mac_add in mac_data:
+                mac = mac_add["MAC Address"]
+                mac_list.append(mac)
     elif not dir_contents:
         mac_list = manual_data
 
     ### EVALUATE IF INPUT DATA EXISTS AND DELETE IT ###
-    guest_mab = api.get_operations(f"endpoint?filter=groupId.EQ.{GUEST_MAB_ID}", URL, username, password)
+    guest_mab = api.get_operations(
+        f"endpoint?filter=groupId.EQ.{GUEST_MAB_ID}", URL, username, password
+    )
     if guest_mab == 401:
         del_files()
         return guest_mab
@@ -125,7 +136,9 @@ def del_endpoints(username, password, manual_data=None):
         if guest_mac["name"] in mac_list:
             print(f'{guest_mac["name"]} does exist...deleting...')
             guest_mac_id = guest_mac["id"]
-            del_result = api.del_operations(f'endpoint/{guest_mac_id}', URL, username, password) 
+            del_result = api.del_operations(
+                f"endpoint/{guest_mac_id}", URL, username, password
+            )
             del_results.add(del_result)
     del_files()
     return del_results

@@ -17,7 +17,8 @@ xmltodict==0.12.0
 yamllint==1.26.3
 
 # To install: pip3 install
-
+# To install all libraries listed here: pip3 install -r requirements.txt
+# I suggest you create a virtua environment prior to this as shown in the documentation folder.
 ### IN ADDITION TO THE ABOVE PYTHON LIBRARIES, THE BELOW MUST ALSO BE INSTALLED VIA APT-GET INSTALL OR APT-GET
 # python3-pip
 # python3-venv

@@ -3,36 +3,41 @@
 Script to graph cdp neighborships.
 """
 import sys
+
 sys.dont_write_bytecode = True
 from decouple import config
 from pathlib import Path
 import ipaddress
 from nornir import InitNornir
 from nornir_scrapli.tasks import send_commands
-from yaml import dump,load, SafeDumper
+from yaml import dump, load, SafeDumper
 from yaml.loader import FullLoader
 import network_automation.topology_builder.graphviz.graph_builder as graph
 from tqdm import tqdm
 
 dev_auth_fail_list = set()
 
+
 class NoAliasDumper(SafeDumper):
-    """ USED FOR ERROR HANDLING AND FORMATTING """
-    
+    """USED FOR ERROR HANDLING AND FORMATTING"""
+
     def ignore_aliases(self, data):
         return True
+
     def increase_indent(self, flow=False, indentless=False):
         return super(NoAliasDumper, self).increase_indent(flow, False)
 
+
 def del_files():
-    """ CLEANS UP HOSTS FILES """
+    """CLEANS UP HOSTS FILES"""
 
     host_file = Path("network_automation/mac_finder/mac_finder/inventory/hosts.yml")
     if host_file.exists():
         Path.unlink(host_file)
 
+
 def build_sites(results, nornir_session):
-    dict_output = {} 
+    dict_output = {}
     for result in results.keys():
         host = str(nornir_session.inventory.hosts[result])
         site_id = host.split("-")
@@ -40,10 +45,13 @@ def build_sites(results, nornir_session):
         dict_output[site_id] = {}
     return dict_output
 
-def init_nornir(username, password):
-    """ INITIALIZES NORNIR SESSIONS """
 
-    nr = InitNornir(config_file="network_automation/mac_finder/mac_finder/config/config.yml")
+def init_nornir(username, password):
+    """INITIALIZES NORNIR SESSIONS"""
+
+    nr = InitNornir(
+        config_file="network_automation/mac_finder/mac_finder/config/config.yml"
+    )
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
     with tqdm(total=len(nr.inventory.hosts)) as progress_bar:
@@ -54,23 +62,27 @@ def init_nornir(username, password):
         for dev in auth_fail_list:
             dev_auth_fail_list.add(dev)
         print(f"Authentication Failed: {auth_fail_list}")
-        print(f"{len(list(results.failed_hosts.keys()))}/{len(nr.inventory.hosts)} devices failed authentication...")
+        print(
+            f"{len(list(results.failed_hosts.keys()))}/{len(nr.inventory.hosts)} devices failed authentication..."
+        )
     return nr, results, dev_auth_fail_list
+
 
 def get_data_task(task, progress_bar):
     """
     Task to send commands to Devices via Nornir/Scrapli
     """
 
-    commands =["show cdp neighbors detail"]
+    commands = ["show cdp neighbors detail"]
     data_results = task.run(task=send_commands, commands=commands)
     progress_bar.update()
     for data_result in data_results:
         for data, command in zip(data_result.scrapli_response, commands):
-            task.host[command.replace(" ","_")] = data.genie_parse_output()
+            task.host[command.replace(" ", "_")] = data.genie_parse_output()
+
 
 def rebuild_inventory(results, input_dict, nornir_session):
-    """ Rebuild inventory file from CDP output on core switches """
+    """Rebuild inventory file from CDP output on core switches"""
 
     DOMAIN_NAME_1 = config("DOMAIN_NAME_1")
     DOMAIN_NAME_2 = config("DOMAIN_NAME_2")
@@ -82,20 +94,57 @@ def rebuild_inventory(results, input_dict, nornir_session):
         input_dict[site_id][host] = {}
         input_dict[site_id][host] = dict(nornir_session.inventory.hosts[result])
         if input_dict[site_id][host] != {}:
-            for index in input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"]:
-                device_id = input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][index]["device_id"].lower().replace(DOMAIN_NAME_1, '').replace(DOMAIN_NAME_2, '').split("(")
+            for index in input_dict[site_id][host]["show_cdp_neighbors_detail"][
+                "index"
+            ]:
+                device_id = (
+                    input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                        index
+                    ]["device_id"]
+                    .lower()
+                    .replace(DOMAIN_NAME_1, "")
+                    .replace(DOMAIN_NAME_2, "")
+                    .split("(")
+                )
                 device_id = device_id[0]
                 if "management_addresses" != {}:
-                    device_ip = list(input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][index]["management_addresses"].keys())
-                if "entry_addresses" in input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][index]:
-                    device_ip = list(input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][index]["entry_addresses"].keys())
-                if "interface_addresses" in input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][index]:
-                    device_ip = list(input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][index]["interface_addresses"].keys())
+                    device_ip = list(
+                        input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                            index
+                        ]["management_addresses"].keys()
+                    )
+                if (
+                    "entry_addresses"
+                    in input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                        index
+                    ]
+                ):
+                    device_ip = list(
+                        input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                            index
+                        ]["entry_addresses"].keys()
+                    )
+                if (
+                    "interface_addresses"
+                    in input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                        index
+                    ]
+                ):
+                    device_ip = list(
+                        input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                            index
+                        ]["interface_addresses"].keys()
+                    )
                 if device_ip:
                     device_ip = device_ip[0]
                 output_dict[device_id] = {}
                 output_dict[device_id]["hostname"] = device_ip
-                if "NX-OS" in input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][index]["software_version"]:
+                if (
+                    "NX-OS"
+                    in input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                        index
+                    ]["software_version"]
+                ):
                     output_dict[device_id]["groups"] = ["nxos_devices"]
                 else:
                     output_dict[device_id]["groups"] = ["ios_devices"]
@@ -108,10 +157,13 @@ def rebuild_inventory(results, input_dict, nornir_session):
             output_dict.pop(key, None)
     return output_dict
 
+
 def graph_build(username, password):
     ### PROGRAM VARIABLES ###
-    tmp_dict_output = {} 
-    inv_path_file = Path("network_automation/topology_builder/graphviz/inventory/") / "hosts.yml"   
+    tmp_dict_output = {}
+    inv_path_file = (
+        Path("network_automation/topology_builder/graphviz/inventory/") / "hosts.yml"
+    )
     diagrams_path = Path("network_automation/topology_builder/graphviz/diagrams/")
     cdp_tuples_list = []
     diagrams_file_list = []
@@ -128,7 +180,7 @@ def graph_build(username, password):
     ### CREATE SITE ID DICTIONARIES ###
     tmp_dict_output = build_sites(results, nr)
 
-    ### REBUILD INVENTORY FILE BASED ON THE NEIGHBOR OUTPUT ###    
+    ### REBUILD INVENTORY FILE BASED ON THE NEIGHBOR OUTPUT ###
     host_dict = rebuild_inventory(results, tmp_dict_output, nr)
     host_yaml = dump(host_dict, default_flow_style=False)
     print("Rebuild FIRST Inventory ...")
@@ -147,7 +199,7 @@ def graph_build(username, password):
     ### MERGE YAML OBJECTS TO UPDATE INVENTORY FILE ###
     print("Rebuild SECOND Inventory ...")
     with open(inv_path_file) as f:
-        inv_dict = load(f, Loader=FullLoader )
+        inv_dict = load(f, Loader=FullLoader)
     inv_tmp = {**sec_host_dict, **inv_dict}
     yaml_inv = dump(inv_tmp, default_flow_style=False)
     with open(inv_path_file, "w+") as open_file:
@@ -155,22 +207,22 @@ def graph_build(username, password):
 
     ### THIRD LEVEL ###
     print("Initializing connections to devices in THIRD inventory file...")
-    nr, results, dev_auth_fail_list = init_nornir(username, password)  
-    
+    nr, results, dev_auth_fail_list = init_nornir(username, password)
+
     ### CREATE SITE ID DICTIONARIES ###
     print("Parsing generated output...")
     tmp_dict_output = build_sites(results, nr)
     third_host_dict = rebuild_inventory(results, tmp_dict_output, nr)
     print("Rebuild THIRD Inventory ...")
     with open(inv_path_file) as f:
-        inv_dict = load(f, Loader=FullLoader )
+        inv_dict = load(f, Loader=FullLoader)
     inv_final = {**third_host_dict, **inv_dict}
     yaml_inv = dump(inv_final, default_flow_style=False)
     with open(inv_path_file, "w+") as open_file:
         open_file.write("\n" + yaml_inv)
-    
+
     print("Initializing connections to devices in FINAL inventory file...")
-    nr, results, dev_auth_fail_list = init_nornir(username, password)      
+    nr, results, dev_auth_fail_list = init_nornir(username, password)
     ### MERGE YAML OBJECTS TO UPDATE INVENTORY FILE ###
     print("Parse data from FINAL Inventory")
     inv_dict_output = build_sites(results, nr)
@@ -183,12 +235,16 @@ def graph_build(username, password):
     ### CREATE TUPPLES LIST ###
     print("Generating Graph Data...")
     for site in inv_dict_output:
-        cdp_tuple_list = []  
+        cdp_tuple_list = []
         for host in inv_dict_output[site]:
             neighbor_tuple = ()
             if inv_dict_output[site][host] != {}:
-                for index in inv_dict_output[site][host]["show_cdp_neighbors_detail"]["index"]:
-                    neighbor = inv_dict_output[site][host]["show_cdp_neighbors_detail"]["index"][index]["device_id"].split(".")
+                for index in inv_dict_output[site][host]["show_cdp_neighbors_detail"][
+                    "index"
+                ]:
+                    neighbor = inv_dict_output[site][host]["show_cdp_neighbors_detail"][
+                        "index"
+                    ][index]["device_id"].split(".")
                     neighbor = neighbor[0]
                     hostname = host.split("(")
                     hostname = hostname[0]
@@ -209,4 +265,3 @@ def graph_build(username, password):
         graph.gen_graph(f"{site_id}_site", cdp_tuple, site_path)
     del_files()
     return dev_auth_fail_list, diagrams_file_list
-

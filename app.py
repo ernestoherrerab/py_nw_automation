@@ -4,26 +4,26 @@ Executes the main app
 """
 import argparse
 import sys
-sys.dont_write_bytecode = True
 from decouple import config
 from waitress import serve
 from network_automation import app
+
+sys.dont_write_bytecode = True
 
 def parse_args():
     """
     Process the command line arguments
     """
     parser = argparse.ArgumentParser(
-        description = "Type -e To select if it is a development or production environment\n"
-                        " The options are dev and prod"
-        )
+        description="Type -e To select if it is a development or production environment\n"
+        " The options are dev and prod"
+    )
     required_argument = parser.add_argument_group("Required Arguments")
     required_argument.add_argument(
-        "-e", "--environment", help = "environment", default="stdout", required=True
+        "-e", "--environment", help="environment", default="stdout", required=True
     )
     args = parser.parse_args()
     return args
-
 
 ### SERVER ENVIRONMENTAL VARIABLES ###
 FLASK_SERVER = config("FLASK_SERVER")

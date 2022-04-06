@@ -3,13 +3,14 @@
 Initializes the main app and the sub apps
 """
 import sys
-sys.dont_write_bytecode = True
 from decouple import config
 from flask import Flask, render_template, redirect
 from network_automation.ise_mac_bypass.views import ise_mac_bypass
 from network_automation.nw_infra_links.views import nw_infra_links
 from network_automation.mac_finder.views import mac_finder
 from network_automation.topology_builder.views import topology_builder
+
+sys.dont_write_bytecode = True
 
 FLASK_KEY = config("FLASK_SECRET_KEY")
 
