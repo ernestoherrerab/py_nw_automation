@@ -50,7 +50,7 @@ def init_nornir(username, password):
     """INITIALIZES NORNIR SESSIONS"""
 
     nr = InitNornir(
-        config_file="network_automation/mac_finder/mac_finder/config/config.yml"
+        config_file="network_automation/topology_builder/graphviz/config/config.yml"
     )
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
