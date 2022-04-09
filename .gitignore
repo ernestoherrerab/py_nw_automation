@@ -11,3 +11,4 @@ network_automation/topology_builder/graphviz/diagrams/*
 network_automation/topology_builder/graphviz/nornir.log
 network_automation/topology_builder/graphviz/hosts.yml
 nornir.log
+frontend_service.sh

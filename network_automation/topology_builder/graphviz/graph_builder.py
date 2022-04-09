@@ -19,7 +19,7 @@ def gen_graph(name, source_list, filename):
     """
     dot = Digraph(name, format="png")
     dot.attr("node", shape="box")
-    dot.attr("node", image="./images/vEOS_img.png")
+    dot.attr("node", image="./images/l3_sw.png")
     dot.attr("edge", arrowhead="none")
     dot.format = "png"
     dot.graph_attr["splines"] = "ortho"
