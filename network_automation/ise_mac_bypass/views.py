@@ -19,7 +19,6 @@ template_dir = "ise_mac_bypass"
 def home():
     return render_template(f"{template_dir}/home.html")
 
-
 @ise_mac_bypass.route("/csv_upload")
 def csv_upload():
     Path("network_automation/ise_mac_bypass/mac_bypass/csv_data/").mkdir(exist_ok=True)

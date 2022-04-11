@@ -3,7 +3,7 @@
 Creates the views (routes) for the secondary app
 """
 from decouple import config
-from flask import render_template, request, current_app, session, send_file
+from flask import render_template, redirect, request, current_app, session, send_file
 from pathlib import Path
 from werkzeug.utils import secure_filename
 from yaml import dump
@@ -21,17 +21,18 @@ template_dir = "topology_builder"
 def home():
     return render_template(f"{template_dir}/home.html")
 
+@topology_builder.route("/")
+def home_redirect():
+    return redirect("/home")
 
 @topology_builder.route("/yml_upload")
 def yml_upload():
     Path(GRAPHVIZ_UPLOAD_DIR).mkdir(exist_ok=True)
     return render_template(f"{template_dir}/yml_upload.html")
 
-
 @topology_builder.route("/manual_upload", methods=["GET", "POST"])
 def manual_upload():
     return render_template(f"{template_dir}/manual_upload.html")
-
 
 @topology_builder.route("/tacacs_login", methods=["GET", "POST"])
 def tacacs_login():
@@ -71,52 +72,42 @@ def tacacs_login():
                 open_file.write(host_yaml)
             return render_template(f"{template_dir}/tacacs_login.html", host=host)
 
-
 @topology_builder.route("/tacacs_auth", methods=["POST", "GET"])
 def tacacs_auth():
     dev_failed = []
-    diagrams_list = []
     if request.method == "POST":
         if "username" in request.form:
             username = request.form["username"]
             password = request.form["password"]
-            dev_failed, diagrams_list = do_graph.graph_build(username, password)
-            session["diagrams_list"] = diagrams_list
+            dev_failed, diagrams = do_graph.graph_build(username, password)
+            session["diagrams"] = diagrams
             return render_template(
                 f"{template_dir}/graph_upload.html",
                 dev_failed=dev_failed,
-                diagrams_list=diagrams_list,
+                diagrams=diagrams
             )
-
 
 @topology_builder.route("/download_diag_file")
 def download_diag_file():
-    diagram_file = session.get("diagrams_list")
-    diagram_file = diagram_file[0] + ".png"
+    diagram_file = session.get("diagrams")
+    diagram_file = diagram_file + ".png"
     diagram_path = GRAPHVIZ_DOWNLOAD_DIR / diagram_file
     return send_file(str(diagram_path), as_attachment=True)
 
-
 @topology_builder.route("/download_dot_file")
 def download_dot_file():
-    dot_file = session.get("diagrams_list")
-    dot_file = dot_file[0]
+    dot_file = session.get("diagrams")
     dot_path = GRAPHVIZ_DOWNLOAD_DIR / dot_file
     return send_file(str(dot_path), as_attachment=True)
 
-
 ### ERROR & SUCCESS VIEWS ###
-
-
 @topology_builder.route("/graph_upload")
 def graph_upload():
     return render_template(f"{template_dir}/graph_upload.html")
 
-
 @topology_builder.route("/tacacs_auth_error")
 def tacacs_auth_error():
     return render_template(f"{template_dir}/tacacs_auth_error.html")
-
 
 @topology_builder.route("/upload_error")
 def upload_error():

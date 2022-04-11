@@ -65,29 +65,20 @@ def del_files():
     if host_file.exists():
         Path.unlink(host_file)
 
-def build_sites(results, nornir_session):
-    """ Build site dictionary"""
-    dict_output = {}
-    for result in results.keys():
-        host = str(nornir_session.inventory.hosts[result])
-        site_id = host.split("-")
-        site_id = site_id[0]
-        dict_output[site_id] = {}
-    return dict_output
-
 def build_inventory(username, password):
     """Rebuild inventory file from CDP output on core switches"""
 
     ### PROGRAM VARIABLES ###
     DOMAIN_NAME_1 = config("DOMAIN_NAME_1")
     DOMAIN_NAME_2 = config("DOMAIN_NAME_2")
+    input_dict = {}
     output_dict = {}
     inv_path_file = (
         Path("network_automation/topology_builder/graphviz/inventory/") / "hosts.yml"
    )
     levels = 1
 
-    while levels < 4:
+    while levels < 5:
         ### INITIALIZE NORNIR ###
         """
         Fetch sent command data, format results, and put them in a dictionary variable
@@ -95,24 +86,21 @@ def build_inventory(username, password):
         print("Initializing connections to devices...")
         nr, results, _ = init_nornir(username, password)
 
-        print("Parsing generated output...")
-        ### CREATE SITE ID DICTIONARIES ###
-        input_dict = build_sites(results, nr)
-
         ### REBUILD INVENTORY FILE BASED ON THE NEIGHBOR OUTPUT ###
         print(f"Rebuilding Inventory num: {levels}")
         for result in results.keys():
             host = str(nr.inventory.hosts[result])
-            site_id = host.split("-")
-            site_id = site_id[0]
-            input_dict[site_id][host] = {}
-            input_dict[site_id][host] = dict(nr.inventory.hosts[result])
-            if input_dict[site_id][host] != {}:
-                for index in input_dict[site_id][host]["show_cdp_neighbors_detail"][
+            if levels == 1:
+                site_id = host.split("-")
+                site_id = site_id[0]
+            input_dict[host] = {}
+            input_dict[host] = dict(nr.inventory.hosts[result])
+            if input_dict[host] != {}:
+                for index in input_dict[host]["show_cdp_neighbors_detail"][
                     "index"
                 ]:
                     device_id = (
-                        input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                        input_dict[host]["show_cdp_neighbors_detail"]["index"][
                             index
                         ]["device_id"]
                         .lower()
@@ -123,29 +111,29 @@ def build_inventory(username, password):
                     device_id = device_id[0]
                     if "management_addresses" != {}:
                         device_ip = list(
-                            input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                            input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
                             ]["management_addresses"].keys()
                         )
                     if (
                         "entry_addresses"
-                        in input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                        in input_dict[host]["show_cdp_neighbors_detail"]["index"][
                             index
                         ]
                     ):
                         device_ip = list(
-                            input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                            input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
                             ]["entry_addresses"].keys()
                         )
                     if (
                         "interface_addresses"
-                        in input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                        in input_dict[host]["show_cdp_neighbors_detail"]["index"][
                             index
                         ]
                     ):
                         device_ip = list(
-                            input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                            input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
                             ]["interface_addresses"].keys()
                         )
@@ -155,7 +143,7 @@ def build_inventory(username, password):
                     output_dict[device_id]["hostname"] = device_ip
                     if (
                         "NX-OS"
-                        in input_dict[site_id][host]["show_cdp_neighbors_detail"]["index"][
+                        in input_dict[host]["show_cdp_neighbors_detail"]["index"][
                             index
                         ]["software_version"]
                     ):
@@ -177,18 +165,19 @@ def build_inventory(username, password):
         yaml_inv = dump(inv_tmp, default_flow_style=False)
         with open(inv_path_file, "w+") as open_file:
             open_file.write("\n" + yaml_inv)
-        levels += 1       
+        levels += 1    
+    return site_id
     
 def graph_build(username, password):
     """ BUILD GRAPH FROM PARSED CDP DATA """
 
     ### FUNCTION VARIABLES ###
     diagrams_path = Path("network_automation/topology_builder/graphviz/diagrams/")
-    cdp_tuples_list = []
-    diagrams_file_list = []
+    inv_dict_output = {}
 
-    ### REBUILD THE INVENTORY ###
-    build_inventory(username, password)
+    ### BUILD THE INVENTORY ###
+    site_id = build_inventory(username, password)
+    site_id = site_id + "_site"
 
     ### INITIALIZE NORNIR AND GET CDP DATA ###
     print("Initializing connections to devices in FINAL inventory file...")
@@ -196,48 +185,37 @@ def graph_build(username, password):
 
     ### PARSE DATA ###
     print("Parse data from FINAL Inventory")
-    inv_dict_output = build_sites(results, nr)
     for result in results.keys():
         host = str(nr.inventory.hosts[result])
-        site_id = host.split("-")
-        site_id = site_id[0]
-        inv_dict_output[site_id][host] = {}
-        inv_dict_output[site_id][host] = dict(nr.inventory.hosts[result])
+        inv_dict_output[host] = {}
+        inv_dict_output[host] = dict(nr.inventory.hosts[result])
 
     ### CREATE TUPPLES LIST ###
-    print("Generating Graph Data...")
-    for site in inv_dict_output:
-        cdp_tuple_list = []
-        for host in inv_dict_output[site]:
-            neighbor_tuple = ()
-            if inv_dict_output[site][host] != {}:
-                for index in inv_dict_output[site][host]["show_cdp_neighbors_detail"][
+    print("Generating Graph Data...")    
+    cdp_neigh_list = []
+    for host in inv_dict_output:
+        neighbor_list = []
+        if inv_dict_output[host] != {}:
+            for index in inv_dict_output[host]["show_cdp_neighbors_detail"][
+                "index"
+            ]:
+                neighbor = inv_dict_output[host]["show_cdp_neighbors_detail"][
                     "index"
-                ]:
-                    neighbor = inv_dict_output[site][host]["show_cdp_neighbors_detail"][
-                        "index"
-                    ][index]["device_id"].split(".")
-                    neighbor = neighbor[0]
-                    hostname = host.split("(")
-                    hostname = hostname[0]
-                    neighbor_tuple = (hostname, neighbor)
-                    cdp_tuple_list.append(neighbor_tuple)
-        if cdp_tuple_list:
-            cdp_tuples_list.append(cdp_tuple_list)
-    
+                ][index]["device_id"].split(".")
+                neighbor = neighbor[0]
+                hostname = host.split("(")
+                hostname = hostname[0]
+                neighbor_list = [hostname.lower(), neighbor.lower()]
+                cdp_neigh_list.append(neighbor_list)
+
     """    
     Generate Graph
     """
-    
     ### GENERATE GRAPH EDGES CDP NEIGHBORS ###
-    print(f"Generating Diagrams...{diagrams_path}")
-    for cdp_tuple in cdp_tuples_list:
-        site_id = cdp_tuple[0][0].split("-")
-        site_id = site_id[0]
-        site_path = diagrams_path / f"{site_id}_site"
-        diagrams_file_list.append(site_id + "_site")
-        graph.gen_graph(f"{site_id}_site", cdp_tuple, site_path)
+    site_path = diagrams_path / f"{site_id}"
+    print(f"Generating Diagrams...{site_path}")
+    graph.gen_graph(f"{site_id}", cdp_neigh_list, site_path)
     del_files()
-    return dev_auth_fail_list, diagrams_file_list
+    return dev_auth_fail_list, site_id
 
 
