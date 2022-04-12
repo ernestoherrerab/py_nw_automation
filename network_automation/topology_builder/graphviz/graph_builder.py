@@ -6,19 +6,14 @@ Module to add visual description to switches
 from graphviz import Digraph
 import re
 
-def host_list(hosts):
-    host_list = []
-    for result_host in hosts.keys():
-        host_list.append(result_host)
-    return host_list
-
-
 def gen_graph(name, source_list, filename):
     """
     Generate Graph
     """
 
     dot = Digraph(name, format="png")
+    core_dot = Digraph('coregraph')
+    core_dot.graph_attr.update(rank='min')
     dot.attr("edge", arrowhead="none")
     dot.format = "png"
     dot.graph_attr["splines"] = "ortho"
@@ -28,7 +23,7 @@ def gen_graph(name, source_list, filename):
         for node in edges:
             host_type = re.findall(r"^\w+-([a-z]+|[A-Z]+)", node)
             if host_type and host_type[0] == "cs":
-                dot.node(node, image="./images/l3_sw.png", shape="box")
+                core_dot.node(node, image="./images/l3_sw.png", shape="box")
             elif host_type and host_type[0] == "as":
                 dot.node(node, image="./images/access_sw.png", shape="box")
             elif host_type and host_type[0] == "wlc":
@@ -49,5 +44,6 @@ def gen_graph(name, source_list, filename):
                 dot.node(node, image="./images/phone.png", shape="box")
             else:
                 dot.node(node, shape="box")
+        dot.subgraph(core_dot)
         dot.edge(edges[0],edges[1])
     dot.render(filename=filename, format="png")
