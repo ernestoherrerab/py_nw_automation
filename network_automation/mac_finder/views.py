@@ -3,7 +3,7 @@
 Creates the views (routes) for the secondary app
 """
 from decouple import config
-from flask import render_template, request, session, current_app, redirect, url_for
+from flask import render_template, request, session, redirect
 from network_automation.mac_finder import mac_finder
 import network_automation.mac_finder.mac_finder.find_mac as find_mac
 
@@ -15,6 +15,10 @@ template_dir = "mac_finder"
 @mac_finder.route("/home")
 def home():
     return render_template(f"{template_dir}/home.html")
+
+@mac_finder.route("/")
+def home_redirect():
+    return redirect("/home")
 
 """ROUTE THAT REQUESTS CREDENTIALS FOR ISE THIS 
    ROUTE HOLDS THE DATA INPUT VALUE AND CARRIES 
@@ -61,5 +65,5 @@ def tacacs_auth():
 ### ERROR & SUCCESS VIEWS ###
 
 @mac_finder.route("/mac_found")
-def graph_upload():
+def mac_found():
     return render_template(f"{template_dir}/mac_found.html")
