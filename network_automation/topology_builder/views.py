@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from yaml import dump
 from network_automation.topology_builder import topology_builder
 import network_automation.topology_builder.graphviz.recursive_graph as do_graph
+import network_automation.topology_builder.graphviz.get_diagrams as get_diagrams
 
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
@@ -29,6 +30,21 @@ def home_redirect():
 def yml_upload():
     Path(GRAPHVIZ_UPLOAD_DIR).mkdir(exist_ok=True)
     return render_template(f"{template_dir}/yml_upload.html")
+
+@topology_builder.route("/view_diagrams", methods=["GET", "POST"])
+def view_diagrams():
+    diagrams_data = get_diagrams.get_diagram_data()
+    session["diagram_data"] = diagrams_data
+    return render_template(f"{template_dir}/view_diagrams.html", 
+                            diagrams_data=diagrams_data)
+
+@topology_builder.route("/download_diagram", methods=["GET", "POST"])
+def download_diagram():
+    diagram_dir = Path("topology_builder/graphviz/diagrams/")
+    if request.method == "POST":
+        for key, value in request.form.items():
+            diagram_path = diagram_dir / key
+            return send_file(diagram_path, as_attachment=True) 
 
 @topology_builder.route("/manual_upload", methods=["GET", "POST"])
 def manual_upload():
