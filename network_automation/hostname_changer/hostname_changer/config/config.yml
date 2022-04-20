@@ -1,0 +1,12 @@
+---
+inventory:
+  plugin: SimpleInventory
+  options:
+    host_file: "network_automation/hostname_changer/hostname_changer/inventory/hosts.yml"
+    group_file: "network_automation/hostname_changer/hostname_changer/inventory/groups.yml"
+    defaults_file: "network_automation/hostname_changer/hostname_changer/inventory/defaults.yml"
+
+runner:
+  plugin: threaded
+  options:
+    num_workers: 650
