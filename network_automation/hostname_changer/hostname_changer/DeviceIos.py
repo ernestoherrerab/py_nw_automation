@@ -2,7 +2,6 @@
 """
 Define Child Core Device Class For IOS Devices
 """
-from scrapli.exceptions import ScrapliAuthenticationFailed
 from scrapli.driver.core import IOSXEDriver
 from network_automation.hostname_changer.hostname_changer.Device import Device
 
