@@ -56,13 +56,9 @@ def tacacs_auth():
         if "username" in request.form:
             username = request.form["username"]
             password = request.form["password"]
-            results, put_result = change_hostname.change_hostname(username, password)
-            if put_result == {401}:
-                return redirect(url_for("hostname_changer.prime_auth_error"))
-            elif put_result == {200}:
-                return render_template(f"{template_dir}/host_changed.html", results=results)
-            else:
-                return redirect(url_for("hostname_changer.prime_upload_error"))
+            results = change_hostname.change_hostname(username, password)
+            return render_template(f"{template_dir}/host_changed.html", results=results)
+
             
 ### ERROR & SUCCESS VIEWS ###
 
