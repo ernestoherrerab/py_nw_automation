@@ -295,13 +295,15 @@ def change_hostname(username, password, depth_levels):
     ap_get_call = api.get_operations("AccessPoints?.full=true&.maxResults=900&.firstResult=0", URL, PRIME_USERNAME, PRIME_PASSWORD)
     for aps in ap_get_call["queryResponse"]["entity"]:
         if aps["accessPointsDTO"]["name"].startswith(site_id) or aps["accessPointsDTO"]["name"].startswith(site_id.upper()):
+            print(aps)
             old_ap_name = aps["accessPointsDTO"]["name"]
             ap_id = aps["accessPointsDTO"]["@id"]
-            if "controllerIpAddress" in ["accessPointsDTO"]:
+            if "controllerIpAddress" in aps["accessPointsDTO"]:
                 wlc_ip = aps["accessPointsDTO"]['controllerIpAddress']
+                print(wlc_ip)
                 prime_aps = [old_ap_name, ap_id, wlc_ip]
                 prime_aps_list.append(prime_aps)
-
+    print(prime_aps_list)
     ### RENAME HOSTS ###
     for device, parameters in results.items():
         if "new_hostname" in parameters:
