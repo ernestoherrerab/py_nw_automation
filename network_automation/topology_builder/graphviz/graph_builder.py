@@ -38,6 +38,8 @@ def gen_graph(name, source_list, filename):
                 dot.node(node, image="./images/router.png", shape="box")
             elif host_type and host_type[0] == "ron":
                 dot.node(node, image="./images/router.png", shape="box")
+            elif host_type and host_type[0] == "rtr":
+                dot.node(node, image="./images/router.png", shape="box")
             elif host_type and host_type[0] == "rcrtr":
                 dot.node(node, image="./images/router.png", shape="box")
             elif not host_type and node.startswith("SEP"):
