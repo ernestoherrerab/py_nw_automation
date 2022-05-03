@@ -28,7 +28,7 @@
         <div class="alert alert-info" role="alert">
         <h1>Hostname Changer<br><br></h1>
         <h4>Enter Required Data:<br><br></h4> 
-        <form name="hostsForm"  action="{{url_for('topology_builder.tacacs_login')}}" method = "POST" role="form">
+        <form name="hostsForm"  action="{{url_for('hostname_changer.tacacs_login')}}" method = "POST" role="form">
 			<div class="row gy-5">
 				<div class="col-2">
 					<div class="p-3">
@@ -55,7 +55,7 @@
 					<div class="p-5">
 						<textarea name="outputtext" rows="3" cols="60"></textarea>
                         <p><button type="submit" class="btn btn-success">Create Hostfile</button>
-                        <a class="btn btn-primary" href="{{url_for('topology_builder.home')}}" role="button" style="margin-left:50px;">Back To Home</a>
+                        <a class="btn btn-primary" href="{{url_for('hostname_changer.home')}}" role="button" style="margin-left:50px;">Back To Home</a>
                         </p>      
 					</div>
                     <div class="p-3">
