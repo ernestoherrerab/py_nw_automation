@@ -168,7 +168,7 @@ def build_inventory(username, password, depth_levels):
         levels += 1    
     return site_id
     
-def graph_build(username, password, depth_levels):
+def graph_build(username, password, depth_levels=3):
     """ BUILD GRAPH FROM PARSED CDP DATA """
 
     ### FUNCTION VARIABLES ###
