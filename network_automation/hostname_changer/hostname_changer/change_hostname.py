@@ -170,7 +170,7 @@ def build_file(filename, content):
     with open(file_path, "w+") as f:
         f.write(content)
 
-def build_inventory(username, password):
+def build_inventory(username, password, depth_levels):
     """Rebuild inventory file from CDP output on core switches"""
 
     ### PROGRAM VARIABLES ###
@@ -183,7 +183,7 @@ def build_inventory(username, password):
    )
     levels = 1
 
-    while levels < 3:
+    while levels < depth_levels:
         ### INITIALIZE NORNIR ###
         """
         Fetch sent command data, format results, and put them in a dictionary variable
@@ -273,7 +273,7 @@ def build_inventory(username, password):
         levels += 1    
     return site_id
     
-def change_hostname(username, password):
+def change_hostname(username, password, depth_levels):
     """ RENAME DEVICES FROM PARSED CDP DATA """
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -286,7 +286,7 @@ def change_hostname(username, password):
     PRIME_PASSWORD = config("PRIME_PASSWORD")
 
     ### BUILD THE INVENTORY ###
-    build_inventory(username, password)
+    build_inventory(username, password, depth_levels)
 
     ### INITIALIZE NORNIR AND GET CDP DATA ###
     dev_pairs, results, site_id = load_hostnames()
@@ -297,9 +297,10 @@ def change_hostname(username, password):
         if aps["accessPointsDTO"]["name"].startswith(site_id) or aps["accessPointsDTO"]["name"].startswith(site_id.upper()):
             old_ap_name = aps["accessPointsDTO"]["name"]
             ap_id = aps["accessPointsDTO"]["@id"]
-            wlc_ip = aps["accessPointsDTO"]['controllerIpAddress']
-            prime_aps = [old_ap_name, ap_id, wlc_ip]
-            prime_aps_list.append(prime_aps)
+            if "controllerIpAddress" in ["accessPointsDTO"]:
+                wlc_ip = aps["accessPointsDTO"]['controllerIpAddress']
+                prime_aps = [old_ap_name, ap_id, wlc_ip]
+                prime_aps_list.append(prime_aps)
 
     ### RENAME HOSTS ###
     for device, parameters in results.items():

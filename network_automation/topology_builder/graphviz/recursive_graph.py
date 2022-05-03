@@ -65,7 +65,7 @@ def del_files():
     if host_file.exists():
         Path.unlink(host_file)
 
-def build_inventory(username, password):
+def build_inventory(username, password, depth_levels):
     """Rebuild inventory file from CDP output on core switches"""
 
     ### PROGRAM VARIABLES ###
@@ -78,7 +78,7 @@ def build_inventory(username, password):
    )
     levels = 1
 
-    while levels < 5:
+    while levels < depth_levels:
         ### INITIALIZE NORNIR ###
         """
         Fetch sent command data, format results, and put them in a dictionary variable
@@ -168,7 +168,7 @@ def build_inventory(username, password):
         levels += 1    
     return site_id
     
-def graph_build(username, password):
+def graph_build(username, password, depth_levels):
     """ BUILD GRAPH FROM PARSED CDP DATA """
 
     ### FUNCTION VARIABLES ###
@@ -176,7 +176,7 @@ def graph_build(username, password):
     inv_dict_output = {}
 
     ### BUILD THE INVENTORY ###
-    site_id = build_inventory(username, password)
+    site_id = build_inventory(username, password, depth_levels)
     site_id = site_id + "_site"
 
     ### INITIALIZE NORNIR AND GET CDP DATA ###

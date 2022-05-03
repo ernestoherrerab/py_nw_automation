@@ -3,7 +3,7 @@
 Creates the views (routes) for the secondary app
 """
 from decouple import config
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, session
 from pathlib import Path
 from yaml import dump
 from network_automation.hostname_changer import hostname_changer
@@ -41,8 +41,10 @@ def tacacs_login():
                         core_switch = {}
                         hostname = data[0]
                         ip_add = data[1]
+                        nos = data[2]
+                        session["levels"] = data[3]
                         core_switch[hostname] = {}
-                        core_switch[hostname]["groups"] = ["ios_devices"]
+                        core_switch[hostname]["groups"] = [nos + "_devices"]
                         core_switch[hostname]["hostname"] = ip_add
     host_yaml = dump(core_switch, default_flow_style=False)
     with open(HOSTNAME_CHANGER_UPLOAD_DIR / "hosts.yml", "w") as open_file:
@@ -56,7 +58,9 @@ def tacacs_auth():
         if "username" in request.form:
             username = request.form["username"]
             password = request.form["password"]
-            results = change_hostname.change_hostname(username, password)
+            depth_levels = session.get("levels")
+            depth_levels = int(depth_levels)
+            results = change_hostname.change_hostname(username, password, depth_levels)
             return render_template(f"{template_dir}/host_changed.html", results=results)
 
             
