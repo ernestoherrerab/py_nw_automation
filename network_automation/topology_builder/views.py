@@ -80,6 +80,7 @@ def tacacs_login():
                             hostname = data[0]
                             ip_add = data[1]
                             nos = data[2]
+                            session["levels"] = data[3]
                             host[hostname] = {}
                             host[hostname]["groups"] = [nos + "_devices"]
                             host[hostname]["hostname"] = ip_add
@@ -90,12 +91,14 @@ def tacacs_login():
 
 @topology_builder.route("/tacacs_auth", methods=["POST", "GET"])
 def tacacs_auth():
-    dev_failed = []
     if request.method == "POST":
         if "username" in request.form:
+            dev_failed = []
             username = request.form["username"]
             password = request.form["password"]
-            dev_failed, diagrams = do_graph.graph_build(username, password)
+            depth_levels = session.get("levels")
+            depth_levels = int(depth_levels)
+            dev_failed, diagrams = do_graph.graph_build(username, password, depth_levels)
             session["diagrams"] = diagrams
             return render_template(
                 f"{template_dir}/graph_upload.html",

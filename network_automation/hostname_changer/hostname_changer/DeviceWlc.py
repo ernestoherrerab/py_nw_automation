@@ -2,7 +2,7 @@
 """
 Define Child WLC Device Class
 """
-import logging
+#import logging
 from decouple import config
 from scrapli.driver import GenericDriver
 from network_automation.hostname_changer.hostname_changer.Device import Device
@@ -13,8 +13,8 @@ WLC_LOCAL_PASSWORD = config("WLC_LOCAL_PASSWORD")
 UNSUPPORTED_WLCS = [config("UNSUPPORTED_WLC_1")]
 
 ### ENABLE LOGGING ###
-logging.basicConfig(filename="scrapli.log", level=logging.DEBUG)
-logger = logging.getLogger("scrapli")
+#logging.basicConfig(filename="scrapli.log", level=logging.DEBUG)
+#logger = logging.getLogger("scrapli")
 
 def wlc_on_open(cls):
     """ Function to handle WLCs login process"""

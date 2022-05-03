@@ -42,6 +42,8 @@ def gen_graph(name, source_list, filename):
                 dot.node(node, image="./images/router.png", shape="box")
             elif not host_type and node.startswith("SEP"):
                 dot.node(node, image="./images/phone.png", shape="box")
+            elif not host_type and node.startswith("sep"):
+                dot.node(node, image="./images/phone.png", shape="box")
             else:
                 dot.node(node, shape="box")
         dot.subgraph(core_dot)
