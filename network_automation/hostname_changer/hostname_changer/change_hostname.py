@@ -273,7 +273,7 @@ def build_inventory(username, password, depth_levels):
         levels += 1    
     return site_id
     
-def change_hostname(username, password, depth_levels):
+def change_hostname(username, password, depth_levels=3):
     """ RENAME DEVICES FROM PARSED CDP DATA """
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
