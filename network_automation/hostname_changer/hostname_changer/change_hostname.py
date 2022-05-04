@@ -82,20 +82,20 @@ def load_hostnames():
      ### CAPTURE HOSTNAME INFO ###
     for hostname, parameters in inv_hosts.copy().items():
         host_site_id = re.findall(r"^(\w+)-", hostname)
-        ip_address = parameters["hostname"]
         if host_site_id:
-            host_site_id = host_site_id[0].lower()
-            site_for_file = host_site_id
-            host_type = re.findall(r"^\w+-([a-z]+|[A-Z]+)", hostname)
-            if host_type:
-                host_type = host_type[0].lower()
-            host_num = re.findall(r"^\w+-(?:[a-z]+|[A-Z]+)(\d+)", hostname)
-            if host_num:
-                host_num = host_num[0]
-            host_optional = re.findall(r"^\w+-(?:[a-z]+|[A-Z]+)\d+-(\w+)", hostname)
-        elif hostname.startswith("sep"):
-            inv_hosts.pop(hostname)
-
+            ip_address = parameters["hostname"]
+            if host_site_id:
+                host_site_id = host_site_id[0].lower()
+                site_for_file = host_site_id
+                host_type = re.findall(r"^\w+-([a-z]+|[A-Z]+)", hostname)
+                if host_type:
+                    host_type = host_type[0].lower()
+                host_num = re.findall(r"^\w+-(?:[a-z]+|[A-Z]+)(\d+)", hostname)
+                if host_num:
+                    host_num = host_num[0]
+                host_optional = re.findall(r"^\w+-(?:[a-z]+|[A-Z]+)\d+-(\w+)", hostname)
+        else:
+            host_type = ""
         ### EVALUATE DEVICES NAMING AND RECORD OLD AND NEW HOSTNAMES ###
         if host_type == "as" or host_type == "swn" and as_count < 10:
             new_host_type = "as0" + str(as_count)
@@ -303,7 +303,7 @@ def change_hostname(username, password, depth_levels):
                 print(wlc_ip)
                 prime_aps = [old_ap_name, ap_id, wlc_ip]
                 prime_aps_list.append(prime_aps)
-    print(prime_aps_list)
+    print(f"The initial Prime AP List is: {prime_aps_list}")
     ### RENAME HOSTS ###
     for device, parameters in results.items():
         if "new_hostname" in parameters:
@@ -318,8 +318,10 @@ def change_hostname(username, password, depth_levels):
             elif parameters["groups"] == ["ap_devices"]:
                 wlc_ip = prime_aps_list[0][2]
                 for prime_ap in prime_aps_list:
-                    if device in prime_ap[0]:
+                    print(f"The device is: {device}, The prime_ap[0] is: {prime_ap[0]}")
+                    if device in prime_ap[0].lower():
                         prime_ap[1] = parameters["new_hostname"]
+    print(f"The Prime AP List to be implemented is: {prime_aps_list}")
     wlc_dev = DeviceWlc(wlc_ip, username, password)
     wlc_dev.set_hostname(prime_aps_list)
 
