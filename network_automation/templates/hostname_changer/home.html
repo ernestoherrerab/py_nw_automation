@@ -11,6 +11,10 @@
                 var nos_type = document.hostsForm.nos.value;
                 var depth_level = document.hostsForm.depth_val.value;
 
+                if (depth_level == "") {
+                    depth_level = "3";
+                }
+                 
                 if (document.hostsForm.nos[1].checked) {
                     document.hostsForm.outputtext.value = "";
                     }
