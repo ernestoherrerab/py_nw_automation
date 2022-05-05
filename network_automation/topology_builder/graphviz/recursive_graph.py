@@ -148,8 +148,16 @@ def build_inventory(username, password, depth_levels):
                         ]["software_version"]
                     ):
                         output_dict[device_id]["groups"] = ["nxos_devices"]
-                    else:
+                    elif (
+                        "IOS"
+                        in input_dict[host]["show_cdp_neighbors_detail"]["index"][
+                            index
+                        ]["software_version"]
+                    ):
                         output_dict[device_id]["groups"] = ["ios_devices"]
+                    else:
+                        output_dict[device_id]["groups"] = ["unmanaged_devices"]
+                        
         for key, _ in output_dict.copy().items():
             if output_dict[key]["hostname"] != []:
                 ip_address = ipaddress.IPv4Address(output_dict[key]["hostname"])
