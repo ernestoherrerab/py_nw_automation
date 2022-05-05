@@ -34,11 +34,11 @@ def init_nornir(username, password):
     )
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
-    ios_devs = nr.filter(~F(groups__contains="unmanaged_devices"))
+    managed_devs = nr.filter(~F(groups__contains="unmanaged_devices"))
     
-    with tqdm(total=len(ios_devs.inventory.hosts)) as progress_bar:
-        results = ios_devs.run(task=get_data_task, progress_bar=progress_bar)
-        #print_result(results)
+    with tqdm(total=len(managed_devs.inventory.hosts)) as progress_bar:
+        results = managed_devs.run(task=get_data_task, progress_bar=progress_bar)
+
     hosts_failed = list(results.failed_hosts.keys())
     if hosts_failed != []:
         auth_fail_list = list(results.failed_hosts.keys())
@@ -46,9 +46,9 @@ def init_nornir(username, password):
             dev_auth_fail_list.add(dev)
         print(f"Authentication Failed: {auth_fail_list}")
         print(
-            f"{len(list(results.failed_hosts.keys()))}/{len(ios_devs.inventory.hosts)} devices failed authentication..."
+            f"{len(list(results.failed_hosts.keys()))}/{len(managed_devs.inventory.hosts)} devices failed authentication..."
         )
-    return ios_devs, results, dev_auth_fail_list
+    return managed_devs, results, dev_auth_fail_list
 
 def get_data_task(task, progress_bar):
     """
@@ -165,7 +165,6 @@ def build_inventory(username, password, depth_levels):
                         ]["software_version"]
                     ):
                         output_dict[device_id]["groups"] = ["ios_devices"]
-
                     else:
                         output_dict[device_id]["groups"] = ["unmanaged_devices"]
 
