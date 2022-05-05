@@ -7,6 +7,7 @@ from decouple import config
 from pathlib import Path
 import ipaddress
 from nornir import InitNornir
+from nornir.core.filter import F
 from nornir_scrapli.tasks import send_commands
 from yaml import dump, load, SafeDumper
 from yaml.loader import FullLoader
@@ -33,8 +34,11 @@ def init_nornir(username, password):
     )
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
-    with tqdm(total=len(nr.inventory.hosts)) as progress_bar:
-        results = nr.run(task=get_data_task, progress_bar=progress_bar)
+    managed_devs = nr.filter(~F(groups__contains="unmanaged_devices"))
+    
+    with tqdm(total=len(managed_devs.inventory.hosts)) as progress_bar:
+        results = managed_devs.run(task=get_data_task, progress_bar=progress_bar)
+
     hosts_failed = list(results.failed_hosts.keys())
     if hosts_failed != []:
         auth_fail_list = list(results.failed_hosts.keys())
@@ -42,9 +46,9 @@ def init_nornir(username, password):
             dev_auth_fail_list.add(dev)
         print(f"Authentication Failed: {auth_fail_list}")
         print(
-            f"{len(list(results.failed_hosts.keys()))}/{len(nr.inventory.hosts)} devices failed authentication..."
+            f"{len(list(results.failed_hosts.keys()))}/{len(managed_devs.inventory.hosts)} devices failed authentication..."
         )
-    return nr, results, dev_auth_fail_list
+    return managed_devs, results, dev_auth_fail_list
 
 def get_data_task(task, progress_bar):
     """
@@ -148,8 +152,22 @@ def build_inventory(username, password, depth_levels):
                         ]["software_version"]
                     ):
                         output_dict[device_id]["groups"] = ["nxos_devices"]
-                    else:
+                    elif (
+                        input_dict[host]["show_cdp_neighbors_detail"]["index"][
+                            index
+                        ]["capabilities"] == "Trans-Bridge Source-Route-Bridge IGMP"
+                    ):
+                        output_dict[device_id]["groups"] = ["unmanaged_devices"]
+                    elif (
+                        "IOS"
+                        in input_dict[host]["show_cdp_neighbors_detail"]["index"][
+                            index
+                        ]["software_version"]
+                    ):
                         output_dict[device_id]["groups"] = ["ios_devices"]
+                    else:
+                        output_dict[device_id]["groups"] = ["unmanaged_devices"]
+
         for key, _ in output_dict.copy().items():
             if output_dict[key]["hostname"] != []:
                 ip_address = ipaddress.IPv4Address(output_dict[key]["hostname"])
