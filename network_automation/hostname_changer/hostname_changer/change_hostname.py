@@ -160,7 +160,7 @@ def load_hostnames():
 
         ### EVALUATE DEVICES WITH SITE_ID-OPTIONAL-DEVICE_TYPE FORMAT ###
         else:
-            host_type = re.findall(r"^\w+-\w+-([a-z]+|[A-Z]+))", hostname)
+            host_type = re.findall(r"^\w+-\w+-([a-z]+|[A-Z]+)", hostname)
             host_num = re.findall(r"^\w+-\w+-\w+(\d+)", hostname)
             host_optional = re.findall(r"^\w+-(\w+)", hostname)
             if host_type:
@@ -386,22 +386,24 @@ def change_hostname(username, password, depth_levels=3):
             ap_id = aps["accessPointsDTO"]["@id"]
             if "controllerIpAddress" in aps["accessPointsDTO"]:
                 wlc_ip = aps["accessPointsDTO"]['controllerIpAddress']
-                print(wlc_ip)
                 prime_aps = [old_ap_name, ap_id, wlc_ip]
                 prime_aps_list.append(prime_aps)
+                
+    print(f"The WLC IP is {wlc_ip}")
     print(f"The initial Prime AP List is: {prime_aps_list}")
 
     ### RENAME HOSTS ###
     for device, parameters in results.items():
         if "new_hostname" in parameters:
+            print(f"The device IP is: {parameters["hostname"]}")
             if parameters["groups"] == ["ios_devices"]:
                 host_ip = parameters["hostname"]
                 ios_dev = DeviceIos(host_ip, username, password)
-                #ios_dev.set_hostname(parameters["new_hostname"])
+                ios_dev.set_hostname(parameters["new_hostname"])
             elif parameters["groups"] == ["nxos_devices"]:
                 host_ip = parameters["hostname"]
                 nxos_dev = DeviceNxos(host_ip, username, password)
-                #nxos_dev.set_hostname(parameters["new_hostname"])
+                nxos_dev.set_hostname(parameters["new_hostname"])
             elif parameters["groups"] == ["ap_devices"]:
                 wlc_ip = prime_aps_list[0][2]
                 for prime_ap in prime_aps_list:
@@ -409,6 +411,6 @@ def change_hostname(username, password, depth_levels=3):
                         prime_ap[1] = parameters["new_hostname"]
     print(f"The Prime AP List to be implemented is: {prime_aps_list}")
     wlc_dev = DeviceWlc(wlc_ip, username, password)
-    #wlc_dev.set_hostname(prime_aps_list)
+    wlc_dev.set_hostname(prime_aps_list)
 
     return dev_pairs

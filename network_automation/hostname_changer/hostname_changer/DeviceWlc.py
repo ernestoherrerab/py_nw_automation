@@ -10,7 +10,7 @@ from network_automation.hostname_changer.hostname_changer.Device import Device
 ### VARIABLES FOR NON-AAA WLCS ###
 WLC_LOCAL_USERNAME = config("WLC_LOCAL_USERNAME")
 WLC_LOCAL_PASSWORD = config("WLC_LOCAL_PASSWORD")
-UNSUPPORTED_WLCS = [config("UNSUPPORTED_WLC_1")]
+UNSUPPORTED_WLCS = [config("UNSUPPORTED_WLC_1"), config("UNSUPPORTED_WLC_2")]
 
 ### ENABLE LOGGING ###
 #logging.basicConfig(filename="scrapli.log", level=logging.DEBUG)

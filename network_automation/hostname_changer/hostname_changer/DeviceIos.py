@@ -3,6 +3,7 @@
 Define Child Core Device Class For IOS Devices
 """
 from scrapli.driver.core import IOSXEDriver
+from scrapli.exceptions import ScrapliConnectionError
 from network_automation.hostname_changer.hostname_changer.Device import Device
 
 
@@ -13,8 +14,13 @@ class DeviceIos(Device):
         command = f"hostname {hostname}"
         device = Device.set_transport(self, self.host, self.username, self.password)
 
-        with IOSXEDriver(**device) as connection:
-            print(f"The new hostname is {command}")
-            response = connection.send_config(command)
+        try:
+            with IOSXEDriver(**device) as connection:
+                print(f"The new hostname is {command}")
+                response = connection.send_config(command)
+            return response.result
 
-        return response.result
+        except ScrapliConnectionError as e:
+            print(f"Failed to Login: {e}")
+
+
