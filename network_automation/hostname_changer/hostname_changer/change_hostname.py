@@ -395,7 +395,7 @@ def change_hostname(username, password, depth_levels=3):
     ### RENAME HOSTS ###
     for device, parameters in results.items():
         if "new_hostname" in parameters:
-            print(f"The device IP is: {parameters["hostname"]}")
+            print(f'The device IP is: {parameters["hostname"]}')
             if parameters["groups"] == ["ios_devices"]:
                 host_ip = parameters["hostname"]
                 ios_dev = DeviceIos(host_ip, username, password)
