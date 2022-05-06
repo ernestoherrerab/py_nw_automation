@@ -83,12 +83,3 @@ def put_operations(
         print("POST Request Failed...Uknown Error")
         ops_put.close()
         return ops_put.status_code
-
-
-#PRIME_USERNAME = config("PRIME_USERNAME")
-#PRIME_PASSWORD = config("PRIME_PASSWORD")
-#URL = config("PRIME_URL_VAR")
-#ap_get_call = get_operations("AccessPoints?.full=true&.maxResults=900&.firstResult=0", URL, PRIME_USERNAME, PRIME_PASSWORD)
-#for aps in ap_get_call["queryResponse"]["entity"]:
-#    if aps["accessPointsDTO"]["name"].startswith("mad"):
-#        print(aps)

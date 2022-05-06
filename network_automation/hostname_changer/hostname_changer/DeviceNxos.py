@@ -14,6 +14,7 @@ class DeviceNxos(Device):
         device = Device.set_transport(self, self.host, self.username, self.password)
 
         with NXOSDriver(**device) as connection:
+            print(f"The new hostname is {command}")
             response = connection.send_config(command)
-        print(response.result)
+
         return response.result
