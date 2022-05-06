@@ -3,11 +3,12 @@
 Creates the views (routes) for the secondary app
 """
 from decouple import config
-from flask import render_template, request, redirect, session
+from flask import render_template, request, redirect, session, send_file
 from pathlib import Path
 from yaml import dump
 from network_automation.hostname_changer import hostname_changer
 import network_automation.hostname_changer.hostname_changer.change_hostname as change_hostname
+import network_automation.hostname_changer.hostname_changer.get_hostname_data as get_hostname
 
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
@@ -22,6 +23,21 @@ def home():
 @hostname_changer.route("/")
 def home_redirect():
     return redirect("/home")
+
+@hostname_changer.route("/view_hostnames", methods=["GET", "POST"])
+def view_hostnames():
+    hostname_data = get_hostname.get_hostname_data()
+    session["hostname_data"] = hostname_data
+    return render_template(f"{template_dir}/view_hostnames.html", 
+                            hostname_data=hostname_data)
+
+@hostname_changer.route("/download_hostnames", methods=["GET", "POST"])
+def download_hostnames():
+    diagram_dir = Path("hostname_changer/hostname_changer/host_references/")
+    if request.method == "POST":
+        for key, value in request.form.items():
+            diagram_path = diagram_dir / key
+            return send_file(diagram_path, as_attachment=True) 
 
 """ROUTE THAT REQUESTS CREDENTIALS FOR TACACS. THIS 
    ROUTE HOLDS THE DATA INPUT VALUE AND CARRIES 
