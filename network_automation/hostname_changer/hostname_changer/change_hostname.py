@@ -369,8 +369,6 @@ def change_hostname(username, password, depth_levels=3):
     prime_aps_list = []
     prime_put_aps = {}
     prime_put_aps["unifiedApDetailsDTO"] = {}
-    PRIME_USERNAME = config("PRIME_USERNAME")
-    PRIME_PASSWORD = config("PRIME_PASSWORD")
 
     ### BUILD THE INVENTORY ###
     build_inventory(username, password, depth_levels)
@@ -379,7 +377,7 @@ def change_hostname(username, password, depth_levels=3):
     dev_pairs, results, site_id = load_hostnames()
 
     ### GET APS FROM CISCO PRIME ###
-    ap_get_call = api.get_operations("AccessPoints?.full=true&.maxResults=900&.firstResult=0", URL, PRIME_USERNAME, PRIME_PASSWORD)
+    ap_get_call = api.get_operations("AccessPoints?.full=true&.maxResults=900&.firstResult=0", URL, username, password)
     for aps in ap_get_call["queryResponse"]["entity"]:
         if aps["accessPointsDTO"]["name"].startswith(site_id) or aps["accessPointsDTO"]["name"].startswith(site_id.upper()):
             old_ap_name = aps["accessPointsDTO"]["name"]

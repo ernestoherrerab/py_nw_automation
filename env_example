@@ -6,7 +6,11 @@ FLASK_SERVER = 127.0.0.1
 FLASK_DEBUG_MODE = True
 FLASK_SERVER_PORT = 8080
 DOMAIN_NAME_1 = your_domain.com
-DOMAIN_NAME_2 = your_domain.net
+DOMAIN_NAME_2 = your_domain.netc
+WLC_LOCAL_USERNAME = some_username
+WLC_LOCAL_PASSWORD =  some_password
+UNSUPPORTED_WLC_1 = x.x.x.x
+UNSUPPORTED_WLC_2 = x.x.x.x
 
 
 FLS_GUEST_SPONSOR_URL = https://a-url.com
