@@ -75,6 +75,7 @@ def load_hostnames(site_id):
         Path("network_automation/hostname_changer/hostname_changer/inventory/") / "hosts.yml"
         )
     as_count = 1
+    ap_count = 1
     dev_pairs = []
 
     ### LOAD INVENTORY FILE ###
@@ -125,6 +126,7 @@ def load_hostnames(site_id):
                 sw_pair = [hostname, new_hostname, ip_address]
                 dev_pairs.append(sw_pair)
                 inv_hosts[hostname]["new_hostname"] = new_hostname
+            print(f"The current AP is {hostname} and the new name is {new_hostname}")
         
         ### EVALUATE APS ###
         elif host_type == "ap":    
@@ -132,8 +134,7 @@ def load_hostnames(site_id):
             if host_num < 10:
                 new_host_type = "ap0" + str(host_num)
             else:
-                new_host_type = "ap" + str(host_num)
-            
+                new_host_type = "ap" + str(host_num)            
             if host_optional:
                 new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
                 ap_pair = [hostname, new_hostname, ip_address]
@@ -145,6 +146,34 @@ def load_hostnames(site_id):
                 dev_pairs.append(ap_pair)
                 inv_hosts[hostname]["new_hostname"] = new_hostname
             print(f"The current AP is {hostname} and the new name is {new_hostname}")
+        elif host_type == "apn" and ap_count < 10:   
+            inv_hosts[hostname]["groups"] = ["ap_devices"] 
+            new_host_type = "ap0" + str(ap_count)
+            ap_count += 1
+            if host_optional:
+                new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
+                ap_pair = [hostname, new_hostname, ip_address]
+                dev_pairs.append(ap_pair)
+                inv_hosts[hostname]["new_hostname"] = new_hostname
+            else:
+                new_hostname = f"{host_site_id}-{new_host_type}"
+                ap_pair = [hostname, new_hostname, ip_address]
+                dev_pairs.append(ap_pair)
+                inv_hosts[hostname]["new_hostname"] = new_hostname
+        elif host_type == "apn" and ap_count > 10:   
+            inv_hosts[hostname]["groups"] = ["ap_devices"] 
+            new_host_type = "ap" + str(ap_count)
+            ap_count += 1
+            if host_optional:
+                new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
+                ap_pair = [hostname, new_hostname, ip_address]
+                dev_pairs.append(ap_pair)
+                inv_hosts[hostname]["new_hostname"] = new_hostname
+            else:
+                new_hostname = f"{host_site_id}-{new_host_type}"
+                ap_pair = [hostname, new_hostname, ip_address]
+                dev_pairs.append(ap_pair)
+                inv_hosts[hostname]["new_hostname"] = new_hostname
 
         ### EVALUATE DEVICES WITH SITE_ID-OPTIONAL-DEVICE_TYPE FORMAT ###
         else:
