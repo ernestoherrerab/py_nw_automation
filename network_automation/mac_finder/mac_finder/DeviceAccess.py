@@ -3,6 +3,8 @@
 Define Child Access Device Class For IOS Devices
 """
 from scrapli.driver.core import IOSXEDriver
+from scrapli.exceptions import ScrapliConnectionError
+from scrapli.exceptions import ScrapliAuthenticationFailed
 from network_automation.mac_finder.mac_finder.Device import Device
 
 
@@ -17,13 +19,20 @@ class DeviceAccess(Device):
         command_dict = {}
         device = Device.set_transport(self, self.host, self.username, self.password)
 
-        with IOSXEDriver(**device) as connection:
-            response = connection.send_commands(commands)
+        try:
+            with IOSXEDriver(**device) as connection:
+                response = connection.send_commands(commands)
+                
+            for output, command in zip(response, commands):
+                command_dict[command.replace(" ", "_")] = output.genie_parse_output()
 
-        for output, command in zip(response, commands):
-            command_dict[command.replace(" ", "_")] = output.genie_parse_output()
+            return command_dict
 
-        return command_dict
+        except ScrapliConnectionError as e:
+            print(f"Failed to Login: {e}")
+
+        except ScrapliAuthenticationFailed as e:
+            print(f"Authentication Failed: {e}")
 
     def mac_to_if(self, mac_add, vlan, output_dict):
         """Get interface from MAC Address if it is the host port

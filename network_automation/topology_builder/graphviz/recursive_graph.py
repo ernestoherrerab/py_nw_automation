@@ -34,7 +34,7 @@ def init_nornir(username, password):
     )
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
-    managed_devs = nr.filter(~F(groups__contains="unmanaged_devices"))
+    managed_devs = nr.filter(F(groups__contains="ios_devices") | F(groups__contains="nxos_devices"))
     
     with tqdm(total=len(managed_devs.inventory.hosts)) as progress_bar:
         results = managed_devs.run(task=get_data_task, progress_bar=progress_bar)
@@ -156,8 +156,13 @@ def build_inventory(username, password, depth_levels):
                         input_dict[host]["show_cdp_neighbors_detail"]["index"][
                             index
                         ]["capabilities"] == "Trans-Bridge Source-Route-Bridge IGMP"
+                        or
+                        input_dict[host]["show_cdp_neighbors_detail"]["index"][
+                            index
+                        ]["capabilities"] == "Trans-Bridge"
                     ):
-                        output_dict[device_id]["groups"] = ["unmanaged_devices"]
+                        output_dict[device_id]["groups"] = ["ap_devices"]
+
                     elif (
                         "IOS"
                         in input_dict[host]["show_cdp_neighbors_detail"]["index"][

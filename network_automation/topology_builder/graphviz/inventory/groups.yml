@@ -40,3 +40,5 @@ routers:
 
 unmanaged_devices:
     {}
+ap_devices:
+    {}

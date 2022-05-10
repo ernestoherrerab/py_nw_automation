@@ -3,6 +3,8 @@
 Define Child Access Device Class For NXOS Devices
 """
 from scrapli.driver.core import NXOSDriver
+from scrapli.exceptions import ScrapliConnectionError
+from scrapli.exceptions import ScrapliAuthenticationFailed
 from network_automation.mac_finder.mac_finder.Device import Device
 
 
@@ -16,14 +18,20 @@ class DeviceAccessNxos(Device):
         ]
         command_dict = {}
         device = Device.set_transport(self, self.host, self.username, self.password)
+        try:
+            with NXOSDriver(**device) as connection:
+                response = connection.send_commands(commands)
+    
+            for output, command in zip(response, commands):
+                command_dict[command.replace(" ", "_")] = output.genie_parse_output()
+    
+            return command_dict
 
-        with NXOSDriver(**device) as connection:
-            response = connection.send_commands(commands)
+        except ScrapliConnectionError as e:
+            print(f"Failed to Login: {e}")
 
-        for output, command in zip(response, commands):
-            command_dict[command.replace(" ", "_")] = output.genie_parse_output()
-
-        return command_dict
+        except ScrapliAuthenticationFailed as e:
+            print(f"Authentication Failed: {e}")
 
     def mac_to_if(self, mac_add, vlan, output_dict):
         """Get interface from MAC Address if it is the host port
