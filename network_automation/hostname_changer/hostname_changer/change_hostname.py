@@ -359,6 +359,7 @@ def change_hostname(username, password, depth_levels=3):
     prime_aps_list = []
     prime_put_aps = {}
     prime_put_aps["unifiedApDetailsDTO"] = {}
+    not_in_prime = False
 
     ### BUILD THE INVENTORY ###
     site_id = build_inventory(username, password, depth_levels)
@@ -395,6 +396,7 @@ def change_hostname(username, password, depth_levels=3):
             elif parameters["groups"] == ["ap_devices"]:
                 try:
                     wlc_ip = prime_aps_list[0][2]
+                    print(wlc_ip)
                     for prime_ap in prime_aps_list:
                         old_ap_name = prime_ap[0].lower()
                         if device == old_ap_name:
@@ -403,10 +405,18 @@ def change_hostname(username, password, depth_levels=3):
                 except IndexError as e:
                     print(f"APs not Found in Prime...: {e}")
                     not_in_prime = True
+                    print(not_in_prime)
+    print(not_in_prime)
     if not_in_prime:
         print(f"APs cannot be updated programmatically")
+        for dev in dev_pairs.copy():
+            host_type = host_type = re.findall(r"^\w+-([a-z]+|[A-Z]+)", dev)
+            host_type = host_type[0]
+            if "ap" in host_type:
+                dev_pairs.remove(dev)
     else:
         print(f"The Prime AP List to be implemented is: {prime_aps_list}")
+        print(not_in_prime)
         wlc_dev = DeviceWlc(wlc_ip, username, password)
         wlc_dev.set_hostname(prime_aps_list)
 
