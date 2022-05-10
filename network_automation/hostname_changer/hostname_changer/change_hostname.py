@@ -405,12 +405,11 @@ def change_hostname(username, password, depth_levels=3):
                 except IndexError as e:
                     print(f"APs not Found in Prime...: {e}")
                     not_in_prime = True
-                    print(not_in_prime)
-    print(not_in_prime)
+
     if not_in_prime:
         print(f"APs cannot be updated programmatically")
         for dev in dev_pairs.copy():
-            host_type = host_type = re.findall(r"^\w+-([a-z]+|[A-Z]+)", dev)
+            host_type = host_type = re.findall(r"^\w+-([a-z]+|[A-Z]+)", dev[0])
             host_type = host_type[0]
             if "ap" in host_type:
                 dev_pairs.remove(dev)
