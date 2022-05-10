@@ -39,7 +39,7 @@ def init_nornir(username, password):
     )
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
-    managed_devs = nr.filter(~F(groups__contains="unmanaged_devices"))
+    managed_devs = nr.filter(F(groups__contains="ios_devices") | F(groups__contains="nxos_devices"))
 
     with tqdm(total=len(managed_devs.inventory.hosts)) as progress_bar:
         results = managed_devs.run(task=get_data_task, progress_bar=progress_bar)
@@ -66,7 +66,7 @@ def get_data_task(task, progress_bar):
         for data, command in zip(data_result.scrapli_response, commands):
             task.host[command.replace(" ", "_")] = data.genie_parse_output()
 
-def load_hostnames():
+def load_hostnames(site_id):
     """
     Task to change hostnames via Nornir/Scrapli
     """
@@ -75,27 +75,25 @@ def load_hostnames():
         Path("network_automation/hostname_changer/hostname_changer/inventory/") / "hosts.yml"
         )
     as_count = 1
-    ap_count = 1
     dev_pairs = []
 
     ### LOAD INVENTORY FILE ###
     with open(inv_path_file) as f:
         inv_hosts = load(f, Loader=FullLoader)
 
-     ### CAPTURE HOSTNAME INFO ###
+    ### CAPTURE HOSTNAME INFO ###
     for hostname, parameters in inv_hosts.copy().items():
         host_site_id = re.findall(r"^(\w+)-", hostname)
         if host_site_id:
             ip_address = parameters["hostname"]
             if host_site_id:
                 host_site_id = host_site_id[0].lower()
-                site_for_file = host_site_id
                 host_type = re.findall(r"^\w+-([a-z]+|[A-Z]+)", hostname)
                 if host_type:
                     host_type = host_type[0].lower()
                 host_num = re.findall(r"^\w+-(?:[a-z]+|[A-Z]+)(\d+)", hostname)
                 if host_num:
-                    host_num = host_num[0]
+                    host_num = int(host_num[0])
                 host_optional = re.findall(r"^\w+-(?:[a-z]+|[A-Z]+)\d+-(\w+)", hostname)
         else:
             host_type = ""
@@ -129,10 +127,13 @@ def load_hostnames():
                 inv_hosts[hostname]["new_hostname"] = new_hostname
         
         ### EVALUATE APS ###
-        elif host_type == "ap" and ap_count < 10:       
-            new_host_type = "ap0" + str(ap_count)
-            inv_hosts[hostname]["groups"] = ["ap_devices"]
-            ap_count += 1
+        elif host_type == "ap":    
+            inv_hosts[hostname]["groups"] = ["ap_devices"] 
+            if host_num < 10:
+                new_host_type = "ap0" + str(host_num)
+            else:
+                new_host_type = "ap" + str(host_num)
+            
             if host_optional:
                 new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
                 ap_pair = [hostname, new_hostname, ip_address]
@@ -143,20 +144,7 @@ def load_hostnames():
                 ap_pair = [hostname, new_hostname, ip_address]
                 dev_pairs.append(ap_pair)
                 inv_hosts[hostname]["new_hostname"] = new_hostname
-        elif host_type == "ap" and ap_count > 10:       
-            new_host_type = "ap" + str(ap_count)
-            inv_hosts[hostname]["groups"] = ["ap_devices"]
-            ap_count += 1
-            if host_optional:
-                new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
-                ap_pair = [hostname, new_hostname, ip_address]
-                dev_pairs.append(ap_pair)
-                inv_hosts[hostname]["new_hostname"] = new_hostname
-            else:
-                new_hostname = f"{host_site_id}-{new_host_type}"
-                ap_pair = [hostname, new_hostname, ip_address]
-                dev_pairs.append(ap_pair)
-                inv_hosts[hostname]["new_hostname"] = new_hostname
+            print(f"The current AP is {hostname} and the new name is {new_hostname}")
 
         ### EVALUATE DEVICES WITH SITE_ID-OPTIONAL-DEVICE_TYPE FORMAT ###
         else:
@@ -166,7 +154,7 @@ def load_hostnames():
             if host_type:
                 host_type = host_type[0].lower()
             if host_num:
-                host_num = host_num[0]
+                host_num = int(host_num[0])
                 if host_type == "as" or host_type == "swn" and as_count < 10:
                     new_host_type = "as0" + str(as_count)
                     as_count += 1
@@ -192,42 +180,11 @@ def load_hostnames():
                         new_hostname = f"{host_site_id}-{new_host_type}"
                         sw_pair = [hostname, new_hostname, ip_address]
                         dev_pairs.append(sw_pair)
-                        inv_hosts[hostname]["new_hostname"] = new_hostname
-                
-                ### EVALUATE APS ###
-                elif host_type == "ap" and ap_count < 10:       
-                    new_host_type = "ap0" + str(ap_count)
-                    inv_hosts[hostname]["groups"] = ["ap_devices"]
-                    ap_count += 1
-                    if host_optional:
-                        new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
-                        ap_pair = [hostname, new_hostname, ip_address]
-                        dev_pairs.append(ap_pair)
-                        inv_hosts[hostname]["new_hostname"] = new_hostname
-                    else:
-                        new_hostname = f"{host_site_id}-{new_host_type}"
-                        ap_pair = [hostname, new_hostname, ip_address]
-                        dev_pairs.append(ap_pair)
-                        inv_hosts[hostname]["new_hostname"] = new_hostname
-                elif host_type == "ap" and ap_count > 10:       
-                    new_host_type = "ap" + str(ap_count)
-                    inv_hosts[hostname]["groups"] = ["ap_devices"]
-                    ap_count += 1
-                    if host_optional:
-                        new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
-                        ap_pair = [hostname, new_hostname, ip_address]
-                        dev_pairs.append(ap_pair)
-                        inv_hosts[hostname]["new_hostname"] = new_hostname
-                    else:
-                        new_hostname = f"{host_site_id}-{new_host_type}"
-                        ap_pair = [hostname, new_hostname, ip_address]
-                        dev_pairs.append(ap_pair)
-                        inv_hosts[hostname]["new_hostname"] = new_hostname
-            
+                        inv_hosts[hostname]["new_hostname"] = new_hostname          
 
-    build_file(f"{site_for_file}.txt", str(dev_pairs))
+    build_file(f"{site_id}.txt", str(dev_pairs))
 
-    return dev_pairs, inv_hosts, site_for_file
+    return dev_pairs, inv_hosts
 
 def del_files():
     """CLEANS UP HOSTS FILES"""
@@ -256,7 +213,6 @@ def build_inventory(username, password, depth_levels):
     levels = 1
 
     while levels < depth_levels:
-        print(levels)
         ### INITIALIZE NORNIR ###
         """
         Fetch sent command data, format results, and put them in a dictionary variable
@@ -330,8 +286,13 @@ def build_inventory(username, password, depth_levels):
                         input_dict[host]["show_cdp_neighbors_detail"]["index"][
                             index
                         ]["capabilities"] == "Trans-Bridge Source-Route-Bridge IGMP"
+                        or
+                        input_dict[host]["show_cdp_neighbors_detail"]["index"][
+                            index
+                        ]["capabilities"] == "Trans-Bridge"
+
                     ):
-                        output_dict[device_id]["groups"] = ["unmanaged_devices"]
+                        output_dict[device_id]["groups"] = ["ap_devices"]
                     elif (
                         "IOS"
                         in input_dict[host]["show_cdp_neighbors_detail"]["index"][
@@ -371,23 +332,23 @@ def change_hostname(username, password, depth_levels=3):
     prime_put_aps["unifiedApDetailsDTO"] = {}
 
     ### BUILD THE INVENTORY ###
-    build_inventory(username, password, depth_levels)
+    site_id = build_inventory(username, password, depth_levels)
 
     ### INITIALIZE NORNIR AND GET CDP DATA ###
-    dev_pairs, results, site_id = load_hostnames()
+    dev_pairs, results = load_hostnames(site_id)
 
     ### GET APS FROM CISCO PRIME ###
     ap_get_call = api.get_operations("AccessPoints?.full=true&.maxResults=900&.firstResult=0", URL, username, password)
     for aps in ap_get_call["queryResponse"]["entity"]:
-        if aps["accessPointsDTO"]["name"].startswith(site_id) or aps["accessPointsDTO"]["name"].startswith(site_id.upper()):
+        if aps["accessPointsDTO"]["name"].startswith(site_id + "-") or aps["accessPointsDTO"]["name"].startswith(site_id.upper() +"-"):
             old_ap_name = aps["accessPointsDTO"]["name"]
             ap_id = aps["accessPointsDTO"]["@id"]
             if "controllerIpAddress" in aps["accessPointsDTO"]:
                 wlc_ip = aps["accessPointsDTO"]['controllerIpAddress']
                 prime_aps = [old_ap_name, ap_id, wlc_ip]
                 prime_aps_list.append(prime_aps)
-                
-    print(f"The WLC IP is {wlc_ip}")
+                print(f"The WLC IP is {wlc_ip}")
+
     print(f"The initial Prime AP List is: {prime_aps_list}")
 
     ### RENAME HOSTS ###
@@ -397,11 +358,11 @@ def change_hostname(username, password, depth_levels=3):
             if parameters["groups"] == ["ios_devices"]:
                 host_ip = parameters["hostname"]
                 ios_dev = DeviceIos(host_ip, username, password)
-                ios_dev.set_hostname(parameters["new_hostname"])
+                #ios_dev.set_hostname(parameters["new_hostname"])
             elif parameters["groups"] == ["nxos_devices"]:
                 host_ip = parameters["hostname"]
                 nxos_dev = DeviceNxos(host_ip, username, password)
-                nxos_dev.set_hostname(parameters["new_hostname"])
+                #nxos_dev.set_hostname(parameters["new_hostname"])
             elif parameters["groups"] == ["ap_devices"]:
                 wlc_ip = prime_aps_list[0][2]
                 for prime_ap in prime_aps_list:
@@ -409,6 +370,6 @@ def change_hostname(username, password, depth_levels=3):
                         prime_ap[1] = parameters["new_hostname"]
     print(f"The Prime AP List to be implemented is: {prime_aps_list}")
     wlc_dev = DeviceWlc(wlc_ip, username, password)
-    wlc_dev.set_hostname(prime_aps_list)
+    #wlc_dev.set_hostname(prime_aps_list)
 
     return dev_pairs
