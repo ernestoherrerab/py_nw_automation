@@ -358,18 +358,20 @@ def change_hostname(username, password, depth_levels=3):
             if parameters["groups"] == ["ios_devices"]:
                 host_ip = parameters["hostname"]
                 ios_dev = DeviceIos(host_ip, username, password)
-                #ios_dev.set_hostname(parameters["new_hostname"])
+                ios_dev.set_hostname(parameters["new_hostname"])
             elif parameters["groups"] == ["nxos_devices"]:
                 host_ip = parameters["hostname"]
                 nxos_dev = DeviceNxos(host_ip, username, password)
-                #nxos_dev.set_hostname(parameters["new_hostname"])
+                nxos_dev.set_hostname(parameters["new_hostname"])
             elif parameters["groups"] == ["ap_devices"]:
                 wlc_ip = prime_aps_list[0][2]
                 for prime_ap in prime_aps_list:
-                    if device in prime_ap[0].lower():
+                    old_ap_name = prime_ap[0].lower()
+                    if device == old_ap_name:
                         prime_ap[1] = parameters["new_hostname"]
+                        print(f"The current AP name is {prime_ap[0]} and it will change to {prime_ap[1]}")
     print(f"The Prime AP List to be implemented is: {prime_aps_list}")
     wlc_dev = DeviceWlc(wlc_ip, username, password)
-    #wlc_dev.set_hostname(prime_aps_list)
+    wlc_dev.set_hostname(prime_aps_list)
 
     return dev_pairs
