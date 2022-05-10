@@ -393,14 +393,21 @@ def change_hostname(username, password, depth_levels=3):
                 nxos_dev = DeviceNxos(host_ip, username, password)
                 nxos_dev.set_hostname(parameters["new_hostname"])
             elif parameters["groups"] == ["ap_devices"]:
-                wlc_ip = prime_aps_list[0][2]
-                for prime_ap in prime_aps_list:
-                    old_ap_name = prime_ap[0].lower()
-                    if device == old_ap_name:
-                        prime_ap[1] = parameters["new_hostname"]
-                        print(f"The current AP name is {prime_ap[0]} and it will change to {prime_ap[1]}")
-    print(f"The Prime AP List to be implemented is: {prime_aps_list}")
-    wlc_dev = DeviceWlc(wlc_ip, username, password)
-    wlc_dev.set_hostname(prime_aps_list)
+                try:
+                    wlc_ip = prime_aps_list[0][2]
+                    for prime_ap in prime_aps_list:
+                        old_ap_name = prime_ap[0].lower()
+                        if device == old_ap_name:
+                            prime_ap[1] = parameters["new_hostname"]
+                            print(f"The current AP name is {prime_ap[0]} and it will change to {prime_ap[1]}")
+                except IndexError as e:
+                    print(f"APs not Found in Prime...: {e}")
+                    not_in_prime = True
+    if not_in_prime:
+        print(f"APs cannot be updated programmatically")
+    else:
+        print(f"The Prime AP List to be implemented is: {prime_aps_list}")
+        wlc_dev = DeviceWlc(wlc_ip, username, password)
+        wlc_dev.set_hostname(prime_aps_list)
 
     return dev_pairs
