@@ -99,79 +99,82 @@ def build_inventory(username, password, depth_levels):
                 site_id = site_id[0]
             input_dict[host] = {}
             input_dict[host] = dict(nr.inventory.hosts[result])
-            if input_dict[host] != {}:
-                for index in input_dict[host]["show_cdp_neighbors_detail"][
-                    "index"
-                ]:
-                    device_id = (
-                        input_dict[host]["show_cdp_neighbors_detail"]["index"][
-                            index
-                        ]["device_id"]
-                        .lower()
-                        .replace(DOMAIN_NAME_1, "")
-                        .replace(DOMAIN_NAME_2, "")
-                        .split("(")
-                    )
-                    device_id = device_id[0]
-                    if "management_addresses" != {}:
-                        device_ip = list(
+            try:
+                if input_dict[host] != {}:
+                    for index in input_dict[host]["show_cdp_neighbors_detail"][
+                        "index"
+                    ]:
+                        device_id = (
                             input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
-                            ]["management_addresses"].keys()
+                            ]["device_id"]
+                            .lower()
+                            .replace(DOMAIN_NAME_1, "")
+                            .replace(DOMAIN_NAME_2, "")
+                            .split("(")
                         )
-                    if (
-                        "entry_addresses"
-                        in input_dict[host]["show_cdp_neighbors_detail"]["index"][
-                            index
-                        ]
-                    ):
-                        device_ip = list(
+                        device_id = device_id[0]
+                        if "management_addresses" != {}:
+                            device_ip = list(
+                                input_dict[host]["show_cdp_neighbors_detail"]["index"][
+                                    index
+                                ]["management_addresses"].keys()
+                            )
+                        if (
+                            "entry_addresses"
+                            in input_dict[host]["show_cdp_neighbors_detail"]["index"][
+                                index
+                            ]
+                        ):
+                            device_ip = list(
+                                input_dict[host]["show_cdp_neighbors_detail"]["index"][
+                                    index
+                                ]["entry_addresses"].keys()
+                            )
+                        if (
+                            "interface_addresses"
+                            in input_dict[host]["show_cdp_neighbors_detail"]["index"][
+                                index
+                            ]
+                        ):
+                            device_ip = list(
+                                input_dict[host]["show_cdp_neighbors_detail"]["index"][
+                                    index
+                                ]["interface_addresses"].keys()
+                            )
+                        if device_ip:
+                            device_ip = device_ip[0]
+                        output_dict[device_id] = {}
+                        output_dict[device_id]["hostname"] = device_ip
+                        if (
+                            "NX-OS"
+                            in input_dict[host]["show_cdp_neighbors_detail"]["index"][
+                                index
+                            ]["software_version"]
+                        ):
+                            output_dict[device_id]["groups"] = ["nxos_devices"]
+                        elif (
                             input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
-                            ]["entry_addresses"].keys()
-                        )
-                    if (
-                        "interface_addresses"
-                        in input_dict[host]["show_cdp_neighbors_detail"]["index"][
-                            index
-                        ]
-                    ):
-                        device_ip = list(
+                            ]["capabilities"] == "Trans-Bridge Source-Route-Bridge IGMP"
+                            or
                             input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
-                            ]["interface_addresses"].keys()
-                        )
-                    if device_ip:
-                        device_ip = device_ip[0]
-                    output_dict[device_id] = {}
-                    output_dict[device_id]["hostname"] = device_ip
-                    if (
-                        "NX-OS"
-                        in input_dict[host]["show_cdp_neighbors_detail"]["index"][
-                            index
-                        ]["software_version"]
-                    ):
-                        output_dict[device_id]["groups"] = ["nxos_devices"]
-                    elif (
-                        input_dict[host]["show_cdp_neighbors_detail"]["index"][
-                            index
-                        ]["capabilities"] == "Trans-Bridge Source-Route-Bridge IGMP"
-                        or
-                        input_dict[host]["show_cdp_neighbors_detail"]["index"][
-                            index
-                        ]["capabilities"] == "Trans-Bridge"
-                    ):
-                        output_dict[device_id]["groups"] = ["ap_devices"]
+                            ]["capabilities"] == "Trans-Bridge"
+                        ):
+                            output_dict[device_id]["groups"] = ["ap_devices"]
 
-                    elif (
-                        "IOS"
-                        in input_dict[host]["show_cdp_neighbors_detail"]["index"][
-                            index
-                        ]["software_version"]
-                    ):
-                        output_dict[device_id]["groups"] = ["ios_devices"]
-                    else:
-                        output_dict[device_id]["groups"] = ["unmanaged_devices"]
+                        elif (
+                            "IOS"
+                            in input_dict[host]["show_cdp_neighbors_detail"]["index"][
+                                index
+                            ]["software_version"]
+                        ):
+                            output_dict[device_id]["groups"] = ["ios_devices"]
+                        else:
+                            output_dict[device_id]["groups"] = ["unmanaged_devices"]
+            except TypeError as e:
+                print(e)
 
         for key, _ in output_dict.copy().items():
             if output_dict[key]["hostname"] != []:
@@ -218,18 +221,21 @@ def graph_build(username, password, depth_levels=3):
     cdp_neigh_list = []
     for host in inv_dict_output:
         neighbor_list = []
-        if inv_dict_output[host] != {}:
-            for index in inv_dict_output[host]["show_cdp_neighbors_detail"][
-                "index"
-            ]:
-                neighbor = inv_dict_output[host]["show_cdp_neighbors_detail"][
+        try:
+            if inv_dict_output[host] != {}:
+                for index in inv_dict_output[host]["show_cdp_neighbors_detail"][
                     "index"
-                ][index]["device_id"].split(".")
-                neighbor = neighbor[0]
-                hostname = host.split("(")
-                hostname = hostname[0]
-                neighbor_list = [hostname.lower(), neighbor.lower()]
-                cdp_neigh_list.append(neighbor_list)
+                ]:
+                    neighbor = inv_dict_output[host]["show_cdp_neighbors_detail"][
+                        "index"
+                    ][index]["device_id"].split(".")
+                    neighbor = neighbor[0]
+                    hostname = host.split("(")
+                    hostname = hostname[0]
+                    neighbor_list = [hostname.lower(), neighbor.lower()]
+                    cdp_neigh_list.append(neighbor_list)
+        except TypeError as e:
+            print(e)
 
     """    
     Generate Graph
