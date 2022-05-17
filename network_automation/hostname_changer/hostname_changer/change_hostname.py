@@ -98,36 +98,36 @@ def load_hostnames(site_id):
                 host_optional = re.findall(r"^\w+-(?:[a-z]+|[A-Z]+)\d+-(\w+)", hostname)
         else:
             host_type = ""
+            
         ### EVALUATE DEVICES NAMING AND RECORD OLD AND NEW HOSTNAMES ###
         ### EVALUATE ACCESS SWITCHES ###
-        if host_type == "as" or host_type == "swn" and as_count < 10:
-            new_host_type = "as0" + str(as_count)
-            as_count += 1
-            if host_optional:
-                new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
-                sw_pair = [hostname, new_hostname, ip_address]
-                dev_pairs.append(sw_pair)
-                inv_hosts[hostname]["new_hostname"] = new_hostname
-            else:
-                new_hostname = f"{host_site_id}-{new_host_type}"
-                sw_pair = [hostname, new_hostname, ip_address]
-                dev_pairs.append(sw_pair)
-                inv_hosts[hostname]["new_hostname"] = new_hostname
-        elif host_type == "as" or host_type == "swn" and as_count > 10:
-            new_host_type = "as" + str(as_count)
-            as_count += 1
-            if host_optional:
-                new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
-                sw_pair = [hostname, new_hostname, ip_address]
-                dev_pairs.append(sw_pair)
-                inv_hosts[hostname]["new_hostname"] = new_hostname
-            else:
-                new_hostname = f"{host_site_id}-{new_host_type}"
-                sw_pair = [hostname, new_hostname, ip_address]
-                dev_pairs.append(sw_pair)
-                inv_hosts[hostname]["new_hostname"] = new_hostname
-            print(f"The current AP is {hostname} and the new name is {new_hostname}")
-        
+        if host_type == "as" or host_type == "swn" or host_type == "switch":
+            if as_count < 10:    
+                new_host_type = "as0" + str(as_count)
+                as_count += 1
+                if host_optional:
+                    new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
+                    sw_pair = [hostname, new_hostname, ip_address]
+                    dev_pairs.append(sw_pair)
+                    inv_hosts[hostname]["new_hostname"] = new_hostname
+                else:
+                    new_hostname = f"{host_site_id}-{new_host_type}"
+                    sw_pair = [hostname, new_hostname, ip_address]
+                    dev_pairs.append(sw_pair)
+                    inv_hosts[hostname]["new_hostname"] = new_hostname
+            elif as_count >= 10:
+                new_host_type = "as" + str(as_count)
+                as_count += 1
+                if host_optional:
+                    new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
+                    sw_pair = [hostname, new_hostname, ip_address]
+                    dev_pairs.append(sw_pair)
+                    inv_hosts[hostname]["new_hostname"] = new_hostname
+                else:
+                    new_hostname = f"{host_site_id}-{new_host_type}"
+                    sw_pair = [hostname, new_hostname, ip_address]
+                    dev_pairs.append(sw_pair)
+                    inv_hosts[hostname]["new_hostname"] = new_hostname
         ### EVALUATE APS ###
         elif host_type == "ap":    
             inv_hosts[hostname]["groups"] = ["ap_devices"] 
@@ -160,7 +160,7 @@ def load_hostnames(site_id):
                 ap_pair = [hostname, new_hostname, ip_address]
                 dev_pairs.append(ap_pair)
                 inv_hosts[hostname]["new_hostname"] = new_hostname
-        elif host_type == "apn" and ap_count > 10:   
+        elif host_type == "apn" and ap_count >= 10:   
             inv_hosts[hostname]["groups"] = ["ap_devices"] 
             new_host_type = "ap" + str(ap_count)
             ap_count += 1
@@ -184,32 +184,33 @@ def load_hostnames(site_id):
                 host_type = host_type[0].lower()
             if host_num:
                 host_num = int(host_num[0])
-                if host_type == "as" or host_type == "swn" and as_count < 10:
-                    new_host_type = "as0" + str(as_count)
-                    as_count += 1
-                    if host_optional:
-                        new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
-                        sw_pair = [hostname, new_hostname, ip_address]
-                        dev_pairs.append(sw_pair)
-                        inv_hosts[hostname]["new_hostname"] = new_hostname
-                    else:
-                        new_hostname = f"{host_site_id}-{new_host_type}"
-                        sw_pair = [hostname, new_hostname, ip_address]
-                        dev_pairs.append(sw_pair)
-                        inv_hosts[hostname]["new_hostname"] = new_hostname
-                elif host_type == "as" or host_type == "swn" and as_count > 10:
-                    new_host_type = "as" + str(as_count)
-                    as_count += 1
-                    if host_optional:
-                        new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
-                        sw_pair = [hostname, new_hostname, ip_address]
-                        dev_pairs.append(sw_pair)
-                        inv_hosts[hostname]["new_hostname"] = new_hostname
-                    else:
-                        new_hostname = f"{host_site_id}-{new_host_type}"
-                        sw_pair = [hostname, new_hostname, ip_address]
-                        dev_pairs.append(sw_pair)
-                        inv_hosts[hostname]["new_hostname"] = new_hostname          
+                if host_type == "as" or host_type == "swn" or host_type == "switch":
+                    if as_count < 10:
+                        new_host_type = "as0" + str(as_count)
+                        as_count += 1
+                        if host_optional:
+                            new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
+                            sw_pair = [hostname, new_hostname, ip_address]
+                            dev_pairs.append(sw_pair)
+                            inv_hosts[hostname]["new_hostname"] = new_hostname
+                        else:
+                            new_hostname = f"{host_site_id}-{new_host_type}"
+                            sw_pair = [hostname, new_hostname, ip_address]
+                            dev_pairs.append(sw_pair)
+                            inv_hosts[hostname]["new_hostname"] = new_hostname
+                    elif as_count >= 10:
+                        new_host_type = "as" + str(as_count)
+                        as_count += 1
+                        if host_optional:
+                            new_hostname = f"{host_site_id}-{new_host_type}-{host_optional[0]}"
+                            sw_pair = [hostname, new_hostname, ip_address]
+                            dev_pairs.append(sw_pair)
+                            inv_hosts[hostname]["new_hostname"] = new_hostname
+                        else:
+                            new_hostname = f"{host_site_id}-{new_host_type}"
+                            sw_pair = [hostname, new_hostname, ip_address]
+                            dev_pairs.append(sw_pair)
+                            inv_hosts[hostname]["new_hostname"] = new_hostname          
 
     build_file(f"{site_id}.txt", str(dev_pairs))
 
