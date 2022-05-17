@@ -419,4 +419,4 @@ def change_hostname(username, password, depth_levels=3):
         wlc_dev = DeviceWlc(wlc_ip, username, password)
         wlc_dev.set_hostname(prime_aps_list)
 
-    return dev_pairs
+    return dev_pairs, site_id

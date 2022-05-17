@@ -13,6 +13,7 @@
         <h4>Hostnames on Site Changed!!!<br><br></h4> 
         {% endif %}
         <a class="btn btn-primary" href="{{url_for('home')}}" role="button">Back To Home</a>
+        <a class="btn btn-primary" href="{{url_for('hostname_changer.download_ref_file')}}" role="button">Download Reference File</a>
         <br><br>
         {% for result in results %}
         - Host {{ result[0] }} changed to {{ result[1] }} with ip {{ result[2] }}
