@@ -40,10 +40,9 @@ def view_diagrams():
 
 @topology_builder.route("/download_diagram", methods=["GET", "POST"])
 def download_diagram():
-    diagram_dir = Path("topology_builder/graphviz/diagrams/")
     if request.method == "POST":
         for key, value in request.form.items():
-            diagram_path = diagram_dir / key
+            diagram_path = GRAPHVIZ_DOWNLOAD_DIR / key
             return send_file(diagram_path, as_attachment=True) 
 
 @topology_builder.route("/manual_upload", methods=["GET", "POST"])

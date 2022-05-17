@@ -13,6 +13,7 @@ import network_automation.hostname_changer.hostname_changer.get_hostname_data as
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 HOSTNAME_CHANGER_UPLOAD_DIR = Path("network_automation/hostname_changer/hostname_changer/inventory/")
+HOSTNAME_CHANGER_DOWNLOAD_DIR = Path("hostname_changer/hostname_changer/host_references/")
 template_dir = "hostname_changer"
 
 ### VIEW TO CREATE DATA ###
@@ -33,10 +34,9 @@ def view_hostnames():
 
 @hostname_changer.route("/download_hostnames", methods=["GET", "POST"])
 def download_hostnames():
-    diagram_dir = Path("hostname_changer/hostname_changer/host_references/")
     if request.method == "POST":
         for key, value in request.form.items():
-            diagram_path = diagram_dir / key
+            diagram_path = HOSTNAME_CHANGER_DOWNLOAD_DIR / key
             return send_file(diagram_path, as_attachment=True) 
 
 """ROUTE THAT REQUESTS CREDENTIALS FOR TACACS. THIS 
@@ -70,16 +70,23 @@ def tacacs_login():
 @hostname_changer.route("/tacacs_auth", methods=["POST", "GET"])
 def tacacs_auth():
     if request.method == "POST":
-        Path("network_automation/hostname_changer/hostname_changer/host_references/").mkdir(exist_ok=True)
+        (Path("network_automation/") / HOSTNAME_CHANGER_DOWNLOAD_DIR).mkdir(exist_ok=True)
         if "username" in request.form:
             username = request.form["username"]
             password = request.form["password"]
             depth_levels = session.get("levels")
             depth_levels = int(depth_levels)
-            results = change_hostname.change_hostname(username, password, depth_levels)
+            results, reference = change_hostname.change_hostname(username, password, depth_levels)
+            session["reference"] = reference
             return render_template(f"{template_dir}/host_changed.html", results=results)
 
-            
+@hostname_changer.route("/download_ref_file")
+def download_ref_file():
+    ref_file = session.get("reference")
+    ref_file = ref_file + ".txt"
+    ref_path = HOSTNAME_CHANGER_DOWNLOAD_DIR / ref_file
+    return send_file(str(ref_path), as_attachment=True)
+
 ### ERROR & SUCCESS VIEWS ###
 
 @hostname_changer.route("/host_changed")
