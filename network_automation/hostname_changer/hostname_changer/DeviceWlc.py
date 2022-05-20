@@ -5,6 +5,7 @@ Define Child WLC Device Class
 #import logging
 from decouple import config
 from scrapli.driver import GenericDriver
+from scrapli.exceptions import ScrapliTimeout
 from network_automation.hostname_changer.hostname_changer.Device import Device
 
 ### VARIABLES FOR NON-AAA WLCS ###
@@ -41,8 +42,11 @@ class DeviceWlc(Device):
         device["comms_prompt_pattern"] =  r"^.+ >$"
 
         ### INITIATE CONNECTION TO WLC AND SEND CONFIGURATIONS ###
-        conn = GenericDriver(**device)
-        conn.open()
-        print(conn.get_prompt())
-        conn.send_commands(commands)
-        conn.close()
+        try:
+            conn = GenericDriver(**device)
+            conn.open()
+            print(conn.get_prompt())
+            conn.send_commands(commands)
+            conn.close()
+        except ScrapliTimeout as e:
+            print(f"Unable to connect to WLC...{e}")

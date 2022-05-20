@@ -7,16 +7,7 @@ ios_devices:
         extras:
           auth_strict_key: False
           transport: system
-          transport_options: {"open_cmd": ["-o", "KexAlgorithms=+diffie-hellman-group1-sha1,diffie-hellman-group14-sha1", "-o", "Ciphers=+aes256-cbc"]}
-iosXE_devices:
-    platform: ios
-    connection_options:
-      scrapli:
-        platform: cisco_iosxe
-        extras:
-          auth_strict_key: False
-          transport: system
-          transport_options: {"open_cmd": ["-o", "KexAlgorithms=+diffie-hellman-group1-sha1"]}
+          transport_options: {"open_cmd": ["-o", "KexAlgorithms=+diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1", "-o", "Ciphers=+aes256-cbc"]}
 
 nxos_devices:
     platform: nxos_ssh

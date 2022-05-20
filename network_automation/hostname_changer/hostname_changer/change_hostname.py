@@ -400,6 +400,7 @@ def change_hostname(username, password, depth_levels=3):
                     print(wlc_ip)
                     for prime_ap in prime_aps_list:
                         old_ap_name = prime_ap[0].lower()
+                        print(f"The device var is: {device} and the old ap var is: {old_ap_name}")
                         if device == old_ap_name:
                             prime_ap[1] = parameters["new_hostname"]
                             print(f"The current AP name is {prime_ap[0]} and it will change to {prime_ap[1]}")

@@ -48,6 +48,8 @@ def gen_graph(name, source_list, filename):
                 dot.node(node, image="./images/phone.png", shape="box")
             elif host_type and host_type[0] == "esx":
                 dot.node(node, image="./images/server.png", shape="box")
+            elif host_type and host_type[0] == "isepsn":
+                dot.node(node, image="./images/nac.png", shape="box")
             else:
                 dot.node(node, shape="box")
         dot.subgraph(core_dot)
