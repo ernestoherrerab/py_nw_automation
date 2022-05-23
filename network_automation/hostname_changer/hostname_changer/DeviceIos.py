@@ -12,13 +12,13 @@ class DeviceIos(Device):
     def set_hostname(self, hostname):
         """Send commands and structure them in a dictionary"""
         self.hostname = hostname
-        command = f"hostname {hostname}"
+        commands = [f"hostname {hostname}", "do write mem"]
         device = Device.set_transport(self, self.host, self.username, self.password)
 
         try:
             with IOSXEDriver(**device) as connection:
-                print(f"The new hostname is {command}")
-                response = connection.send_config(command)
+                print(f"The new hostname is {hostname}")
+                response = connection.send_configs(commands)
             return response.result
 
         except ScrapliConnectionError as e:
