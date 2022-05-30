@@ -2,6 +2,7 @@
 archive/
 __pycache__/
 test.py
+network_automation/audit_manager/audit_manager/inventory/hosts.yml
 network_automation/hostname_changer/hostname_changer/host_references/
 network_automation/hostname_changer/hostname_changer/inventory/hosts.yml
 network_automation/ise_mac_bypass/mac_bypass/csv_data/

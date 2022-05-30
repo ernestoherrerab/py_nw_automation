@@ -5,6 +5,7 @@ genie==22.2
 graphviz==0.19.1
 httpx==0.22.0
 nornir==3.2.0
+nornir-napalm==0.2.0
 nornir-scrapli==2022.1.30
 pyats==22.2
 python-decouple==3.6
