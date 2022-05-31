@@ -63,8 +63,8 @@ def tacacs_auth():
             password = request.form["password"]
             depth_levels = session.get("levels")
             depth_levels = int(depth_levels)
-            results = audit.do_audit(username, password, depth_levels)
-            return render_template(f"{template_dir}/audit_results.html", results=results)
+            audit.do_audit(username, password, depth_levels)
+            return render_template(f"{template_dir}/audit_results.html")
 
 
 ### ERROR & SUCCESS VIEWS ###
