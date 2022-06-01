@@ -3,7 +3,6 @@
 Main program to audit devices configurations 
 """
 
-from distutils.command.build_py import build_py
 from pathlib import Path
 from ciscoconfparse import CiscoConfParse
 from yaml import dump

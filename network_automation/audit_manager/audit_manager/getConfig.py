@@ -69,10 +69,12 @@ def get_napalm_config(get_napalm_task, progress_bar, site_id=""):
     """Retrieve device running configuration and create a file """
     
     ### GENERATE DIRECTORY STRUCTURE ###
-    Path("network_automation/audit_manager/run_config").mkdir(exist_ok=True)
-    Path("network_automation/audit_manager/run_config/" + site_id).mkdir(exist_ok=True)
-    Path("network_automation/audit_manager/audits/" + site_id).mkdir(exist_ok=True)
-    site_path = Path("network_automation/audit_manager/run_config") / site_id
+    Path("documentation").mkdir(exist_ok=True)
+    Path("documentation/run_config").mkdir(exist_ok=True)
+    Path("documentation/audits").mkdir(exist_ok=True)
+    Path("documentation/run_config/" + site_id).mkdir(exist_ok=True)
+    Path("documentation/audits/" + site_id).mkdir(exist_ok=True)
+    site_path = Path("documentation/run_config") / site_id
 
     ### GET RUNNING CONFIGURATION ###
     napalm_getters = ['config']
@@ -215,14 +217,13 @@ def get_config(username, password, depth_levels=3):
     host_list = []
 
     ### BUILD THE INVENTORY ###
-    #site_id = build_inventory(username, password, depth_levels)
-    site_id = "mad"
-    site_path = Path("network_automation/audit_manager/run_config/" + site_id)
+    site_id = build_inventory(username, password, depth_levels)
+    site_path = Path("documentation/run_config/" + site_id)
        
     ### INITIALIZE NORNIR ###
     ### GET RUNNING CONFIGURATION ###
     print("Initializing connections to devices...")
-    #init_nornir(username, password, get_napalm_config, site_id)
+    init_nornir(username, password, get_napalm_config, site_id)
 
     """ Parse Running Configuration Outputs into Dictionaries """
     ### GET RUNNING CONFIGURATIONS PER HOST AND TRANSFER TO AN OBJECT ###
