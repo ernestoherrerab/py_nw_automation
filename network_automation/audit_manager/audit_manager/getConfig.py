@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Script to graph cdp neighborships.
+Script to discover neighbors and get running config
 """
 
 import re
@@ -67,9 +67,14 @@ def get_cdp_data_task(task, progress_bar, site_id):
 
 def get_napalm_config(get_napalm_task, progress_bar, site_id=""):
     """Retrieve device running configuration and create a file """
+    
+    ### GENERATE DIRECTORY STRUCTURE ###
     Path("network_automation/audit_manager/run_config").mkdir(exist_ok=True)
     Path("network_automation/audit_manager/run_config/" + site_id).mkdir(exist_ok=True)
+    Path("network_automation/audit_manager/audits/" + site_id).mkdir(exist_ok=True)
     site_path = Path("network_automation/audit_manager/run_config") / site_id
+
+    ### GET RUNNING CONFIGURATION ###
     napalm_getters = ['config']
     hostname = get_napalm_task.host.hostname
     dev_dir = site_path / hostname
@@ -78,7 +83,6 @@ def get_napalm_config(get_napalm_task, progress_bar, site_id=""):
     print(hostname  + ': Retrieving Running configuration...' + str(dev_dir))
     get_napalm_task.run(task=write_file, content=napalm_run.result['config']['running'],
                             filename="" + str(dev_dir))
-
 
 def build_inventory(username, password, depth_levels):
     """Rebuild inventory file from CDP output on core switches"""
@@ -214,9 +218,7 @@ def get_config(username, password, depth_levels=3):
     #site_id = build_inventory(username, password, depth_levels)
     site_id = "mad"
     site_path = Path("network_automation/audit_manager/run_config/" + site_id)
-
-    
-
+       
     ### INITIALIZE NORNIR ###
     ### GET RUNNING CONFIGURATION ###
     print("Initializing connections to devices...")

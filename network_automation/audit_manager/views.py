@@ -13,7 +13,7 @@ import network_automation.audit_manager.audit_manager.audit as audit
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 AUDIT_MANAGER_INV_DIR = Path("network_automation/audit_manager/audit_manager/inventory/")
-AUDIT_MANAGER_DOWNLOAD_DIR = Path("audit_manager/audit_manager/audits/")
+AUDIT_MANAGER_DOWNLOAD_DIR = Path("audit_manager/audits/")
 template_dir = "audit_manager"
 
 ### VIEW TO CREATE DATA ###
