@@ -13,7 +13,7 @@ import network_automation.hostname_changer.hostname_changer.get_hostname_data as
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 HOSTNAME_CHANGER_UPLOAD_DIR = Path("network_automation/hostname_changer/hostname_changer/inventory/")
-HOSTNAME_CHANGER_DOWNLOAD_DIR = Path("hostname_changer/hostname_changer/host_references/")
+HOSTNAME_CHANGER_DOWNLOAD_DIR = Path("documentation/hostname_changes")
 template_dir = "hostname_changer"
 
 ### VIEW TO CREATE DATA ###
@@ -28,6 +28,7 @@ def home_redirect():
 @hostname_changer.route("/view_hostnames", methods=["GET", "POST"])
 def view_hostnames():
     hostname_data = get_hostname.get_hostname_data()
+    print(hostname_data)
     session["hostname_data"] = hostname_data
     return render_template(f"{template_dir}/view_hostnames.html", 
                             hostname_data=hostname_data)
@@ -35,9 +36,9 @@ def view_hostnames():
 @hostname_changer.route("/download_hostnames", methods=["GET", "POST"])
 def download_hostnames():
     if request.method == "POST":
-        for key, value in request.form.items():
-            diagram_path = HOSTNAME_CHANGER_DOWNLOAD_DIR / key
-            return send_file(diagram_path, as_attachment=True) 
+        for key, _ in request.form.items():
+            hostname_changes_path = "../" / HOSTNAME_CHANGER_DOWNLOAD_DIR / key
+            return send_file(hostname_changes_path, as_attachment=True) 
 
 """ROUTE THAT REQUESTS CREDENTIALS FOR TACACS. THIS 
    ROUTE HOLDS THE DATA INPUT VALUE AND CARRIES 
@@ -70,7 +71,7 @@ def tacacs_login():
 @hostname_changer.route("/tacacs_auth", methods=["POST", "GET"])
 def tacacs_auth():
     if request.method == "POST":
-        (Path("network_automation/") / HOSTNAME_CHANGER_DOWNLOAD_DIR).mkdir(exist_ok=True)
+        HOSTNAME_CHANGER_DOWNLOAD_DIR.mkdir(exist_ok=True)
         if "username" in request.form:
             username = request.form["username"]
             password = request.form["password"]
@@ -84,7 +85,7 @@ def tacacs_auth():
 def download_ref_file():
     ref_file = session.get("reference")
     ref_file = ref_file + ".txt"
-    ref_path = HOSTNAME_CHANGER_DOWNLOAD_DIR / ref_file
+    ref_path = "../" / HOSTNAME_CHANGER_DOWNLOAD_DIR / ref_file
     return send_file(str(ref_path), as_attachment=True)
 
 ### ERROR & SUCCESS VIEWS ###

@@ -224,7 +224,7 @@ def del_files():
         Path.unlink(host_file)
 
 def build_file(filename, content):
-    file_dir = Path("network_automation/hostname_changer/hostname_changer/host_references")
+    file_dir = Path("documentation/hostname_changes")
     file_path =file_dir / filename
     with open(file_path, "w+") as f:
         f.write(content)

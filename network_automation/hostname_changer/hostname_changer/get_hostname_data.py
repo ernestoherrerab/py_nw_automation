@@ -8,7 +8,7 @@ from pathlib import Path
 def get_hostname_data():
     """ Get diagrams path information """
 
-    src_dir = Path("network_automation/hostname_changer/hostname_changer/host_references/")
+    src_dir = Path("documentation/hostname_changes/")
     hostname_data_list = []
     for hostname_path in src_dir.iterdir():
         if hostname_path.suffix == ".txt":

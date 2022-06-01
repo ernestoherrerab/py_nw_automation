@@ -14,7 +14,7 @@ import network_automation.topology_builder.graphviz.get_diagrams as get_diagrams
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 GRAPHVIZ_UPLOAD_DIR = Path("network_automation/topology_builder/graphviz/inventory/")
-GRAPHVIZ_DOWNLOAD_DIR = Path("topology_builder/graphviz/diagrams/")
+GRAPHVIZ_DOWNLOAD_DIR = Path("documentation/diagrams/")
 template_dir = "topology_builder"
 
 ### VIEW TO CREATE DATA ###
@@ -41,8 +41,8 @@ def view_diagrams():
 @topology_builder.route("/download_diagram", methods=["GET", "POST"])
 def download_diagram():
     if request.method == "POST":
-        for key, value in request.form.items():
-            diagram_path = GRAPHVIZ_DOWNLOAD_DIR / key
+        for key, _ in request.form.items():
+            diagram_path = "../" / GRAPHVIZ_DOWNLOAD_DIR / key
             return send_file(diagram_path, as_attachment=True) 
 
 @topology_builder.route("/manual_upload", methods=["GET", "POST"])
@@ -109,13 +109,13 @@ def tacacs_auth():
 def download_diag_file():
     diagram_file = session.get("diagrams")
     diagram_file = diagram_file + ".png"
-    diagram_path = GRAPHVIZ_DOWNLOAD_DIR / diagram_file
+    diagram_path = "../" / GRAPHVIZ_DOWNLOAD_DIR / diagram_file
     return send_file(str(diagram_path), as_attachment=True)
 
 @topology_builder.route("/download_dot_file")
 def download_dot_file():
     dot_file = session.get("diagrams")
-    dot_path = GRAPHVIZ_DOWNLOAD_DIR / dot_file
+    dot_path =  "../" / GRAPHVIZ_DOWNLOAD_DIR / dot_file
     return send_file(str(dot_path), as_attachment=True)
 
 ### ERROR & SUCCESS VIEWS ###

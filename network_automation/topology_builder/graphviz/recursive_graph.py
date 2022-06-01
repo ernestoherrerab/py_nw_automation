@@ -65,7 +65,7 @@ def get_data_task(task, progress_bar):
 def del_files():
     """CLEANS UP HOSTS FILES"""
 
-    host_file = Path("network_automation/mac_finder/mac_finder/inventory/hosts.yml")
+    host_file = Path("network_automation/topology_builder/graphviz/inventory/hosts.yml")
     if host_file.exists():
         Path.unlink(host_file)
 
@@ -198,7 +198,7 @@ def graph_build(username, password, depth_levels=3):
     """ BUILD GRAPH FROM PARSED CDP DATA """
 
     ### FUNCTION VARIABLES ###
-    diagrams_path = Path("network_automation/topology_builder/graphviz/diagrams/")
+    diagrams_path = Path("documentation/diagrams/")
     inv_dict_output = {}
 
     ### BUILD THE INVENTORY ###

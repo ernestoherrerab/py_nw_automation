@@ -8,7 +8,7 @@ from pathlib import Path
 def get_diagram_data():
     """ Get diagrams path information """
 
-    src_dir = Path("network_automation/topology_builder/graphviz/diagrams/")
+    src_dir = Path("documentation/diagrams/")
     diagrams_data_list = []
     for diagram_path in src_dir.iterdir():
         if diagram_path.suffix == ".png":

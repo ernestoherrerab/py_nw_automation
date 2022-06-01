@@ -1,8 +1,0 @@
-cph-as1001:
- groups:
-  - nxos_devices
- hostname: 1.1.1.1
-cph-as1002:
- groups:
-  - ios_devices
- hostname: 1.1.1.2
