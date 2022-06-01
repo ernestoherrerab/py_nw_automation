@@ -79,6 +79,7 @@ def get_napalm_config(get_napalm_task, progress_bar, site_id=""):
     get_napalm_task.run(task=write_file, content=napalm_run.result['config']['running'],
                             filename="" + str(dev_dir))
 
+
 def build_inventory(username, password, depth_levels):
     """Rebuild inventory file from CDP output on core switches"""
 
@@ -207,16 +208,27 @@ def build_inventory(username, password, depth_levels):
 def get_config(username, password, depth_levels=3):
 
     ### VARIABLES ###
-    input_dict = {}
+    host_list = []
 
     ### BUILD THE INVENTORY ###
-    site_id = build_inventory(username, password, depth_levels)
-    
-    ### INITIALIZE NORNIR ###
-    """
-    Fetch sent command data, format results, and put them in a dictionary variable
-    """
+    #site_id = build_inventory(username, password, depth_levels)
+    site_id = "mad"
+    site_path = Path("network_automation/audit_manager/run_config/" + site_id)
 
-     ### GET RUNNING CONFIGURATION ###
+    
+
+    ### INITIALIZE NORNIR ###
+    ### GET RUNNING CONFIGURATION ###
     print("Initializing connections to devices...")
-    init_nornir(username, password, get_napalm_config, site_id)
+    #init_nornir(username, password, get_napalm_config, site_id)
+
+    """ Parse Running Configuration Outputs into Dictionaries """
+    ### GET RUNNING CONFIGURATIONS PER HOST AND TRANSFER TO AN OBJECT ###
+    for hostname_dir in site_path.iterdir():
+        host_tuple = ()
+        hostname = str(hostname_dir).replace(str(site_path), "")
+        host_tuple = (hostname.replace("/", ""), hostname_dir)
+        host_list.append(host_tuple)
+    
+    return host_list
+
