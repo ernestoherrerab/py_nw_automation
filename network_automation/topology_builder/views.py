@@ -14,7 +14,8 @@ import network_automation.topology_builder.graphviz.get_diagrams as get_diagrams
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 GRAPHVIZ_UPLOAD_DIR = Path("network_automation/topology_builder/graphviz/inventory/")
-GRAPHVIZ_DOWNLOAD_DIR = Path("documentation/diagrams/")
+DIAGRAM_FILE = "topology.png"
+DOT_FILE = "topology"
 template_dir = "topology_builder"
 
 ### VIEW TO CREATE DATA ###
@@ -25,25 +26,6 @@ def home():
 @topology_builder.route("/")
 def home_redirect():
     return redirect("/home")
-
-@topology_builder.route("/yml_upload")
-def yml_upload():
-    Path(GRAPHVIZ_UPLOAD_DIR).mkdir(exist_ok=True)
-    return render_template(f"{template_dir}/yml_upload.html")
-
-@topology_builder.route("/view_diagrams", methods=["GET", "POST"])
-def view_diagrams():
-    diagrams_data = get_diagrams.get_diagram_data()
-    session["diagram_data"] = diagrams_data
-    return render_template(f"{template_dir}/view_diagrams.html", 
-                            diagrams_data=diagrams_data)
-
-@topology_builder.route("/download_diagram", methods=["GET", "POST"])
-def download_diagram():
-    if request.method == "POST":
-        for key, _ in request.form.items():
-            diagram_path = "../" / GRAPHVIZ_DOWNLOAD_DIR / key
-            return send_file(diagram_path, as_attachment=True) 
 
 @topology_builder.route("/manual_upload", methods=["GET", "POST"])
 def manual_upload():
@@ -79,10 +61,22 @@ def tacacs_login():
                             hostname = data[0]
                             ip_add = data[1]
                             nos = data[2]
+                            site_id = hostname.split("-")
+                            site_id = site_id[0]
                             session["levels"] = data[3]
                             host[hostname] = {}
                             host[hostname]["groups"] = [nos + "_devices"]
                             host[hostname]["hostname"] = ip_add
+                            
+            ### GENERATE DIRECTORY STRUCTURE ###
+            Path("documentation").mkdir(exist_ok=True)
+            Path(f"documentation/{site_id}").mkdir(exist_ok=True)
+            Path(f"documentation/{site_id}/diagrams").mkdir(exist_ok=True)
+            GRAPHVIZ_DOWNLOAD_DIR = Path(f"documentation/{site_id}/diagrams")
+            session["GRAPHVIZ_DOWNLOAD_DIR"] = str(GRAPHVIZ_DOWNLOAD_DIR)
+            print(f"****{GRAPHVIZ_DOWNLOAD_DIR}")
+
+            ### BUILD INITIAL NORNIR INVENTORY FILE ###
             host_yaml = dump(host, default_flow_style=False)
             with open(GRAPHVIZ_UPLOAD_DIR / "hosts.yml", "w") as open_file:
                 open_file.write(host_yaml)
@@ -97,25 +91,23 @@ def tacacs_auth():
             password = request.form["password"]
             depth_levels = session.get("levels")
             depth_levels = int(depth_levels)
-            dev_failed, diagrams = do_graph.graph_build(username, password, depth_levels)
-            session["diagrams"] = diagrams
+            dev_failed = do_graph.graph_build(username, password, depth_levels)
             return render_template(
                 f"{template_dir}/graph_upload.html",
                 dev_failed=dev_failed,
-                diagrams=diagrams
             )
 
 @topology_builder.route("/download_diag_file")
 def download_diag_file():
-    diagram_file = session.get("diagrams")
-    diagram_file = diagram_file + ".png"
-    diagram_path = "../" / GRAPHVIZ_DOWNLOAD_DIR / diagram_file
+    GRAPHVIZ_DOWNLOAD_DIR = session.get("GRAPHVIZ_DOWNLOAD_DIR")
+    print(f"****{GRAPHVIZ_DOWNLOAD_DIR}")
+    diagram_path = "../" / Path(GRAPHVIZ_DOWNLOAD_DIR) / DIAGRAM_FILE
     return send_file(str(diagram_path), as_attachment=True)
 
 @topology_builder.route("/download_dot_file")
 def download_dot_file():
-    dot_file = session.get("diagrams")
-    dot_path =  "../" / GRAPHVIZ_DOWNLOAD_DIR / dot_file
+    GRAPHVIZ_DOWNLOAD_DIR = session.get("GRAPHVIZ_DOWNLOAD_DIR")
+    dot_path =  "../" / Path(GRAPHVIZ_DOWNLOAD_DIR) / DOT_FILE
     return send_file(str(dot_path), as_attachment=True)
 
 ### ERROR & SUCCESS VIEWS ###

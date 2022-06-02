@@ -224,7 +224,9 @@ def del_files():
         Path.unlink(host_file)
 
 def build_file(filename, content):
-    file_dir = Path("documentation/hostname_changes")
+    site_id = filename.split(".")
+    site_id = site_id[0]
+    file_dir = Path(f"documentation/{site_id}/hostname_changes")
     file_path =file_dir / filename
     with open(file_path, "w+") as f:
         f.write(content)

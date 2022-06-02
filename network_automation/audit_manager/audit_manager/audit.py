@@ -8,7 +8,7 @@ from ciscoconfparse import CiscoConfParse
 from yaml import dump
 from yaml import SafeDumper
 import network_automation.audit_manager.audit_manager.getConfig as get_config
-import network_automation.audit_manager.audit_manager.getAAA as getAAA
+import network_automation.audit_manager.audit_manager.parsers.getAAA as getAAA
 
 
 class NoAliasDumper(SafeDumper):

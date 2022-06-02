@@ -13,7 +13,7 @@ import network_automation.audit_manager.audit_manager.audit as audit
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 AUDIT_MANAGER_INV_DIR = Path("network_automation/audit_manager/audit_manager/inventory/")
-AUDIT_MANAGER_DOWNLOAD_DIR = Path("documentation/audits/")
+#AUDIT_MANAGER_DOWNLOAD_DIR = Path("documentation/audits/")
 template_dir = "audit_manager"
 
 ### VIEW TO CREATE DATA ###
@@ -45,10 +45,20 @@ def tacacs_login():
                         hostname = data[0]
                         ip_add = data[1]
                         nos = data[2]
+                        site_id = hostname.split("-")
+                        site_id = site_id[0]
                         session["levels"] = data[3]
                         core_switch[hostname] = {}
                         core_switch[hostname]["groups"] = [nos + "_devices"]
                         core_switch[hostname]["hostname"] = ip_add
+
+    ### GENERATE DIRECTORY STRUCTURE ###
+    Path("documentation").mkdir(exist_ok=True)
+    Path("documentation/{site_id}").mkdir(exist_ok=True)
+    Path("documentation/{site_id}/run_config").mkdir(exist_ok=True)
+    Path("documentation/{site_id}/audits").mkdir(exist_ok=True)
+    
+    ### BUILD INITIAL NORNIR INVENTORY FILE ###
     host_yaml = dump(core_switch, default_flow_style=False)
     with open(AUDIT_MANAGER_INV_DIR / "hosts.yml", "w") as open_file:
         open_file.write(host_yaml)

@@ -13,7 +13,6 @@ import network_automation.hostname_changer.hostname_changer.get_hostname_data as
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 HOSTNAME_CHANGER_UPLOAD_DIR = Path("network_automation/hostname_changer/hostname_changer/inventory/")
-HOSTNAME_CHANGER_DOWNLOAD_DIR = Path("documentation/hostname_changes")
 template_dir = "hostname_changer"
 
 ### VIEW TO CREATE DATA ###
@@ -24,21 +23,6 @@ def home():
 @hostname_changer.route("/")
 def home_redirect():
     return redirect("/home")
-
-@hostname_changer.route("/view_hostnames", methods=["GET", "POST"])
-def view_hostnames():
-    hostname_data = get_hostname.get_hostname_data()
-    print(hostname_data)
-    session["hostname_data"] = hostname_data
-    return render_template(f"{template_dir}/view_hostnames.html", 
-                            hostname_data=hostname_data)
-
-@hostname_changer.route("/download_hostnames", methods=["GET", "POST"])
-def download_hostnames():
-    if request.method == "POST":
-        for key, _ in request.form.items():
-            hostname_changes_path = "../" / HOSTNAME_CHANGER_DOWNLOAD_DIR / key
-            return send_file(hostname_changes_path, as_attachment=True) 
 
 """ROUTE THAT REQUESTS CREDENTIALS FOR TACACS. THIS 
    ROUTE HOLDS THE DATA INPUT VALUE AND CARRIES 
@@ -59,10 +43,20 @@ def tacacs_login():
                         hostname = data[0]
                         ip_add = data[1]
                         nos = data[2]
+                        site_id = hostname.split("-")
+                        site_id = site_id[0]
                         session["levels"] = data[3]
                         core_switch[hostname] = {}
                         core_switch[hostname]["groups"] = [nos + "_devices"]
                         core_switch[hostname]["hostname"] = ip_add
+    ### GENERATE DIRECTORY STRUCTURE ###
+    Path("documentation").mkdir(exist_ok=True)
+    Path(f"documentation/{site_id}").mkdir(exist_ok=True)
+    Path(f"documentation/{site_id}/hostname_changes").mkdir(exist_ok=True)
+    HOSTNAME_CHANGER_DOWNLOAD_DIR = Path(f"documentation/{site_id}/hostname_changes")
+    session["HOSTNAME_CHANGER_DOWNLOAD_DIR"] = str(HOSTNAME_CHANGER_DOWNLOAD_DIR)
+    
+    ### BUILD INITIAL NORNIR INVENTORY FILE ###
     host_yaml = dump(core_switch, default_flow_style=False)
     with open(HOSTNAME_CHANGER_UPLOAD_DIR / "hosts.yml", "w") as open_file:
         open_file.write(host_yaml)
@@ -71,7 +65,6 @@ def tacacs_login():
 @hostname_changer.route("/tacacs_auth", methods=["POST", "GET"])
 def tacacs_auth():
     if request.method == "POST":
-        HOSTNAME_CHANGER_DOWNLOAD_DIR.mkdir(exist_ok=True)
         if "username" in request.form:
             username = request.form["username"]
             password = request.form["password"]
@@ -83,9 +76,10 @@ def tacacs_auth():
 
 @hostname_changer.route("/download_ref_file")
 def download_ref_file():
+    HOSTNAME_CHANGER_DOWNLOAD_DIR = session.get("HOSTNAME_CHANGER_DOWNLOAD_DIR")
     ref_file = session.get("reference")
     ref_file = ref_file + ".txt"
-    ref_path = "../" / HOSTNAME_CHANGER_DOWNLOAD_DIR / ref_file
+    ref_path = "../" / Path(HOSTNAME_CHANGER_DOWNLOAD_DIR) / ref_file
     return send_file(str(ref_path), as_attachment=True)
 
 ### ERROR & SUCCESS VIEWS ###
