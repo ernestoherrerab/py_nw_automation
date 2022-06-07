@@ -54,9 +54,9 @@ def tacacs_login():
 
     ### GENERATE DIRECTORY STRUCTURE ###
     Path("documentation").mkdir(exist_ok=True)
-    Path("documentation/{site_id}").mkdir(exist_ok=True)
-    Path("documentation/{site_id}/run_config").mkdir(exist_ok=True)
-    Path("documentation/{site_id}/audits").mkdir(exist_ok=True)
+    Path(f"documentation/{site_id}").mkdir(exist_ok=True)
+    Path(f"documentation/{site_id}/run_config").mkdir(exist_ok=True)
+    Path(f"documentation/{site_id}/audits").mkdir(exist_ok=True)
     
     ### BUILD INITIAL NORNIR INVENTORY FILE ###
     host_yaml = dump(core_switch, default_flow_style=False)

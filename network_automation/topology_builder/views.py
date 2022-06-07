@@ -9,7 +9,6 @@ from werkzeug.utils import secure_filename
 from yaml import dump
 from network_automation.topology_builder import topology_builder
 import network_automation.topology_builder.graphviz.recursive_graph as do_graph
-import network_automation.topology_builder.graphviz.get_diagrams as get_diagrams
 
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
