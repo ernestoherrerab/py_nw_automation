@@ -27,7 +27,7 @@ def build_yml_file(section, input, directory):
 
 def do_audit(username, password, depth_levels=3):
     """ Parse configurations """
-    devs_data = []
+
     dev_configs = get_config.get_config(username, password, depth_levels)
 
     for dev_config in dev_configs:
@@ -40,13 +40,9 @@ def do_audit(username, password, depth_levels=3):
         #### PARSE AAA & DUMP INTO FILE ###
         print("Getting AAA Configs...")
         dev_data[dev_config[0]] = getAAA.audit_aaa(parse_obj)
-        devs_data.append(dev_data)
-        for section in dev_data[dev_config[0]]:
-            build_yml_file(section, dev_data[dev_config[0]][section], dev_audit_path)
+        build_yml_file("aaa", dev_data[dev_config[0]], dev_audit_path)
 
-        #### PARSE NTP & DUMP INTO FILE ###
+        #### PARSE NTP & CLOCK & DUMP INTO FILE ###
         print("Getting NTP Configs...")
         dev_data[dev_config[0]] = getNTP.audit_ntp(parse_obj)
-        devs_data.append(dev_data)
-        for section in dev_data[dev_config[0]]:
-            build_yml_file(section, dev_data[dev_config[0]][section], dev_audit_path)
+        build_yml_file("ntp", dev_data[dev_config[0]], dev_audit_path)
