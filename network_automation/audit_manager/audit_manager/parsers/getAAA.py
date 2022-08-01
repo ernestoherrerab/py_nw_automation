@@ -32,7 +32,6 @@ def audit_aaa(parse_obj):
     dev_data["aaa"]["vtys"] = []
     if aaa_enable_line:
         dev_data["aaa"]["enable_pass"] = aaa_enable_line[0].text.replace("enable", "").replace(" ", "", 1)
-    
     for aaa_authentication_line in aaa_authentication_lines:
         dev_data["aaa"]["authentication"].append(aaa_authentication_line.text.replace("aaa authentication", "").replace(" ", "", 1))
     for aaa_authorization_line in aaa_authorization_lines:
