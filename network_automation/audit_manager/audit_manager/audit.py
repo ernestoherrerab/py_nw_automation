@@ -9,7 +9,11 @@ from yaml import dump
 from yaml import SafeDumper
 import network_automation.audit_manager.audit_manager.getConfig as get_config
 import network_automation.audit_manager.audit_manager.parsers.getAAA as getAAA
+import network_automation.audit_manager.audit_manager.parsers.getBase as getBase
+import network_automation.audit_manager.audit_manager.parsers.getInterfaces as getInterfaces
 import network_automation.audit_manager.audit_manager.parsers.getNTP as getNTP
+import network_automation.audit_manager.audit_manager.parsers.getSVI as getSVI
+import network_automation.audit_manager.audit_manager.parsers.getVLAN as getVLAN
 
 
 class NoAliasDumper(SafeDumper):
@@ -37,6 +41,11 @@ def do_audit(username, password, depth_levels=3):
         dev_data[dev_config[0]] = {}
         parse_obj = CiscoConfParse(dev_config[1])
 
+        #### PARSE BASE CONFIGS & DUMP INTO FILE ###
+        print("Getting Base Configs...")
+        dev_data[dev_config[0]] = getBase.audit_base(parse_obj)
+        build_yml_file("base", dev_data[dev_config[0]], dev_audit_path)
+
         #### PARSE AAA & DUMP INTO FILE ###
         print("Getting AAA Configs...")
         dev_data[dev_config[0]] = getAAA.audit_aaa(parse_obj)
@@ -46,3 +55,18 @@ def do_audit(username, password, depth_levels=3):
         print("Getting NTP Configs...")
         dev_data[dev_config[0]] = getNTP.audit_ntp(parse_obj)
         build_yml_file("ntp", dev_data[dev_config[0]], dev_audit_path)
+
+        #### PARSE VLANS & DUMP INTO FILE ###
+        print("Getting VLAN Configs...")
+        dev_data[dev_config[0]] = getVLAN.audit_vlan(parse_obj)
+        build_yml_file("vlans", dev_data[dev_config[0]], dev_audit_path)
+
+        #### PARSE SVIS & DUMP INTO FILE ###
+        print("Getting SVIs Configs...")
+        dev_data[dev_config[0]] = getSVI.audit_svi(parse_obj)
+        build_yml_file("svis", dev_data[dev_config[0]], dev_audit_path)
+
+        #### PARSE INTERFACES & DUMP INTO FILE ###
+        print("Getting interfaces Configs...")
+        dev_data[dev_config[0]] = getInterfaces.audit_interfaces(parse_obj)
+        build_yml_file("interfaces", dev_data[dev_config[0]], dev_audit_path)
