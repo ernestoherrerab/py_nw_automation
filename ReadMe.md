@@ -5,6 +5,8 @@
 
 - Network Infrastructure Links - Is just a collection of links used by the team.
 
+- Audit Manager - Used to create configurations as code.
+
 - Hostname Changer - Used to update hostnames for network devices (switches and APs).
 
 - ISE MAC Bypass: adds MAC addresses to a bypass list for guest users in ISE.
@@ -28,6 +30,10 @@ To edit the links page:
 3. Go to the network_automation/nw_infra_links/views.py file and add the URL at the *VARIABLES* section at the bottom. Make sure you put the "config()" command arround it.
 
 4. In the same location: network_automation/nw_infra_links/views.py add the variable you created on 3 to the def home() funnction at the end, you will need to add a comma after the last value before your entry. Always follow the standards.
+
+### Audit Manager
+
+Enter the Core Switch of a site (the core hostname needs to be manually updated) and the configurations of the devices will be retrieved and the configuration will be put in YML.
 
 ### Hostname Changer
 

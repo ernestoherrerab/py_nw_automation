@@ -28,7 +28,7 @@ def audit_aaa(parse_obj):
     dev_data["aaa"]["radius_server"] = {}
     dev_data["aaa"]["radius_server_group"] = {}
     dev_data["aaa"]["local_users"] = {}
-    dev_data["aaa"]["console"] = []
+    dev_data["aaa"]["console"] = {}
     dev_data["aaa"]["vtys"] = {}
     if aaa_enable_line:
         dev_data["aaa"]["enable_pass"] = aaa_enable_line[0].text.replace("enable", "").replace(" ", "", 1)
@@ -171,7 +171,12 @@ def audit_aaa(parse_obj):
                 dev_data["aaa"]["radius_server_group"][radius_group][radius_client]["key"] = radius_key              
     for aaa_console_line in aaa_console_lines:
         for aaa_console_access in aaa_console_line.children:
-            dev_data["aaa"]["console"].append(aaa_console_access.text.replace(" ","",1))
+            aaa_console_access = aaa_console_access.text
+            con_exec_to = re.findall(r'exec-timeout\s(.+)', aaa_console_access)
+            con_authorization = re.findall(r'authorization\s(\S+)\s(\S+)', aaa_console_access)
+            con_authentication = re.findall(r'login\sauthentication\s(\S+)', aaa_console_access)
+            if con_exec_to and "exec_timeout":
+                dev_data["aaa"]["console"]["exec_timeout"] = con_exec_to 
     for aaa_vty_line in aaa_vty_lines:
         for aaa_vty_access in aaa_vty_line.children:
             aaa_vty_access = aaa_vty_access.text
