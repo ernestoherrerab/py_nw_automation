@@ -18,3 +18,7 @@ def home():
     return render_template(
         f"{template_dir}/home.html", site_data_list=site_data_list
     )
+
+@site_documentation.app_template_filter('is_dict')
+def is_dict(value):
+    return isinstance(value, dict)

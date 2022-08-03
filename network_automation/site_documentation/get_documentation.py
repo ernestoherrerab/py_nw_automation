@@ -32,4 +32,4 @@ def get_documentation():
         dict_ops.setInDict(site_docs, tuple, tuple[len(tuple)-1])
         
     dict_ops.iterdict(site_docs)
-    print(site_docs)
+    return site_docs

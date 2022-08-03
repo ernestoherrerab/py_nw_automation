@@ -38,3 +38,4 @@ def home():
 @app.route("/")
 def home_redirect():
     return redirect("/home")
+
