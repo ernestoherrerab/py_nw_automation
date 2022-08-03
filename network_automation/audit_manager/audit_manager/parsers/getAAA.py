@@ -175,14 +175,27 @@ def audit_aaa(parse_obj):
             con_exec_to = re.findall(r'exec-timeout\s(.+)', aaa_console_access)
             con_authorization = re.findall(r'authorization\s(\S+)\s(\S+)', aaa_console_access)
             con_authentication = re.findall(r'login\sauthentication\s(\S+)', aaa_console_access)
-            if con_exec_to and "exec_timeout":
+            if con_exec_to:
                 dev_data["aaa"]["console"]["exec_timeout"] = con_exec_to 
+            if con_authorization and "authorization" not in dev_data["aaa"]["console"]:
+                dev_data["aaa"]["console"]["authorization"] = {}
+                dev_data["aaa"]["console"]["authorization"]["type"] = con_authorization[0][0]
+                dev_data["aaa"]["console"]["authorization"]["method"] = con_authorization[0][1]
+            elif con_authorization and "authorization" in dev_data["aaa"]["console"]:
+                dev_data["aaa"]["console"]["authorization"]["type"] = con_authorization[0][0]
+                dev_data["aaa"]["console"]["authorization"]["method"] = con_authorization[0][1]
+            if con_authentication and "authentication" not in dev_data["aaa"]["console"]:
+                dev_data["aaa"]["console"]["authentication"] = {}
+                dev_data["aaa"]["console"]["authentication"]["method"] = con_authentication[0]
+            elif con_authentication and "authentication" in dev_data["aaa"]["console"]:
+                dev_data["aaa"]["console"]["authentication"]["method"] = con_authentication[0]
     for aaa_vty_line in aaa_vty_lines:
         for aaa_vty_access in aaa_vty_line.children:
             aaa_vty_access = aaa_vty_access.text
             vty_pwd = re.findall(r'(password)\s\d+\s(\S+)', aaa_vty_access)
             vty_authorization = re.findall(r'authorization\scommands\s(\d+)\s(\S+)', aaa_vty_access)
             vty_transport = re.findall(r'transport\s(\S+)\s(.+)', aaa_vty_access)
+            vty_acl = re.findall(r'access-class\s(\S+)', aaa_vty_access)
             if vty_pwd:
                 vty_pwd = vty_pwd[0][1]
                 dev_data["aaa"]["vtys"]["password"] = vty_pwd
@@ -208,5 +221,8 @@ def audit_aaa(parse_obj):
                 for vty_protocol in vty_protocols:
                     if vty_protocol not in dev_data["aaa"]["vtys"]["transport"][vty_dir]:
                         dev_data["aaa"]["vtys"]["transport"][vty_dir].append(vty_protocol)
+            if vty_acl:
+                vty_acl = vty_acl[0]
+                dev_data["aaa"]["vtys"]["acl"] = vty_acl                
 
     return dev_data
