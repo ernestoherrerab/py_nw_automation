@@ -17,10 +17,16 @@ def audit_interfaces(parse_obj):
         if "Port-channel" in if_line.text:
             po_id = if_line.text.replace("interface ", "")
             dev_data["port_channels"][po_id] = {} 
+            dev_data["port_channels"][po_id]["enable"] = True
+            dev_data["port_channels"][po_id]["speed"] = "auto"
+            dev_data["port_channels"][po_id]["duplex"] = "auto"
         elif "Port-channel" not in if_line.text:
             if_id = if_line.text.replace("interface ", "")
             dev_data["interfaces"][if_id] = {} 
             dev_data["interfaces"][if_id]["enable"] = True
+            dev_data["interfaces"][if_id]["nonegotiate"] = False
+            dev_data["interfaces"][if_id]["speed"] = "auto"
+            dev_data["interfaces"][if_id]["duplex"] = "auto"
         for if_data in if_line.children:
             if_data = if_data.text.replace(" ", "", 1)
             ### PARSING PORT CHANNELS ###
@@ -78,6 +84,8 @@ def audit_interfaces(parse_obj):
                         elif f"standby {hsrp_group} authentication" in if_data:
                             dev_data["port_channels"][po_id]["hsrp"]["authentication"] = if_data.replace(f"standby {hsrp_group} authentication ", "")
                 ### PARSE SWITCHPORT CONFIGS ###
+                elif "switchport nonegotiate" in if_data:
+                    dev_data["port_channels"][po_id]["nonegotiate"] = True
                 elif "switchport mode access" in if_data:
                     dev_data["port_channels"][po_id]["mode"] = "access" 
                 elif "switchport access vlan" in if_data:
@@ -169,6 +177,9 @@ def audit_interfaces(parse_obj):
                             dev_data["port_channels"][po_id]["spanning_tree"][stp_params[0][0]] = "enable"
                         elif stp_params[0][0] == "portfast" and stp_params[0][1] != "":
                             dev_data["port_channels"][po_id]["spanning_tree"][stp_params[0][0]] = stp_params[0][1]
+                ### IP ARP INSPECTION EVALUATION ###
+                elif "ip arp inspection" in if_data:
+                    dev_data["port_channels"][po_id]["ip_arp_inspection"] = if_data.replace("ip arp inspection ", "")
                 ### QOS TRUST EVALUATION ###
                 elif "mls qos" in if_data and "mls_qos" not in dev_data["port_channels"][po_id]:
                     mls_qos_params = re.findall(r'mls\sqos\s(\S+)\s(\S+)', if_data)
@@ -234,6 +245,8 @@ def audit_interfaces(parse_obj):
                         elif f"standby {hsrp_group} authentication" in if_data:
                             dev_data["interfaces"][if_id]["hsrp"]["authentication"] = if_data.replace(f"standby {hsrp_group} authentication ", "")
                 ### PARSE SWITCHPORT CONFIGS ###
+                elif "switchport nonegotiate" in if_data:
+                    dev_data["interfaces"][if_id]["nonegotiate"] = True
                 elif "switchport mode access" in if_data:
                     dev_data["interfaces"][if_id]["mode"] = "access"
                 elif "switchport access vlan" in if_data:
@@ -325,6 +338,13 @@ def audit_interfaces(parse_obj):
                             dev_data["interfaces"][if_id]["spanning_tree"][stp_params[0][0]] = "enable"
                         elif stp_params[0][0] == "portfast" and stp_params[0][1] != "":
                             dev_data["interfaces"][if_id]["spanning_tree"][stp_params[0][0]] = stp_params[0][1]
+                ### UDLD EVALUATION ###
+                elif "udld" in if_data:
+                    dev_data["interfaces"][if_id]["udld"] = {}
+                    dev_data["interfaces"][if_id]["udld"]["mode"] = if_data.replace("udld port ", "")
+                ### IP ARP INSPECTION EVALUATION ###
+                elif "ip arp inspection" in if_data:
+                    dev_data["interfaces"][if_id]["ip_arp_inspection"] = if_data.replace("ip arp inspection ", "")
                 ### QOS TRUST EVALUATION ###
                 elif "mls qos" in if_data and "mls_qos" not in dev_data["interfaces"][if_id]:
                     mls_qos_params = re.findall(r'mls\sqos\s(\S+)\s(\S+)', if_data)
@@ -333,7 +353,13 @@ def audit_interfaces(parse_obj):
                 elif "mls qos" in if_data and "mls_qos" in dev_data["interfaces"][if_id]:
                     mls_qos_params = re.findall(r'mls\sqos\s(\S+)\s(\S+)', if_data)
                     dev_data["interfaces"][if_id]["mls_qos"][mls_qos_params[0][0]] = mls_qos_params[0][1]
-                           
-
+                ### PORT CHANNEL MEMBERSHIP EVALUATION ###
+                if "channel-protocol" in if_data:
+                    dev_data["interfaces"][if_id]["channel_protocol"] = if_data.replace("channel-protocol ", "")
+                if "channel-group"in if_data:
+                    port_ch_parameters = re.findall(r'channel-group\s(\d+)\smode\s(\S+)', if_data)
+                    dev_data["interfaces"][if_id]["channel_group"] = {}
+                    dev_data["interfaces"][if_id]["channel_group"]["id"] = int(port_ch_parameters[0][0])
+                    dev_data["interfaces"][if_id]["channel_group"]["mode"] = port_ch_parameters[0][1]                          
 
     return dev_data
