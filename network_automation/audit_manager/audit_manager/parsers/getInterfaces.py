@@ -3,7 +3,7 @@
 Script to parse Interfaces configs
 """
 
-import re 
+import regex as re
 
 def audit_interfaces(parse_obj):
     """ Parse Interfaces """
@@ -14,14 +14,19 @@ def audit_interfaces(parse_obj):
     if_lines = parse_obj.find_objects(r'^interface\s(?!Vlan\d+)')
 
     for if_line in if_lines:
+        if "Port-channel" in if_line.text:
+            po_id = if_line.text.replace("interface ", "")
+            dev_data["port_channels"][po_id] = {} 
+        elif "Port-channel" not in if_line.text:
+            if_id = if_line.text.replace("interface ", "")
+            dev_data["interfaces"][if_id] = {} 
+            dev_data["interfaces"][if_id]["enable"] = True
         for if_data in if_line.children:
             if_data = if_data.text.replace(" ", "", 1)
+            ### PARSING PORT CHANNELS ###
             if "Port-channel" in if_line.text:
-                po_id = if_line.text.replace("interface ", "")
-                dev_data["port_channels"][po_id] = {} 
-                dev_data["port_channels"][po_id]["enable"] = True
                 if "description" in if_data:
-                   dev_data["port_channels"][po_id]["description"] = if_data.replace("description ", "")
+                    dev_data["port_channels"][po_id]["description"] = if_data.replace("description ", "")
                 elif "shutdown" in if_data:
                     dev_data["port_channels"][po_id]["enable"] = False
                 elif "ip vrf" in if_data:
@@ -67,30 +72,67 @@ def audit_interfaces(parse_obj):
                         elif f"standby {hsrp_group} authentication" in if_data:
                             dev_data["port_channels"][po_id]["hsrp"]["authentication"] = if_data.replace(f"standby {hsrp_group} authentication ", "")
                 elif "switchport mode access" in if_data:
-                    if "mode" not in dev_data["port_channels"][po_id]:
-                        dev_data["port_channels"][po_id]["mode"] = {}
-                        dev_data["port_channels"][po_id]["mode"]["access"] = True 
-                    else:
-                        dev_data["port_channels"][po_id]["mode"]["access"] = True 
+                    dev_data["port_channels"][po_id]["mode"] = "access" 
                 elif "switchport access vlan" in if_data:
-                    if "mode" not in dev_data["port_channels"][po_id]:
-                        dev_data["port_channels"][po_id]["mode"] = {}
-                        dev_data["port_channels"][po_id]["mode"]["vlan"] = if_data.replace("switchport access vlan ","")
-                    else:
-                        dev_data["port_channels"][po_id]["mode"]["vlan"] = if_data.replace("switchport access vlan ","")
+                    dev_data["port_channels"][po_id]["access_vlan"] = if_data.replace("switchport access vlan ","")
                 elif "switchport mode trunk" in if_data:
-                    if "mode" not in dev_data["port_channels"][po_id]:
-                        dev_data["port_channels"][po_id]["mode"] = {}
-                        dev_data["port_channels"][po_id]["mode"]["trunk"] = True 
-                    else:
-                        dev_data["port_channels"][po_id]["mode"]["trunk"] = True 
-
+                        dev_data["port_channels"][po_id]["mode"] = "trunk"
+                elif "switchport trunk" in if_data:
+                    trunk_params = if_data.replace("switchport trunk ", "")
+                    if "encapsulation" in trunk_params:
+                        dev_data["port_channels"][po_id]["encapsulation"] = trunk_params.replace("encapsulation ", "" )
+                    elif "native" in trunk_params:
+                        dev_data["port_channels"][po_id]["native_vlan"] = trunk_params.replace("native vlan ", "" )
+                    elif "allowed" in trunk_params:
+                        dev_data["port_channels"][po_id]["vlans"] = trunk_params.replace("allowed vlan ", "" )
+                ### STORM CONTROL EVALUATION ###
+                elif "storm-control" in if_data:
+                    storm_params = if_data.replace("storm-control ", " ")
+                    if "broadcast" in storm_params and "storm_control" not in dev_data["port_channels"][po_id]:
+                        dev_data["port_channels"][po_id]["storm_control"] = {}
+                        dev_data["port_channels"][po_id]["storm_control"]["broadcast"] = {}
+                        if "pps" in storm_params:
+                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\spps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["pps"] = {} 
+                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["pps"]["rising_threshold"] = storm_thresholds[0][0]
+                            if storm_thresholds[0][1]:
+                                dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["pps"]["falling_threshold"] = storm_thresholds[0][1]
+                        elif "bps" in storm_params:
+                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\sbps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["bps"] = {} 
+                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["bps"]["rising_threshold"] = storm_thresholds[0][0]
+                            if storm_thresholds[0][1]:
+                                dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["bps"]["falling_threshold"] = storm_thresholds[0][1]
+                        else:
+                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["level"] = {} 
+                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["level"]["rising_threshold"] = storm_thresholds[0][0]
+                            if storm_thresholds[0][1]:
+                                dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["level"]["falling_threshold"] = storm_thresholds[0][1]
+                    elif "broadcast" in storm_params and "storm_control" in dev_data["port_channels"][po_id]:
+                        dev_data["port_channels"][po_id]["storm_control"]["broadcast"] = {}
+                        if "pps" in storm_params:
+                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\spps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["pps"] = {} 
+                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["pps"]["rising_threshold"] = storm_thresholds[0][0]
+                            if storm_thresholds[0][1]:
+                                dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["pps"]["falling_threshold"] = storm_thresholds[0][1]
+                        elif "bps" in storm_params:
+                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\sbps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["bps"] = {} 
+                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["bps"]["rising_threshold"] = storm_thresholds[0][0]
+                            if storm_thresholds[0][1]:
+                                dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["bps"]["falling_threshold"] = storm_thresholds[0][1]
+                        else:
+                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["level"] = {} 
+                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["level"]["rising_threshold"] = storm_thresholds[0][0]
+                            if storm_thresholds[0][1]:
+                                dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["level"]["falling_threshold"] = storm_thresholds[0][1]
+            ### PARSING REGULAR INTERFACES ###
             elif "Port-channel" not in if_line.text:
-                if_id = if_line.text.replace("interface ", "")
-                dev_data["interfaces"][if_id] = {} 
-                dev_data["interfaces"][if_id]["enable"] = True
                 if "description" in if_data:
-                   dev_data["interfaces"][if_id]["description"] = if_data.replace("description ", "")
+                    dev_data["interfaces"][if_id]["description"] = if_data.replace("description ", "")
                 elif "shutdown" in if_data:
                     dev_data["interfaces"][if_id]["enable"] = False
                 elif "ip vrf" in if_data:
@@ -136,23 +178,64 @@ def audit_interfaces(parse_obj):
                         elif f"standby {hsrp_group} authentication" in if_data:
                             dev_data["interfaces"][if_id]["hsrp"]["authentication"] = if_data.replace(f"standby {hsrp_group} authentication ", "")
                 elif "switchport mode access" in if_data:
-                    if "mode" not in dev_data["interfaces"][if_id]:
-                        dev_data["interfaces"][if_id]["mode"] = {}
-                        dev_data["interfaces"][if_id]["mode"]["access"] = True 
-                    else:
-                        dev_data["interfaces"][if_id]["mode"]["access"] = True 
+                    dev_data["interfaces"][if_id]["mode"] = "access"
                 elif "switchport access vlan" in if_data:
-                    if "mode" not in dev_data["interfaces"][if_id]:
-                        dev_data["interfaces"][if_id]["mode"] = {}
-                        dev_data["interfaces"][if_id]["mode"]["vlan"] = if_data.replace("switchport access vlan ","")
-                    else:
-                        dev_data["interfaces"][if_id]["mode"]["vlan"] = if_data.replace("switchport access vlan ","")
+                        dev_data["interfaces"][if_id]["access_vlan"] = if_data.replace("switchport access vlan ","")
                 elif "switchport mode trunk" in if_data:
-                    if "mode" not in dev_data["interfaces"][if_id]:
-                        dev_data["interfaces"][if_id]["mode"] = {}
-                        dev_data["interfaces"][if_id]["mode"]["trunk"] = True 
-                    else:
-                        dev_data["interfaces"][if_id]["mode"]["trunk"] = True 
+                    dev_data["interfaces"][if_id]["mode"] = "trunk"
+                elif "switchport trunk" in if_data:
+                    trunk_params = if_data.replace("switchport trunk ", "")
+                    if "encapsulation" in trunk_params:
+                        dev_data["interfaces"][if_id]["encapsulation"] = trunk_params.replace("encapsulation ", "" )
+                    elif "native" in trunk_params:
+                        dev_data["interfaces"][if_id]["native_vlan"] = trunk_params.replace("native vlan ", "" )
+                    elif "allowed" in trunk_params:
+                        dev_data["interfaces"][if_id]["vlans"] = trunk_params.replace("allowed vlan ", "" )
+                ### STORM CONTROL EVALUATION ###
+                elif "storm-control" in if_data:
+                    storm_params = if_data.replace("storm-control ", " ")
+                    if "broadcast" in storm_params and "storm_control" not in dev_data["interfaces"][if_id]:
+                        dev_data["interfaces"][if_id]["storm_control"] = {}
+                        dev_data["interfaces"][if_id]["storm_control"]["broadcast"] = {}
+                        if "pps" in storm_params:
+                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\spps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["pps"] = {} 
+                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["pps"]["rising_threshold"] = storm_thresholds[0][0]
+                            if storm_thresholds[0][1]:
+                                dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["pps"]["falling_threshold"] = storm_thresholds[0][1]
+                        elif "bps" in storm_params:
+                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\sbps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["bps"] = {} 
+                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["bps"]["rising_threshold"] = storm_thresholds[0][0]
+                            if storm_thresholds[0][1]:
+                                dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["bps"]["falling_threshold"] = storm_thresholds[0][1]
+                        else:
+                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["level"] = {} 
+                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["level"]["rising_threshold"] = storm_thresholds[0][0]
+                            if storm_thresholds[0][1]:
+                                dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["level"]["falling_threshold"] = storm_thresholds[0][1]
+                    elif "broadcast" in storm_params and "storm_control" in dev_data["interfaces"][if_id]:
+                        dev_data["interfaces"][if_id]["storm_control"]["broadcast"] = {}
+                        if "pps" in storm_params:
+                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\spps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["pps"] = {} 
+                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["pps"]["rising_threshold"] = storm_thresholds[0][0]
+                            if storm_thresholds[0][1]:
+                                dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["pps"]["falling_threshold"] = storm_thresholds[0][1]
+                        elif "bps" in storm_params:
+                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\sbps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["bps"] = {} 
+                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["bps"]["rising_threshold"] = storm_thresholds[0][0]
+                            if storm_thresholds[0][1]:
+                                dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["bps"]["falling_threshold"] = storm_thresholds[0][1]
+                        else:
+                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["level"] = {} 
+                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["level"]["rising_threshold"] = storm_thresholds[0][0]
+                            if storm_thresholds[0][1]:
+                                dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["level"]["falling_threshold"] = storm_thresholds[0][1]
 
+                    
 
     return dev_data
