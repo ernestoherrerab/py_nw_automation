@@ -24,6 +24,7 @@ def audit_interfaces(parse_obj):
         for if_data in if_line.children:
             if_data = if_data.text.replace(" ", "", 1)
             ### PARSING PORT CHANNELS ###
+            ### PARSE DESCRIPTION, STATUS, VRF, IP ADDRESS, HELPER ADDRESS ###
             if "Port-channel" in if_line.text:
                 if "description" in if_data:
                     dev_data["port_channels"][po_id]["description"] = if_data.replace("description ", "")
@@ -41,6 +42,7 @@ def audit_interfaces(parse_obj):
                         dev_data["port_channels"][po_id]["ip_helper"].append(if_data.replace("ip helper-address ", ""))
                     else:
                         dev_data["port_channels"][po_id]["ip_helper"].append(if_data.replace("ip helper-address ", ""))
+                ### PARSE HSRP ###
                 elif "standby version" in if_data:
                     if "hsrp" not in dev_data["port_channels"][po_id]:
                         dev_data["port_channels"][po_id]["hsrp"] = {}
@@ -71,6 +73,7 @@ def audit_interfaces(parse_obj):
                             dev_data["port_channels"][po_id]["hsrp"]["preempt"] = True
                         elif f"standby {hsrp_group} authentication" in if_data:
                             dev_data["port_channels"][po_id]["hsrp"]["authentication"] = if_data.replace(f"standby {hsrp_group} authentication ", "")
+                ### PARSE SWITCHPORT CONFIGS ###
                 elif "switchport mode access" in if_data:
                     dev_data["port_channels"][po_id]["mode"] = "access" 
                 elif "switchport access vlan" in if_data:
@@ -131,8 +134,24 @@ def audit_interfaces(parse_obj):
                             dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["level"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
                                 dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["level"]["falling_threshold"] = storm_thresholds[0][1]
+                    elif "action" in storm_control_sect and "storm_control" not in dev_data["port_channels"][po_id]:
+                        storm_action = storm_params.replace(" action ", "")
+                        dev_data["port_channels"][po_id]["storm_control"] = {}
+                        dev_data["port_channels"][po_id]["storm_control"][storm_control_sect] = []
+                        dev_data["port_channels"][po_id]["storm_control"][storm_control_sect].append(storm_action)
+                    elif "action" in storm_control_sect and "storm_control" in dev_data["port_channels"][po_id]:
+                        storm_action = storm_params.replace(" action ", "")
+                        if storm_control_sect not in dev_data["port_channels"][po_id]["storm_control"]:
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect] = []
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect].append(storm_action)
+                        elif storm_control_sect in dev_data["port_channels"][po_id]["storm_control"]:
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect].append(storm_action)
+
+
             ### PARSING REGULAR INTERFACES ###
             elif "Port-channel" not in if_line.text:
+                ### PARSING INTERFACES ###
+                ### PARSE DESCRIPTION, STATUS, VRF, IP ADDRESS, HELPER ADDRESS ###
                 if "description" in if_data:
                     dev_data["interfaces"][if_id]["description"] = if_data.replace("description ", "")
                 elif "shutdown" in if_data:
@@ -149,6 +168,7 @@ def audit_interfaces(parse_obj):
                         dev_data["interfaces"][if_id]["ip_helper"].append(if_data.replace("ip helper-address ", ""))
                     else:
                         dev_data["interfaces"][if_id]["ip_helper"].append(if_data.replace("ip helper-address ", ""))
+                ### PARSE HSRP ###
                 elif "standby version" in if_data:
                     if "hsrp" not in dev_data["interfaces"][if_id]:
                         dev_data["interfaces"][if_id]["hsrp"] = {}
@@ -179,6 +199,7 @@ def audit_interfaces(parse_obj):
                             dev_data["interfaces"][if_id]["hsrp"]["preempt"] = True
                         elif f"standby {hsrp_group} authentication" in if_data:
                             dev_data["interfaces"][if_id]["hsrp"]["authentication"] = if_data.replace(f"standby {hsrp_group} authentication ", "")
+                ### PARSE SWITCHPORT CONFIGS ###
                 elif "switchport mode access" in if_data:
                     dev_data["interfaces"][if_id]["mode"] = "access"
                 elif "switchport access vlan" in if_data:
@@ -239,7 +260,18 @@ def audit_interfaces(parse_obj):
                             dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["level"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
                                 dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["level"]["falling_threshold"] = storm_thresholds[0][1]
-
+                    elif "action" in storm_control_sect and "storm_control" not in dev_data["interfaces"][if_id]:
+                        storm_action = storm_params.replace(" action ", "")
+                        dev_data["interfaces"][if_id]["storm_control"] = {}
+                        dev_data["interfaces"][if_id]["storm_control"][storm_control_sect] = []
+                        dev_data["interfaces"][if_id]["storm_control"][storm_control_sect].append(storm_action)
+                    elif "action" in storm_control_sect and "storm_control" in dev_data["interfaces"][if_id]:
+                        storm_action = storm_params.replace(" action ", "")
+                        if storm_control_sect not in dev_data["interfaces"][if_id]["storm_control"]:
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect] = []
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect].append(storm_action)
+                        elif storm_control_sect in dev_data["port_channels"][po_id]["storm_control"]:
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect].append(storm_action)
                     
 
     return dev_data
