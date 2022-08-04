@@ -88,47 +88,49 @@ def audit_interfaces(parse_obj):
                 ### STORM CONTROL EVALUATION ###
                 elif "storm-control" in if_data:
                     storm_params = if_data.replace("storm-control ", " ")
-                    if "broadcast" in storm_params and "storm_control" not in dev_data["port_channels"][po_id]:
+                    storm_control_sect = re.findall(r'storm-control\s(\S+)',if_data)
+                    storm_control_sect = storm_control_sect[0]
+                    if "action" not in storm_control_sect and "storm_control" not in dev_data["port_channels"][po_id]:
                         dev_data["port_channels"][po_id]["storm_control"] = {}
-                        dev_data["port_channels"][po_id]["storm_control"]["broadcast"] = {}
+                        dev_data["port_channels"][po_id]["storm_control"][storm_control_sect] = {}
                         if "pps" in storm_params:
-                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\spps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
-                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["pps"] = {} 
-                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["pps"]["rising_threshold"] = storm_thresholds[0][0]
+                            storm_thresholds = re.findall(r'(?<=\w\slevel\spps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["pps"] = {} 
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["pps"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
-                                dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["pps"]["falling_threshold"] = storm_thresholds[0][1]
+                                dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["pps"]["falling_threshold"] = storm_thresholds[0][1]
                         elif "bps" in storm_params:
-                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\sbps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
-                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["bps"] = {} 
-                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["bps"]["rising_threshold"] = storm_thresholds[0][0]
+                            storm_thresholds = re.findall(r'(?<=\w\slevel\sbps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["bps"] = {} 
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["bps"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
-                                dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["bps"]["falling_threshold"] = storm_thresholds[0][1]
+                                dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["bps"]["falling_threshold"] = storm_thresholds[0][1]
                         else:
-                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
-                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["level"] = {} 
-                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["level"]["rising_threshold"] = storm_thresholds[0][0]
+                            storm_thresholds = re.findall(r'(?<=\w\slevel\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["level"] = {} 
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["level"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
-                                dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["level"]["falling_threshold"] = storm_thresholds[0][1]
-                    elif "broadcast" in storm_params and "storm_control" in dev_data["port_channels"][po_id]:
-                        dev_data["port_channels"][po_id]["storm_control"]["broadcast"] = {}
+                                dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["level"]["falling_threshold"] = storm_thresholds[0][1]
+                    elif "action" not in storm_params and "storm_control" in dev_data["port_channels"][po_id]:
+                        dev_data["port_channels"][po_id]["storm_control"][storm_control_sect] = {}
                         if "pps" in storm_params:
-                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\spps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
-                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["pps"] = {} 
-                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["pps"]["rising_threshold"] = storm_thresholds[0][0]
+                            storm_thresholds = re.findall(r'(?<=\w\slevel\spps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["pps"] = {} 
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["pps"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
-                                dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["pps"]["falling_threshold"] = storm_thresholds[0][1]
+                                dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["pps"]["falling_threshold"] = storm_thresholds[0][1]
                         elif "bps" in storm_params:
-                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\sbps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
-                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["bps"] = {} 
-                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["bps"]["rising_threshold"] = storm_thresholds[0][0]
+                            storm_thresholds = re.findall(r'(?<=\w\slevel\sbps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["bps"] = {} 
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["bps"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
-                                dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["bps"]["falling_threshold"] = storm_thresholds[0][1]
+                                dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["bps"]["falling_threshold"] = storm_thresholds[0][1]
                         else:
-                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
-                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["level"] = {} 
-                            dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["level"]["rising_threshold"] = storm_thresholds[0][0]
+                            storm_thresholds = re.findall(r'(?<=\w\slevel\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["level"] = {} 
+                            dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["level"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
-                                dev_data["port_channels"][po_id]["storm_control"]["broadcast"]["level"]["falling_threshold"] = storm_thresholds[0][1]
+                                dev_data["port_channels"][po_id]["storm_control"][storm_control_sect]["level"]["falling_threshold"] = storm_thresholds[0][1]
             ### PARSING REGULAR INTERFACES ###
             elif "Port-channel" not in if_line.text:
                 if "description" in if_data:
@@ -194,47 +196,49 @@ def audit_interfaces(parse_obj):
                 ### STORM CONTROL EVALUATION ###
                 elif "storm-control" in if_data:
                     storm_params = if_data.replace("storm-control ", " ")
-                    if "broadcast" in storm_params and "storm_control" not in dev_data["interfaces"][if_id]:
+                    storm_control_sect = re.findall(r'storm-control\s(\S+)',if_data)
+                    storm_control_sect = storm_control_sect[0]
+                    if "action" not in storm_params and "storm_control" not in dev_data["interfaces"][if_id]:
                         dev_data["interfaces"][if_id]["storm_control"] = {}
-                        dev_data["interfaces"][if_id]["storm_control"]["broadcast"] = {}
+                        dev_data["interfaces"][if_id]["storm_control"][storm_control_sect] = {}
                         if "pps" in storm_params:
-                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\spps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
-                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["pps"] = {} 
-                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["pps"]["rising_threshold"] = storm_thresholds[0][0]
+                            storm_thresholds = re.findall(r'(?<=\w\slevel\spps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["pps"] = {} 
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["pps"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
-                                dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["pps"]["falling_threshold"] = storm_thresholds[0][1]
+                                dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["pps"]["falling_threshold"] = storm_thresholds[0][1]
                         elif "bps" in storm_params:
-                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\sbps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
-                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["bps"] = {} 
-                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["bps"]["rising_threshold"] = storm_thresholds[0][0]
+                            storm_thresholds = re.findall(r'(?<=\w\slevel\sbps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["bps"] = {} 
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["bps"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
-                                dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["bps"]["falling_threshold"] = storm_thresholds[0][1]
+                                dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["bps"]["falling_threshold"] = storm_thresholds[0][1]
                         else:
-                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
-                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["level"] = {} 
-                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["level"]["rising_threshold"] = storm_thresholds[0][0]
+                            storm_thresholds = re.findall(r'(?<=\w\slevel\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["level"] = {} 
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["level"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
-                                dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["level"]["falling_threshold"] = storm_thresholds[0][1]
-                    elif "broadcast" in storm_params and "storm_control" in dev_data["interfaces"][if_id]:
-                        dev_data["interfaces"][if_id]["storm_control"]["broadcast"] = {}
+                                dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["level"]["falling_threshold"] = storm_thresholds[0][1]
+                    elif "action" not in storm_params and "storm_control" in dev_data["interfaces"][if_id]:
+                        dev_data["interfaces"][if_id]["storm_control"][storm_control_sect] = {}
                         if "pps" in storm_params:
-                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\spps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
-                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["pps"] = {} 
-                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["pps"]["rising_threshold"] = storm_thresholds[0][0]
+                            storm_thresholds = re.findall(r'(?<=\w\slevel\spps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["pps"] = {} 
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["pps"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
-                                dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["pps"]["falling_threshold"] = storm_thresholds[0][1]
+                                dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["pps"]["falling_threshold"] = storm_thresholds[0][1]
                         elif "bps" in storm_params:
-                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\sbps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
-                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["bps"] = {} 
-                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["bps"]["rising_threshold"] = storm_thresholds[0][0]
+                            storm_thresholds = re.findall(r'(?<=\w\slevel\sbps\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["bps"] = {} 
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["bps"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
-                                dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["bps"]["falling_threshold"] = storm_thresholds[0][1]
+                                dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["bps"]["falling_threshold"] = storm_thresholds[0][1]
                         else:
-                            storm_thresholds = re.findall(r'(?<=broadcast\slevel\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
-                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["level"] = {} 
-                            dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["level"]["rising_threshold"] = storm_thresholds[0][0]
+                            storm_thresholds = re.findall(r'(?<=\w\slevel\s)(\S+)(?(?=\s\S+)\s(\S+))', storm_params)
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["level"] = {} 
+                            dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["level"]["rising_threshold"] = storm_thresholds[0][0]
                             if storm_thresholds[0][1]:
-                                dev_data["interfaces"][if_id]["storm_control"]["broadcast"]["level"]["falling_threshold"] = storm_thresholds[0][1]
+                                dev_data["interfaces"][if_id]["storm_control"][storm_control_sect]["level"]["falling_threshold"] = storm_thresholds[0][1]
 
                     
 
