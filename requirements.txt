@@ -11,6 +11,7 @@ nornir-scrapli==2022.1.30
 pyats==22.2
 python-decouple==3.6
 PyYAML==6.0
+regex==2022.7.25
 requests==2.27.1
 tqdm==4.63.1
 urllib3==1.26.9

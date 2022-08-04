@@ -30,6 +30,10 @@ def audit_interfaces(parse_obj):
                     dev_data["port_channels"][po_id]["description"] = if_data.replace("description ", "")
                 elif "shutdown" in if_data:
                     dev_data["port_channels"][po_id]["enable"] = False
+                elif "speed" in if_data:
+                    dev_data["port_channels"][po_id]["speed"] = if_data.replace("speed ", "")
+                elif "duplex" in if_data:
+                    dev_data["port_channels"][po_id]["duplex"] = if_data.replace("duplex ", "")
                 elif "ip vrf" in if_data:
                     dev_data["port_channels"][po_id]["vrf"] = if_data.replace("ip vrf forwarding ", "")
                 elif "ip address" in if_data:
@@ -146,7 +150,33 @@ def audit_interfaces(parse_obj):
                             dev_data["port_channels"][po_id]["storm_control"][storm_control_sect].append(storm_action)
                         elif storm_control_sect in dev_data["port_channels"][po_id]["storm_control"]:
                             dev_data["port_channels"][po_id]["storm_control"][storm_control_sect].append(storm_action)
-
+                ### SPANNING TREE EVALUATION ###
+                elif "spanning-tree" in if_data:
+                    if "spanning_tree" not in dev_data["port_channels"][po_id]:
+                        stp_params = re.findall(r'(?<=spanning-tree\s)(\S+)(?(?=\s\S+)\s(\S+))', if_data)
+                        dev_data["port_channels"][po_id]["spanning_tree"] = {}
+                        if stp_params[0][0] == "bpduguard" or stp_params[0][0] == "guard":
+                            dev_data["port_channels"][po_id]["spanning_tree"][stp_params[0][0]] = stp_params[0][1]
+                        elif stp_params[0][0] == "portfast" and stp_params[0][1] == "":
+                            dev_data["port_channels"][po_id]["spanning_tree"][stp_params[0][0]] = "enable"
+                        elif stp_params[0][0] == "portfast" and stp_params[0][1] != "":
+                            dev_data["port_channels"][po_id]["spanning_tree"][stp_params[0][0]] = stp_params[0][1]
+                    elif "spanning_tree" in dev_data["port_channels"][po_id]:
+                        stp_params = re.findall(r'(?<=spanning-tree\s)(\S+)(?(?=\s\S+)\s(\S+))', if_data)
+                        if stp_params[0][0] == "bpduguard" or stp_params[0][0] == "guard":
+                            dev_data["port_channels"][po_id]["spanning_tree"][stp_params[0][0]] = stp_params[0][1]
+                        elif stp_params[0][0] == "portfast" and stp_params[0][1] == "":
+                            dev_data["port_channels"][po_id]["spanning_tree"][stp_params[0][0]] = "enable"
+                        elif stp_params[0][0] == "portfast" and stp_params[0][1] != "":
+                            dev_data["port_channels"][po_id]["spanning_tree"][stp_params[0][0]] = stp_params[0][1]
+                ### QOS TRUST EVALUATION ###
+                elif "mls qos" in if_data and "mls_qos" not in dev_data["port_channels"][po_id]:
+                    mls_qos_params = re.findall(r'mls\sqos\s(\S+)\s(\S+)', if_data)
+                    dev_data["port_channels"][po_id]["mls_qos"] = {}
+                    dev_data["port_channels"][po_id]["mls_qos"][mls_qos_params[0][0]] = mls_qos_params[0][1]
+                elif "mls qos" in if_data and "mls_qos" in dev_data["port_channels"][po_id]:
+                    mls_qos_params = re.findall(r'mls\sqos\s(\S+)\s(\S+)', if_data)
+                    dev_data["port_channels"][po_id]["mls_qos"][mls_qos_params[0][0]] = mls_qos_params[0][1]
 
             ### PARSING REGULAR INTERFACES ###
             elif "Port-channel" not in if_line.text:
@@ -156,6 +186,10 @@ def audit_interfaces(parse_obj):
                     dev_data["interfaces"][if_id]["description"] = if_data.replace("description ", "")
                 elif "shutdown" in if_data:
                     dev_data["interfaces"][if_id]["enable"] = False
+                elif "speed" in if_data:
+                    dev_data["interfaces"][if_id]["speed"] = if_data.replace("speed ", "")
+                elif "duplex" in if_data:
+                    dev_data["interfaces"][if_id]["duplex"] = if_data.replace("duplex ", "")
                 elif "ip vrf" in if_data:
                     dev_data["interfaces"][if_id]["vrf"] = if_data.replace("ip vrf forwarding ", "")
                 elif "ip address" in if_data:
@@ -272,6 +306,34 @@ def audit_interfaces(parse_obj):
                             dev_data["interfaces"][if_id]["storm_control"][storm_control_sect].append(storm_action)
                         elif storm_control_sect in dev_data["port_channels"][po_id]["storm_control"]:
                             dev_data["interfaces"][if_id]["storm_control"][storm_control_sect].append(storm_action)
-                    
+                ### SPANNING TREE EVALUATION ###
+                elif "spanning-tree" in if_data:
+                    if "spanning_tree" not in dev_data["interfaces"][if_id]:
+                        stp_params = re.findall(r'(?<=spanning-tree\s)(\S+)(?(?=\s\S+)\s(\S+))', if_data)
+                        dev_data["interfaces"][if_id]["spanning_tree"] = {}
+                        if stp_params[0][0] == "bpduguard" or stp_params[0][0] == "guard":
+                            dev_data["interfaces"][if_id]["spanning_tree"][stp_params[0][0]] = stp_params[0][1]
+                        elif stp_params[0][0] == "portfast" and stp_params[0][1] == "":
+                            dev_data["interfaces"][if_id]["spanning_tree"][stp_params[0][0]] = "enable"
+                        elif stp_params[0][0] == "portfast" and stp_params[0][1] != "":
+                            dev_data["interfaces"][if_id]["spanning_tree"][stp_params[0][0]] = stp_params[0][1]
+                    elif "spanning_tree" in dev_data["interfaces"][if_id]:
+                        stp_params = re.findall(r'(?<=spanning-tree\s)(\S+)(?(?=\s\S+)\s(\S+))', if_data)
+                        if stp_params[0][0] == "bpduguard" or stp_params[0][0] == "guard":
+                            dev_data["interfaces"][if_id]["spanning_tree"][stp_params[0][0]] = stp_params[0][1]
+                        elif stp_params[0][0] == "portfast" and stp_params[0][1] == "":
+                            dev_data["interfaces"][if_id]["spanning_tree"][stp_params[0][0]] = "enable"
+                        elif stp_params[0][0] == "portfast" and stp_params[0][1] != "":
+                            dev_data["interfaces"][if_id]["spanning_tree"][stp_params[0][0]] = stp_params[0][1]
+                ### QOS TRUST EVALUATION ###
+                elif "mls qos" in if_data and "mls_qos" not in dev_data["interfaces"][if_id]:
+                    mls_qos_params = re.findall(r'mls\sqos\s(\S+)\s(\S+)', if_data)
+                    dev_data["interfaces"][if_id]["mls_qos"] = {}
+                    dev_data["interfaces"][if_id]["mls_qos"][mls_qos_params[0][0]] = mls_qos_params[0][1]
+                elif "mls qos" in if_data and "mls_qos" in dev_data["interfaces"][if_id]:
+                    mls_qos_params = re.findall(r'mls\sqos\s(\S+)\s(\S+)', if_data)
+                    dev_data["interfaces"][if_id]["mls_qos"][mls_qos_params[0][0]] = mls_qos_params[0][1]
+                           
+
 
     return dev_data
