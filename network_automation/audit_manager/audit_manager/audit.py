@@ -15,6 +15,7 @@ import network_automation.audit_manager.audit_manager.parsers.getNTP as getNTP
 import network_automation.audit_manager.audit_manager.parsers.getSTP as getSTP
 import network_automation.audit_manager.audit_manager.parsers.getSVI as getSVI
 import network_automation.audit_manager.audit_manager.parsers.getVLAN as getVLAN
+import network_automation.audit_manager.audit_manager.parsers.getVRF as getVRF
 
 
 class NoAliasDumper(SafeDumper):
@@ -76,3 +77,8 @@ def do_audit(username, password, depth_levels=3):
         print("Getting STP Configs...")
         dev_data[dev_config[0]] = getSTP.audit_stp(parse_obj)
         build_yml_file("stp", dev_data[dev_config[0]], dev_audit_path)
+
+        #### PARSE VRF & DUMP INTO FILE ###
+        print("Getting VRF Configs...")
+        dev_data[dev_config[0]] = getVRF.audit_vrf(parse_obj)
+        build_yml_file("vrf", dev_data[dev_config[0]], dev_audit_path)
