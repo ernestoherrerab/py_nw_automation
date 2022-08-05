@@ -10,6 +10,7 @@ from yaml import SafeDumper
 import network_automation.audit_manager.audit_manager.getConfig as get_config
 import network_automation.audit_manager.audit_manager.parsers.getAAA as getAAA
 import network_automation.audit_manager.audit_manager.parsers.getBase as getBase
+import network_automation.audit_manager.audit_manager.parsers.getBGP as getBGP
 import network_automation.audit_manager.audit_manager.parsers.getInterfaces as getInterfaces
 import network_automation.audit_manager.audit_manager.parsers.getNTP as getNTP
 import network_automation.audit_manager.audit_manager.parsers.getSTP as getSTP
@@ -82,3 +83,8 @@ def do_audit(username, password, depth_levels=3):
         print("Getting VRF Configs...")
         dev_data[dev_config[0]] = getVRF.audit_vrf(parse_obj)
         build_yml_file("vrf", dev_data[dev_config[0]], dev_audit_path)
+
+        #### PARSE BGP & DUMP INTO FILE ###
+        print("Getting BGP Configs...")
+        dev_data[dev_config[0]] = getBGP.audit_bgp(parse_obj)
+        build_yml_file("router_bgp", dev_data[dev_config[0]], dev_audit_path)
