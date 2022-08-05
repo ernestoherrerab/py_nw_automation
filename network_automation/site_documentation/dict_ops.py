@@ -47,8 +47,8 @@ def iterdict(input_dict):
      else:
         if "files" not in input_dict:
             input_dict.pop(k, None)            
-            input_dict["files"] = []
-            input_dict["files"].append(v)
+            input_dict["children"] = []
+            input_dict["children"].append(v)
         else:
             input_dict.pop(k, None)
-            input_dict["files"].append(v)
+            input_dict["children"].append(v)

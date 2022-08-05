@@ -29,7 +29,7 @@ def get_documentation():
     for tuple in tupled_tree:
         tuple = list(tuple)
         tuple.pop(0)
-        dict_ops.setInDict(site_docs, tuple, tuple[len(tuple)-1])
-        
+        dict_ops.setInDict(site_docs, tuple, tuple[len(tuple)-1])  
     dict_ops.iterdict(site_docs)
+
     return site_docs
