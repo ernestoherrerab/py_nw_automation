@@ -4,6 +4,7 @@ Module for dictionary operations
 """
 from functools import reduce
 import operator
+from random import randint
 
 
 def getFromDict(input_dict, input_list):
@@ -45,10 +46,11 @@ def iterdict(input_dict):
      if isinstance(v, dict):
          iterdict(v)
      else:
-        if "files" not in input_dict:
+        if "children" not in input_dict:
             input_dict.pop(k, None)            
             input_dict["children"] = []
-            input_dict["children"].append(v)
+            input_dict["children"].append({"id": str(randint(1, 10000)), "name": v})
         else:
             input_dict.pop(k, None)
-            input_dict["children"].append(v)
+            input_dict["children"].append({"id": str(randint(1, 10000)), "name": v})
+            
