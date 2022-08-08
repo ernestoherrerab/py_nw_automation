@@ -22,8 +22,14 @@ def audit_bgp(parse_obj):
                 neighbor = re.findall(r'neighbor\s(\S+)', bgp_line_text)
                 dev_data["router_bgp"]["neighbors"] = {}
                 dev_data["router_bgp"]["neighbors"][neighbor[0]] = {} 
+                if "remote-as" in bgp_line_text:
+                    dev_data["router_bgp"]["neighbors"][neighbor[0]]["remote_as"] = int(re.sub(r'\sneighbor\s\S+\sremote-as\s', "", bgp_line_text))
             elif neigh_match and "neighbors" in dev_data["router_bgp"]: 
                 neighbor = re.findall(r'neighbor\s(\S+)', bgp_line_text)
-                dev_data["router_bgp"]["neighbors"][neighbor[0]] = {} 
+                if "remote-as" in bgp_line_text and neighbor[0] not in dev_data["router_bgp"]["neighbors"]:
+                    dev_data["router_bgp"]["neighbors"][neighbor[0]] = {} 
+                    dev_data["router_bgp"]["neighbors"][neighbor[0]]["remote_as"] = int(re.sub(r'\sneighbor\s\S+\sremote-as\s', "", bgp_line_text))
+                elif "remote-as" in bgp_line_text and neighbor[0] in dev_data["router_bgp"]["neighbors"]:
+                    dev_data["router_bgp"]["neighbors"][neighbor[0]]["remote_as"] = int(re.sub(r'\sneighbor\s\S+\sremote-as\s', "", bgp_line_text))
 
     return dev_data
