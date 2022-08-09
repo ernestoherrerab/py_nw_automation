@@ -27,7 +27,6 @@ def audit_vrf(parse_obj):
                 dev_data["vrfs"][vrf]["route_targets"][vrf_target_params[0][0]].append(vrf_target_params[0][1])
             elif "route-target" in vrf_data and "route_targets" in dev_data["vrfs"][vrf]:
                 vrf_target_params = re.findall(r'route-target\s(\S+)\s(\S+)', vrf_data) 
-                print(vrf_target_params)
                 if vrf_target_params[0][0] not in dev_data["vrfs"][vrf]["route_targets"]:
                     dev_data["vrfs"][vrf]["route_targets"][vrf_target_params[0][0]] = []
                     dev_data["vrfs"][vrf]["route_targets"][vrf_target_params[0][0]].append(vrf_target_params[0][1])
