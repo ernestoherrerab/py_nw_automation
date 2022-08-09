@@ -13,6 +13,7 @@ import network_automation.audit_manager.audit_manager.parsers.getBase as getBase
 import network_automation.audit_manager.audit_manager.parsers.getBGP as getBGP
 import network_automation.audit_manager.audit_manager.parsers.getInterfaces as getInterfaces
 import network_automation.audit_manager.audit_manager.parsers.getNTP as getNTP
+import network_automation.audit_manager.audit_manager.parsers.getStatic as getStatic
 import network_automation.audit_manager.audit_manager.parsers.getSTP as getSTP
 import network_automation.audit_manager.audit_manager.parsers.getSVI as getSVI
 import network_automation.audit_manager.audit_manager.parsers.getVLAN as getVLAN
@@ -88,3 +89,8 @@ def do_audit(username, password, depth_levels=3):
         print("Getting BGP Configs...")
         dev_data[dev_config[0]] = getBGP.audit_bgp(parse_obj)
         build_yml_file("router_bgp", dev_data[dev_config[0]], dev_audit_path)
+
+        #### PARSE STATIC ROUTES & DUMP INTO FILE ###
+        print("Getting Static Routes Configs...")
+        dev_data[dev_config[0]] = getStatic.audit_static(parse_obj)
+        build_yml_file("routing_static", dev_data[dev_config[0]], dev_audit_path)
