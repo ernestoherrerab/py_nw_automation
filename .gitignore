@@ -20,3 +20,6 @@ nornir.log
 frontend_service.sh
 scrapli.log
 testbed.yml
+!file-display/
+file-display/*
+!file-display/src/
