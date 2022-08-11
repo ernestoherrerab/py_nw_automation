@@ -19,4 +19,4 @@ network_automation/topology_builder/graphviz/hosts.yml
 nornir.log
 frontend_service.sh
 scrapli.log
-file_display/
+file-display/*
