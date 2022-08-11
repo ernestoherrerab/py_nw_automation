@@ -49,7 +49,6 @@ def restructure_data(input_dict):
     """Restructure Data for React"""
     output_dict = []
     for key in input_dict:
-        
         if key!='children':
             id = str(randint(1, 10000))
             trans_dict = {"id": id, "name": key}
