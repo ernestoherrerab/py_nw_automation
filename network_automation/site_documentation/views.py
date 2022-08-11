@@ -21,9 +21,6 @@ def home():
         response = jsonify({'data': site_data})
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response
-    #return render_template(
-    #    f"{template_dir}/home.html", site_data_list=site_data_list
-    #)
 
 @site_documentation.app_template_filter('is_dict')
 def is_dict(value):

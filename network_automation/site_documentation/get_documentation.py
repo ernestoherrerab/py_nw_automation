@@ -4,9 +4,6 @@ Module to Structure a dictionary for HTML consumption
 """
 
 from pathlib import Path, PurePath
-from random import randint
-from signal import siginterrupt
-from typing_extensions import final
 import network_automation.site_documentation.dict_ops as dict_ops
 
 def get_documentation():
