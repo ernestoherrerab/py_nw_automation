@@ -9,6 +9,7 @@ from yaml import dump
 from yaml import SafeDumper
 import network_automation.audit_manager.audit_manager.getConfig as get_config
 import network_automation.audit_manager.audit_manager.parsers.getAAA as getAAA
+import network_automation.audit_manager.audit_manager.parsers.getACL as getACL
 import network_automation.audit_manager.audit_manager.parsers.getBase as getBase
 import network_automation.audit_manager.audit_manager.parsers.getBGP as getBGP
 import network_automation.audit_manager.audit_manager.parsers.getInterfaces as getInterfaces
@@ -94,3 +95,8 @@ def do_audit(username, password, depth_levels=3):
         print("Getting Static Routes Configs...")
         dev_data[dev_config[0]] = getStatic.audit_static(parse_obj)
         build_yml_file("routing_static", dev_data[dev_config[0]], dev_audit_path)
+
+        #### PARSE ACLS & DUMP INTO FILE ###
+        print("Getting ACLs Configs...")
+        dev_data[dev_config[0]] = getACL.audit_acl(parse_obj)
+        build_yml_file("access_lists", dev_data[dev_config[0]], dev_audit_path)
