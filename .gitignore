@@ -20,3 +20,8 @@ nornir.log
 frontend_service.sh
 scrapli.log
 file-display/*
+!file-display/src/
+
+file-display/src/*
+!file-display/src/App.js
+!file-display/src/index.js
