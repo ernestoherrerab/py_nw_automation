@@ -1,6 +1,6 @@
 .env
 archive/
-__pycache__/
+__pycache__
 test.py
 network_automation/audit_manager/audit_manager/inventory/hosts.yml
 network_automation/audit_manager/run_config/
@@ -19,9 +19,7 @@ network_automation/topology_builder/graphviz/hosts.yml
 nornir.log
 frontend_service.sh
 scrapli.log
+!file-display/
 file-display/*
 !file-display/src/
 
-file-display/src/*
-!file-display/src/App.js
-!file-display/src/index.js
