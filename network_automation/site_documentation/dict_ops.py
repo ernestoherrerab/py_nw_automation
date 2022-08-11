@@ -6,7 +6,6 @@ from functools import reduce
 import operator
 from random import randint
 
-
 def getFromDict(input_dict, input_list):
     """ 
     Find value in nested dictionary using a list to iterate 
@@ -15,15 +14,6 @@ def getFromDict(input_dict, input_list):
     file path given 
     """
     return reduce(operator.getitem, input_list, input_dict)
-
-def find_key(input_dict, value):
-    for k,v in input_dict.items():
-        if isinstance(v, dict):
-            p = find_key(v, value)
-            if p:
-                return [k] + p
-        elif v == value:
-            return [k]
 
 def setInDict(input_dict, input_list, value):
     """
@@ -42,15 +32,29 @@ def dict_merge(dct, merge_dct):
             dct[k] = merge_dct[k]
 
 def iterdict(input_dict):
-  for k,v in input_dict.copy().items():        
-     if isinstance(v, dict):
-         iterdict(v)
-     else:
-        if "children" not in input_dict:
-            input_dict.pop(k, None)            
-            input_dict["children"] = []
-            input_dict["children"].append({"id": str(randint(1, 10000)), "name": v})
-        else:
-            input_dict.pop(k, None)
-            input_dict["children"].append({"id": str(randint(1, 10000)), "name": v})
+    """ Add Children key to files """
+    for k,v in input_dict.copy().items():        
+       if isinstance(v, dict):
+           iterdict(v)
+       else:
+          if "children" not in input_dict:
+              input_dict.pop(k, None)            
+              input_dict["children"] = []
+              input_dict["children"].append({"id": str(randint(1, 10000)), "name": v})
+          else:
+              input_dict.pop(k, None)
+              input_dict["children"].append({"id": str(randint(1, 10000)), "name": v})
             
+def restructure_data(input_dict):
+    """Restructure Data for React"""
+    output_dict = []
+    for key in input_dict:
+        
+        if key!='children':
+            id = str(randint(1, 10000))
+            trans_dict = {"id": id, "name": key}
+            trans_dict['children'] = restructure_data(input_dict[key])
+        else:
+            trans_dict = input_dict['children']
+        output_dict.append(trans_dict)
+    return output_dict
