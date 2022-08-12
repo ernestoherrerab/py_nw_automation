@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 """
-Script to parse Static Routing configs
+Script to parse ACLs configs
 """
-import regex as re
-from netaddr import valid_ipv4, IPAddress
+import re
+
 
 def audit_acl(parse_obj):
     """ Parse ACLs """
