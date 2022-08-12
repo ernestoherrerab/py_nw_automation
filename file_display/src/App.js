@@ -55,7 +55,14 @@ export default function App() {
       'Access-Control-Allow-Origin':"*"
   }).then(res => res.json()).then(res => {
     const {data} = res
+    const str = {id:'root', name:"Parent", children:[res.data[0], res.data[1]]}
     const newData = []
+    console.log(str)
+    setData(str)
+    str.children.map(child => {
+      console.log(child)
+    })
+    /*
      const restructure = (nodes) => {
       (Object.entries(nodes) || []).map(([key, value], i) => {
         const children = []
@@ -68,14 +75,14 @@ export default function App() {
      }
      restructure(data)
      console.log(newData)
-      setData(newData)
+      setData(newData)*/
     })
   },[])
 
   const renderTree = (nodes) => (
     <TreeItem key={nodes.id} nodeId={nodes.id} label={nodes.name}>
-      {Array.isArray(nodes.files)
-        ? nodes.files.map((node) => renderTree(node))
+      {Array.isArray(nodes.children)
+        ? nodes.children.map((node) => renderTree(node))
         : null}
     </TreeItem>
   );
@@ -90,7 +97,7 @@ export default function App() {
           defaultExpandIcon={<ChevronRightIcon />}
           sx={{ height: "100vh", flexGrow: 1, maxWidth: "100vw", overflowY: 'auto' }}
         >
-         { renderTree(dataOld)}
+         { renderTree(data)}
         </TreeView>
     </div>
   );
