@@ -2,7 +2,8 @@
 """
 Module to Structure a dictionary for HTML consumption
 """
-
+from json import dumps
+import json
 from pathlib import Path, PurePath
 import network_automation.site_documentation.dict_ops as dict_ops
 
@@ -31,7 +32,7 @@ def get_documentation():
         tuple.pop(0)
         dict_ops.setInDict(site_docs, tuple, tuple[len(tuple)-1])
     dict_ops.iterdict(site_docs)
-
+    
     final_site_docs = dict_ops.restructure_data(site_docs)
     
     return final_site_docs

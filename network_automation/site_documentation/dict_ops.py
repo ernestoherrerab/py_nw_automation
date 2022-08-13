@@ -3,6 +3,7 @@
 Module for dictionary operations
 """
 from functools import reduce
+from json import dumps
 import operator
 from random import randint
 
@@ -53,7 +54,9 @@ def restructure_data(input_dict):
             id = str(randint(1, 10000))
             trans_dict = {"id": id, "name": key}
             trans_dict['children'] = restructure_data(input_dict[key])
+            output_dict.append(trans_dict)
         else:
             trans_dict = input_dict['children']
-        output_dict.append(trans_dict)
+            output_dict.extend(trans_dict)
+    
     return output_dict
