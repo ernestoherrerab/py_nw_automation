@@ -3,7 +3,6 @@
 Module for dictionary operations
 """
 from functools import reduce
-from json import dumps
 import operator
 from random import randint
 

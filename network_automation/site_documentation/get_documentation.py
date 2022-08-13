@@ -2,8 +2,6 @@
 """
 Module to Structure a dictionary for HTML consumption
 """
-from json import dumps
-import json
 from pathlib import Path, PurePath
 import network_automation.site_documentation.dict_ops as dict_ops
 
