@@ -16,6 +16,7 @@ import network_automation.audit_manager.audit_manager.parsers.getInterfaces as g
 import network_automation.audit_manager.audit_manager.parsers.getNTP as getNTP
 import network_automation.audit_manager.audit_manager.parsers.getPrefixList as getPrefixList
 import network_automation.audit_manager.audit_manager.parsers.getRouteMap as getRouteMap
+import network_automation.audit_manager.audit_manager.parsers.getSNMP as getSNMP
 import network_automation.audit_manager.audit_manager.parsers.getStatic as getStatic
 import network_automation.audit_manager.audit_manager.parsers.getSTP as getSTP
 import network_automation.audit_manager.audit_manager.parsers.getSVI as getSVI
@@ -112,3 +113,8 @@ def do_audit(username, password, depth_levels=3):
         print("Getting Route Maps Configs...")
         dev_data[dev_config[0]] = getRouteMap.audit_route_map(parse_obj)
         build_yml_file("route_maps", dev_data[dev_config[0]], dev_audit_path)
+
+        #### PARSE SNMP & DUMP INTO FILE ###
+        print("Getting SNMP Server Configs...")
+        dev_data[dev_config[0]] = getSNMP.audit_snmp(parse_obj)
+        build_yml_file("snmp", dev_data[dev_config[0]], dev_audit_path)
