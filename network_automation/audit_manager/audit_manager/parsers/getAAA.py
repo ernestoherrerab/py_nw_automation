@@ -14,6 +14,7 @@ def audit_aaa(parse_obj):
     aaa_accounting_lines = parse_obj.find_objects(r"^aaa accounting")
     aaa_tacacs_lines = parse_obj.find_objects(r"^tacacs-server")
     aaa_tacacs_group_lines = parse_obj.find_objects(r"^aaa group server tacacs")
+    aaa_tacacs_source_if_line = parse_obj.find_objects(r'ip tacacs source-interface')
     aaa_radius_lines = parse_obj.find_objects(r"^radius-server")
     aaa_radius_group_lines = parse_obj.find_objects(r"^aaa server radius")
     aaa_usernames_lines = parse_obj.find_objects(r"^username")
@@ -32,6 +33,8 @@ def audit_aaa(parse_obj):
     dev_data["aaa"]["vtys"] = {}
     if aaa_enable_line:
         dev_data["aaa"]["enable_pass"] = aaa_enable_line[0].text.replace("enable", "").replace(" ", "", 1)
+    if aaa_tacacs_source_if_line:
+        dev_data["aaa"]["tacacs_source_interface"] = aaa_tacacs_source_if_line[0].text.replace("ip tacacs source-interface ", "")
     for aaa_authentication_line in aaa_authentication_lines:
         dev_data["aaa"]["authentication"].append(aaa_authentication_line.text.replace("aaa authentication", "").replace(" ", "", 1))
     for aaa_authorization_line in aaa_authorization_lines:
