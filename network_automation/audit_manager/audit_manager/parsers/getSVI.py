@@ -3,6 +3,7 @@
 Script to parse SVIs configs
 """
 import re
+from netaddr import IPAddress
 
 def audit_svi(parse_obj):
     """ Parse SVIs """
@@ -17,6 +18,9 @@ def audit_svi(parse_obj):
         dev_data["svis"][vlan_id]["enable"] = True
         for svi_data in svi_line.children:
             svi_data = svi_data.text.replace(" ", "", 1)
+            print(svi_data)
+            svi_ip_match = re.match(r'ip\saddress\s\S+\s\S+$', svi_data)
+            svi_ip_sec_match = re.match(r'ip\saddress\s\S+\s\S+\ssecondary$', svi_data)
             if "description" in svi_data:
                 dev_data["svis"][vlan_id]["description"] = svi_data.replace("description ", "")
             elif "shutdown" in svi_data:
@@ -25,10 +29,22 @@ def audit_svi(parse_obj):
                 dev_data["svis"][vlan_id]["vrf"] = svi_data.replace("ip vrf forwarding ", "")
             elif "no ip address" in svi_data:
                 pass
-            elif "ip address" in svi_data:
-                ip_params = svi_data.replace("ip address ", "").split()
-                dev_data["svis"][vlan_id]["ip_address"] = ip_params[0]
-                dev_data["svis"][vlan_id]["subnet_mask"] = ip_params[1]
+            elif svi_ip_match:
+                ip_params = re.findall(r'ip\saddress\s(\S+)\s(\S+)$', svi_data)
+                ip_add = ip_params[0][0]
+                prefix = IPAddress(ip_params[0][1]).netmask_bits()
+                dev_data["svis"][vlan_id]["ip_address"] = f'{ip_add}/{prefix}'
+            elif svi_ip_sec_match and "ip_address_secondaries" not in dev_data["svis"][vlan_id]:
+                dev_data["svis"][vlan_id]["ip_address_secondaries"] = []
+                sec_ip_params = re.findall(r'ip\saddress\s(\S+)\s(\S+)\ssecondary', svi_data)
+                sec_ip_add = sec_ip_params[0][0]
+                sec_prefix = IPAddress(sec_ip_params[0][1]).netmask_bits()
+                dev_data["svis"][vlan_id]["ip_address_secondaries"].append(f'{sec_ip_add}/{sec_prefix}')
+            elif svi_ip_sec_match and "ip_address_secondaries" in dev_data["svis"][vlan_id]:
+                sec_ip_params = re.findall(r'ip\saddress\s(\S+)\s(\S+)\ssecondary',svi_data)
+                sec_ip_add = sec_ip_params[0][0]
+                sec_prefix = IPAddress(sec_ip_params[0][1]).netmask_bits()
+                dev_data["svis"][vlan_id]["ip_address_secondaries"].append(f'{sec_ip_add}/{sec_prefix}')
             elif "ip helper-address" in svi_data:
                 if "ip_helper" not in dev_data["svis"][vlan_id]:
                     dev_data["svis"][vlan_id]["ip_helper"] = []
