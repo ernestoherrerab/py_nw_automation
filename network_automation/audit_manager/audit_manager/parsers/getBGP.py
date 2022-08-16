@@ -432,6 +432,9 @@ def audit_bgp(parse_obj):
                             dev_data["router_bgp"]["address_family_ipv4_vrfs"][ipv4_vrf_af_name[0]]["neighbors"][ipv4_vrf_neighbor[0]][f'route_map_{ipv4_route_map_filter[0][1]}'] = ipv4_route_map_filter[0][0]
             
             elif ipv4_vrf_af_name and "address_family_ipv4_vrfs" in dev_data["router_bgp"]:
+                dev_data["router_bgp"]["address_family_ipv4_vrfs"][ipv4_vrf_af_name[0]] = {}
+                dev_data["router_bgp"]["address_family_ipv4_vrfs"][ipv4_vrf_af_name[0]]["no_auto_summary"] = True
+                dev_data["router_bgp"]["address_family_ipv4_vrfs"][ipv4_vrf_af_name[0]]["no_synchronization"] = True
                 for bgp_ipv4_vrf_params in bgp_line.children:
                     bgp_ipv4_vrf_params_text = bgp_ipv4_vrf_params.text
                     ipv4_vrf_neigh_match = re.match(r'\s\sneighbor\s\S+\s', bgp_ipv4_vrf_params_text)
