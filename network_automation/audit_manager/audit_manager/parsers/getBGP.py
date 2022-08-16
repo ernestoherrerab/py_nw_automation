@@ -38,14 +38,14 @@ def audit_bgp(parse_obj):
                 if network_parameters[0][2]:
                     dev_data["router_bgp"]["networks"][network_parameters[0][0]]["route_map"] = network_parameters[0][2]
             elif "aggregate-address" in bgp_line_text and "aggregate_addresses" not in dev_data["router_bgp"]: 
-                aggregate_address = re.findall(r'aggregate-address\s(\S+)\s(\S+)\s(\S+)', bgp_line_text)
+                aggregate_address = re.findall(r'(?<=aggregate-address\s)(\S+)\s(\S+)(?(?=\s\S+)\s(\S+))', bgp_line_text)
                 dev_data["router_bgp"]["aggregate_addresses"] = {}
                 dev_data["router_bgp"]["aggregate_addresses"][aggregate_address[0][0]] = {}
                 dev_data["router_bgp"]["aggregate_addresses"][aggregate_address[0][0]]["mask"] = aggregate_address[0][1]
                 if aggregate_address[0][2] == "summary-only":
                     dev_data["router_bgp"]["address_family_ipv4"]["aggregate_addresses"][aggregate_address[0][2]] = True
             elif "aggregate-address" in bgp_line_text and "aggregate_addresses" in dev_data["router_bgp"]: 
-                aggregate_address = re.findall(r'aggregate-address\s(\S+)\s(\S+)\s(\S+)', bgp_line_text)
+                aggregate_address = re.findall(r'(?<=aggregate-address\s)(\S+)\s(\S+)(?(?=\s\S+)\s(\S+))', bgp_line_text)
                 dev_data["router_bgp"]["aggregate_addresses"][aggregate_address[0][0]] = {}
                 dev_data["router_bgp"]["aggregate_addresses"][aggregate_address[0][0]]["mask"] = aggregate_address[0][1]
                 if aggregate_address[0][2] == "summary-only":
@@ -160,14 +160,14 @@ def audit_bgp(parse_obj):
                             ipv4_redistribute_route_map = ipv4_redistribute_route_map[0]
                             dev_data["router_bgp"]["address_family_ipv4"]["redistribution"][ipv4_redistribute_type]["route_map"] = ipv4_redistribute_route_map
                     elif "aggregate-address" in bgp_ipv4_params_text and "aggregate_addresses" not in dev_data["router_bgp"]["address_family_ipv4"]: 
-                        ipv4_aggregate_address = re.findall(r'aggregate-address\s(\S+)\s(\S+)\s(\S+)', bgp_ipv4_params_text)
+                        ipv4_aggregate_address = re.findall(r'(?<=aggregate-address\s)(\S+)\s(\S+)(?(?=\s\S+)\s(\S+))', bgp_ipv4_params_text)
                         dev_data["router_bgp"]["address_family_ipv4"]["aggregate_addresses"] = {}
                         dev_data["router_bgp"]["address_family_ipv4"]["aggregate_addresses"][ipv4_aggregate_address[0][0]] = {}
                         dev_data["router_bgp"]["address_family_ipv4"]["aggregate_addresses"][ipv4_aggregate_address[0][0]]["mask"] = ipv4_aggregate_address[0][1]
                         if ipv4_aggregate_address[0][2] == "summary-only":
                             dev_data["router_bgp"]["address_family_ipv4"]["aggregate_addresses"][ipv4_aggregate_address[0][2]] = True
                     elif "aggregate-address" in bgp_ipv4_params_text and "aggregate_addresses" in dev_data["router_bgp"]["address_family_ipv4"]: 
-                        ipv4_aggregate_address = re.findall(r'aggregate-address\s(\S+)\s(\S+)\s(\S+)', bgp_ipv4_params_text)
+                        ipv4_aggregate_address = re.findall(r'(?<=aggregate-address\s)(\S+)\s(\S+)(?(?=\s\S+)\s(\S+))', bgp_ipv4_params_text)
                         dev_data["router_bgp"]["address_family_ipv4"]["aggregate_addresses"][ipv4_aggregate_address[0][0]] = {}
                         dev_data["router_bgp"]["address_family_ipv4"]["aggregate_addresses"][ipv4_aggregate_address[0][0]]["mask"] = ipv4_aggregate_address[0][1]
                         if ipv4_aggregate_address[0][2] == "summary-only":
