@@ -18,7 +18,6 @@ def audit_svi(parse_obj):
         dev_data["svis"][vlan_id]["enable"] = True
         for svi_data in svi_line.children:
             svi_data = svi_data.text.replace(" ", "", 1)
-            print(svi_data)
             svi_ip_match = re.match(r'ip\saddress\s\S+\s\S+$', svi_data)
             svi_ip_sec_match = re.match(r'ip\saddress\s\S+\s\S+\ssecondary$', svi_data)
             if "description" in svi_data:

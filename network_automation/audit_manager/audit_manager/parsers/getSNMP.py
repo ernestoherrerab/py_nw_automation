@@ -17,8 +17,8 @@ def audit_snmp(parse_obj):
     for snmp_line in snmp_lines:
         snmp_line_text = snmp_line.text
         snmp_communities = re.findall(r'snmp-server\scommunity\s(\S+)\s(\w+)\s(\S+)', snmp_line_text)
-        snmp_location = re.findall(r'snmp-server\slocation\s(\S+)', snmp_line_text)
-        snmp_contact = re.findall(r'snmp-server\scontact\s(\S+)', snmp_line_text)
+        snmp_location = re.findall(r'snmp-server\slocation\s(.+)$', snmp_line_text)
+        snmp_contact = re.findall(r'snmp-server\scontact\s(.+)$', snmp_line_text)
         snmp_traps = re.findall(r'snmp-server\senable\straps\s(.+)$', snmp_line_text)
         snmp_host = re.findall(r'snmp-server\shost\s(\S+)\s(\w+)', snmp_line_text)
         if snmp_communities and "communities" not in dev_data["snmp_server"]:
