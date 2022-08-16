@@ -3,7 +3,7 @@
 Creates the views (routes) for the secondary app
 """
 from pathlib import Path
-from flask import render_template, jsonify, request
+from flask import render_template, jsonify, request, send_file
 from network_automation.site_documentation import site_documentation
 import network_automation.site_documentation.get_documentation as get_docs
 
@@ -14,14 +14,18 @@ template_dir = "site_documentation"
 @site_documentation.route("/home", methods = ['GET'])
 def home():
     """ Get Site Documentation """
-    site_data_list = get_docs.get_documentation()
-    if(request.method == 'GET'):
-  
-        site_data = site_data_list
+    site_data = get_docs.get_documentation()
+    if request.method == 'GET':
         response = jsonify({'data': site_data})
-        response.headers.add("Access-Control-Allow-Origin", "*")
         return response
 
-@site_documentation.app_template_filter('is_dict')
-def is_dict(value):
-    return isinstance(value, dict)
+@site_documentation.route("/file_download", methods = ['GET','POST'])
+def file_download():
+    """ Get Site Documentation """
+    if request.method == 'POST':
+        for value in request.json.values():
+            doc_path = value
+            doc_path = Path("../documentation/" + value)
+        
+        return send_file(str(doc_path), as_attachment=True)
+

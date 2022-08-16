@@ -5,6 +5,7 @@ Initializes the main app and the sub apps
 import sys
 from decouple import config
 from flask import Flask, render_template, redirect
+
 from network_automation.hostname_changer.views import hostname_changer
 from network_automation.ise_mac_bypass.views import ise_mac_bypass
 from network_automation.mac_finder.views import mac_finder

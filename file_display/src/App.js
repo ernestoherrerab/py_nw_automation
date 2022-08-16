@@ -3,6 +3,7 @@ import TreeView from '@mui/lab/TreeView';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TreeItem from '@mui/lab/TreeItem';
+import axios from "axios"
 
 const dataOld = {
   id: 'root',
@@ -51,38 +52,34 @@ export default function App() {
   const [data, setData] = useState([])
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8080/site_documentation/home",  {
-      'Access-Control-Allow-Origin':"*"
-  }).then(res => res.json()).then(res => {
-    const {data} = res
-    const str = {id:'root', name:"Parent", children:[res.data[0], res.data[1]]}
-    const newData = []
-    console.log(str)
+    fetch("http://127.0.0.1:8080/site_documentation/home").then(res => res.json()).then(res => {
+   const first = {...res.data[0], path:`${res.data[0].name}/`}
+   const second = {...res.data[1], path:`${res.data[1].name}/`}
+    const str = {id:'root', name:"sites", children:[first,second]}
     setData(str)
-    str.children.map(child => {
-      console.log(child)
-    })
-    /*
-     const restructure = (nodes) => {
-      (Object.entries(nodes) || []).map(([key, value], i) => {
-        const children = []
-        for (const key in value) {
-          children.push({id:key, name:key, children:value[key]})
-        }
-          
-        	newData.push({id:i, name:key, children})
-      })
-     }
-     restructure(data)
-     console.log(newData)
-      setData(newData)*/
     })
   },[])
 
+  const handleDownloadFile = async (node) => {
+    const path = node.path.split("sites/")[1]
+    console.log(path)
+    fetch("http://127.0.0.1:8080/site_documentation/file_download",  { 
+	    method: 'POST',
+	    body: JSON.stringify({path} ),
+	    headers: {
+        'Content-Type': 'application/json' 
+	      }
+      })
+  }
+
   const renderTree = (nodes) => (
-    <TreeItem key={nodes.id} nodeId={nodes.id} label={nodes.name}>
+    <TreeItem onClick={() => !nodes.children ? handleDownloadFile(nodes) :null} key={nodes.id} nodeId={nodes.id} label={nodes.name}>
       {Array.isArray(nodes.children)
-        ? nodes.children.map((node) => renderTree(node))
+        ? nodes.children.map((node) => {
+          const pathName = `/${node.name}`
+          node.path = nodes.path ? nodes.path + pathName : nodes.name + pathName
+          return renderTree(node)
+        })
         : null}
     </TreeItem>
   );
@@ -95,7 +92,7 @@ export default function App() {
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpanded={['root']}
           defaultExpandIcon={<ChevronRightIcon />}
-          sx={{ height: "100vh", flexGrow: 1, maxWidth: "100vw", overflowY: 'auto' }}
+          sx={{ height: "100vh", flexGrow: 1, maxWidth: "100vw", overflowY: 'auto', overflowX:"hidden" }}
         >
          { renderTree(data)}
         </TreeView>
