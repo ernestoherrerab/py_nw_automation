@@ -198,12 +198,11 @@ def graph_build(username, password, depth_levels=3):
     """ BUILD GRAPH FROM PARSED CDP DATA """
 
     ### FUNCTION VARIABLES ###
-    diagrams_path = Path("network_automation/topology_builder/graphviz/diagrams/")
+    DIAGRAMS_PATH = Path("file_display/src/documentation/")
     inv_dict_output = {}
 
     ### BUILD THE INVENTORY ###
     site_id = build_inventory(username, password, depth_levels)
-    site_id = site_id + "_site"
 
     ### INITIALIZE NORNIR AND GET CDP DATA ###
     print("Initializing connections to devices in FINAL inventory file...")
@@ -241,8 +240,12 @@ def graph_build(username, password, depth_levels=3):
     Generate Graph
     """
     ### GENERATE GRAPH EDGES CDP NEIGHBORS ###
-    site_path = diagrams_path / f"{site_id}"
+    site_path = DIAGRAMS_PATH / f"{site_id}" / "diagrams/topology"
+    print(site_path)
     print(f"Generating Diagrams...{site_path}")
+    ### GENERATE DIRECTORY STRUCTURE ###
+    Path("file_display/src/documentation").mkdir(exist_ok=True)
+    Path(f"file_display/src/documentation/{site_id}").mkdir(exist_ok=True)
     graph.gen_graph(f"{site_id}", cdp_neigh_list, site_path)
     del_files()
     return dev_auth_fail_list, site_id
