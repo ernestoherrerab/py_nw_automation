@@ -212,7 +212,7 @@ def load_hostnames(site_id):
                             dev_pairs.append(sw_pair)
                             inv_hosts[hostname]["new_hostname"] = new_hostname          
 
-    build_file(f"{site_id}.txt", str(dev_pairs))
+    build_file(site_id, str(dev_pairs))
 
     return dev_pairs, inv_hosts
 
@@ -223,9 +223,10 @@ def del_files():
     if host_file.exists():
         Path.unlink(host_file)
 
-def build_file(filename, content):
-    file_dir = Path("network_automation/hostname_changer/hostname_changer/host_references")
-    file_path =file_dir / filename
+def build_file(site_id, content):
+    file_dir = Path(f'file_display/src/documentation/{site_id}/hostname_changes/')
+    file_dir.mkdir(exist_ok=True)
+    file_path = file_dir / "hostname_changes.txt"
     with open(file_path, "w+") as f:
         f.write(content)
 
@@ -392,11 +393,11 @@ def change_hostname(username, password, depth_levels=3):
             if parameters["groups"] == ["ios_devices"]:
                 host_ip = parameters["hostname"]
                 ios_dev = DeviceIos(host_ip, username, password)
-                ios_dev.set_hostname(parameters["new_hostname"])
+                #ios_dev.set_hostname(parameters["new_hostname"])
             elif parameters["groups"] == ["nxos_devices"]:
                 host_ip = parameters["hostname"]
                 nxos_dev = DeviceNxos(host_ip, username, password)
-                nxos_dev.set_hostname(parameters["new_hostname"])
+                #nxos_dev.set_hostname(parameters["new_hostname"])
             elif parameters["groups"] == ["ap_devices"]:
                 try:
                     wlc_ip = prime_aps_list[0][2]
@@ -422,6 +423,6 @@ def change_hostname(username, password, depth_levels=3):
         print(f"The Prime AP List to be implemented is: {prime_aps_list}")
         print(not_in_prime)
         wlc_dev = DeviceWlc(wlc_ip, username, password)
-        wlc_dev.set_hostname(prime_aps_list)
+        #wlc_dev.set_hostname(prime_aps_list)
 
     return dev_pairs, site_id
