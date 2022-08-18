@@ -3,7 +3,7 @@
 Creates the views (routes) for the secondary app
 """
 from pathlib import Path
-from flask import render_template, jsonify, request, send_file
+from flask import jsonify, request, send_file
 from network_automation.site_documentation import site_documentation
 import network_automation.site_documentation.get_documentation as get_docs
 

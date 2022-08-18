@@ -5,48 +5,6 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TreeItem from '@mui/lab/TreeItem';
 import axios from "axios"
 
-const dataOld = {
-  id: 'root',
-  name: 'Parent',
-  children: [
-    {
-      id: '1',
-      name: 'Child - 1',
-    },
-    {
-      id: '3',
-      name: 'Child - 3',
-      children: [
-        {
-          id: '4',
-          name: 'Child - 4',
-        },
-        {
-          id: '5',
-          name: 'Child - 4',
-          children:[
-            {
-                id: '41',
-                name: 'Child - 4',
-              },
-            {
-                id: '42',
-                name: 'Child - 4',
-              },
-            {
-                id: '43',
-                name: 'Child - 4',
-              },
-          ]
-        },
-        {
-          id: '46',
-          name: 'Child - 4',
-        },
-      ],
-    },
-  ],
-};
 
 export default function App() {
   const [data, setData] = useState([])
