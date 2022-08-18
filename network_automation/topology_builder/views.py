@@ -13,27 +13,24 @@ import network_automation.topology_builder.graphviz.recursive_graph as do_graph
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 GRAPHVIZ_UPLOAD_DIR = Path("network_automation/topology_builder/graphviz/inventory/")
-DIAGRAM_FILE = "topology.png"
-DOT_FILE = "topology"
-template_dir = "topology_builder"
+GRAPHVIZ_DOWNLOAD_DIR = Path("topology_builder/graphviz/diagrams/")
+TEMPLATE_DIR = "topology_builder"
+
+
 
 ### VIEW TO CREATE DATA ###
-@topology_builder.route("/home")
-def home():
-    return render_template(f"{template_dir}/home.html")
-
 @topology_builder.route("/")
 def home_redirect():
     return redirect("/home")
 
-@topology_builder.route("/manual_upload", methods=["GET", "POST"])
-def manual_upload():
-    return render_template(f"{template_dir}/manual_upload.html")
+@topology_builder.route("/home", methods=["GET", "POST"])
+def home():
+    return render_template(f"{TEMPLATE_DIR}/home.html")
 
 @topology_builder.route("/tacacs_login", methods=["GET", "POST"])
 def tacacs_login():
     if request.method == "GET":
-        return render_template(f"{template_dir}/tacacs_login.html")
+        return render_template(f"{TEMPLATE_DIR}/tacacs_login.html")
     if request.method == "POST":
         if "file" in request.files:
             success = "File Successfully Uploaded!"
@@ -42,7 +39,7 @@ def tacacs_login():
             f.save(current_app.config["UPLOAD_FOLDER"] / secure_filename(f.filename))
             file_name = f.filename
             return render_template(
-                f"{template_dir}/tacacs_login.html",
+                f"{TEMPLATE_DIR}/tacacs_login.html",
                 file_name=file_name,
                 success=success,
             )
@@ -60,26 +57,14 @@ def tacacs_login():
                             hostname = data[0]
                             ip_add = data[1]
                             nos = data[2]
-                            site_id = hostname.split("-")
-                            site_id = site_id[0]
                             session["levels"] = data[3]
                             host[hostname] = {}
                             host[hostname]["groups"] = [nos + "_devices"]
                             host[hostname]["hostname"] = ip_add
-                            
-            ### GENERATE DIRECTORY STRUCTURE ###
-            Path("documentation").mkdir(exist_ok=True)
-            Path(f"documentation/{site_id}").mkdir(exist_ok=True)
-            Path(f"documentation/{site_id}/diagrams").mkdir(exist_ok=True)
-            GRAPHVIZ_DOWNLOAD_DIR = Path(f"documentation/{site_id}/diagrams")
-            session["GRAPHVIZ_DOWNLOAD_DIR"] = str(GRAPHVIZ_DOWNLOAD_DIR)
-            print(f"****{GRAPHVIZ_DOWNLOAD_DIR}")
-
-            ### BUILD INITIAL NORNIR INVENTORY FILE ###
             host_yaml = dump(host, default_flow_style=False)
             with open(GRAPHVIZ_UPLOAD_DIR / "hosts.yml", "w") as open_file:
                 open_file.write(host_yaml)
-            return render_template(f"{template_dir}/tacacs_login.html", host=host)
+            return render_template(f"{TEMPLATE_DIR}/tacacs_login.html", host=host)
 
 @topology_builder.route("/tacacs_auth", methods=["POST", "GET"])
 def tacacs_auth():
@@ -90,34 +75,37 @@ def tacacs_auth():
             password = request.form["password"]
             depth_levels = session.get("levels")
             depth_levels = int(depth_levels)
-            dev_failed = do_graph.graph_build(username, password, depth_levels)
+            dev_failed, site = do_graph.graph_build(username, password, depth_levels)
+            session["site"] = site
             return render_template(
-                f"{template_dir}/graph_upload.html",
+                f"{TEMPLATE_DIR}/graph_upload.html",
                 dev_failed=dev_failed,
+                diagrams=site
             )
 
 @topology_builder.route("/download_diag_file")
 def download_diag_file():
-    GRAPHVIZ_DOWNLOAD_DIR = session.get("GRAPHVIZ_DOWNLOAD_DIR")
-    print(f"****{GRAPHVIZ_DOWNLOAD_DIR}")
-    diagram_path = "../" / Path(GRAPHVIZ_DOWNLOAD_DIR) / DIAGRAM_FILE
-    return send_file(str(diagram_path), as_attachment=True)
+    site_id = session.get("site")
+    DIAGRAMS_PATH = Path(f'file_display/src/documentation/{site_id}/diagrams/')
+    print(DIAGRAMS_PATH.parent)
+    return send_file("./../" + str(DIAGRAMS_PATH) + "/topology.png", as_attachment=True)
 
 @topology_builder.route("/download_dot_file")
 def download_dot_file():
-    GRAPHVIZ_DOWNLOAD_DIR = session.get("GRAPHVIZ_DOWNLOAD_DIR")
-    dot_path =  "../" / Path(GRAPHVIZ_DOWNLOAD_DIR) / DOT_FILE
-    return send_file(str(dot_path), as_attachment=True)
+    site_id = session.get("site")
+    DIAGRAMS_PATH = Path(f'file_display/src/documentation/{site_id}/diagrams/')
+    print(DIAGRAMS_PATH.parent)
+    return send_file("./../" + str(DIAGRAMS_PATH) + "/topology", as_attachment=True)
 
 ### ERROR & SUCCESS VIEWS ###
 @topology_builder.route("/graph_upload")
 def graph_upload():
-    return render_template(f"{template_dir}/graph_upload.html")
+    return render_template(f"{TEMPLATE_DIR}/graph_upload.html")
 
 @topology_builder.route("/tacacs_auth_error")
 def tacacs_auth_error():
-    return render_template(f"{template_dir}/tacacs_auth_error.html")
+    return render_template(f"{TEMPLATE_DIR}/tacacs_auth_error.html")
 
 @topology_builder.route("/upload_error")
 def upload_error():
-    return render_template(f"{template_dir}/upload_error.html")
+    return render_template(f"{TEMPLATE_DIR}/upload_error.html")

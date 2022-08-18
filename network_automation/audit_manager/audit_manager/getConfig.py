@@ -1,17 +1,19 @@
 #! /usr/bin/env python
 """
-Script to graph cdp neighborships.
+Script to discover neighbors and get running config
 """
+
 import sys
 from decouple import config
 from pathlib import Path
 import ipaddress
 from nornir import InitNornir
 from nornir.core.filter import F
+from nornir_napalm.plugins.tasks import napalm_get
 from nornir_scrapli.tasks import send_commands
+from nornir_utils.plugins.tasks.files import write_file
 from yaml import dump, load, SafeDumper
 from yaml.loader import FullLoader
-import network_automation.topology_builder.graphviz.graph_builder as graph
 from tqdm import tqdm
 
 sys.dont_write_bytecode = True
@@ -26,19 +28,19 @@ class NoAliasDumper(SafeDumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(NoAliasDumper, self).increase_indent(flow, False)
 
-def init_nornir(username, password):
+def init_nornir(username, password, task_name, site_id=""):
     """INITIALIZES NORNIR SESSIONS"""
 
     nr = InitNornir(
-        config_file="network_automation/topology_builder/graphviz/config/config.yml"
+        config_file="network_automation/audit_manager/audit_manager/config/config.yml"
     )
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
     managed_devs = nr.filter(F(groups__contains="ios_devices") | F(groups__contains="nxos_devices"))
-    
-    with tqdm(total=len(managed_devs.inventory.hosts)) as progress_bar:
-        results = managed_devs.run(task=get_data_task, progress_bar=progress_bar)
 
+    with tqdm(total=len(managed_devs.inventory.hosts)) as progress_bar:
+        results = managed_devs.run(task=task_name, progress_bar=progress_bar, site_id=site_id)
+        
     hosts_failed = list(results.failed_hosts.keys())
     if hosts_failed != []:
         auth_fail_list = list(results.failed_hosts.keys())
@@ -50,7 +52,7 @@ def init_nornir(username, password):
         )
     return managed_devs, results, dev_auth_fail_list
 
-def get_data_task(task, progress_bar):
+def get_cdp_data_task(task, progress_bar, site_id):
     """
     Task to send commands to Devices via Nornir/Scrapli
     """
@@ -62,12 +64,19 @@ def get_data_task(task, progress_bar):
         for data, command in zip(data_result.scrapli_response, commands):
             task.host[command.replace(" ", "_")] = data.genie_parse_output()
 
-def del_files():
-    """CLEANS UP HOSTS FILES"""
+def get_napalm_config(get_napalm_task, progress_bar, site_id=""):
+    """Retrieve device running configuration and create a file """
 
-    host_file = Path("network_automation/mac_finder/mac_finder/inventory/hosts.yml")
-    if host_file.exists():
-        Path.unlink(host_file)
+    ### GET RUNNING CONFIGURATION ###
+    site_path = Path(f"file_display/src/documentation/{site_id}/run_config/")
+    napalm_getters = ['config']
+    hostname = get_napalm_task.host.hostname
+    dev_dir = site_path / hostname
+    napalm_run = get_napalm_task.run(task=napalm_get, getters=[napalm_getters[0]])
+    progress_bar.update()
+    print(hostname  + ': Retrieving Running configuration...' + str(dev_dir))
+    get_napalm_task.run(task=write_file, content=napalm_run.result['config']['running'],
+                            filename="" + str(dev_dir))
 
 def build_inventory(username, password, depth_levels):
     """Rebuild inventory file from CDP output on core switches"""
@@ -78,7 +87,7 @@ def build_inventory(username, password, depth_levels):
     input_dict = {}
     output_dict = {}
     inv_path_file = (
-        Path("network_automation/topology_builder/graphviz/inventory/") / "hosts.yml"
+        Path("network_automation/audit_manager/audit_manager/inventory/") / "hosts.yml"
    )
     levels = 1
 
@@ -88,7 +97,7 @@ def build_inventory(username, password, depth_levels):
         Fetch sent command data, format results, and put them in a dictionary variable
         """
         print("Initializing connections to devices...")
-        nr, results, _ = init_nornir(username, password)
+        nr, results, _ = init_nornir(username, password, get_cdp_data_task)
 
         ### REBUILD INVENTORY FILE BASED ON THE NEIGHBOR OUTPUT ###
         print(f"Rebuilding Inventory num: {levels}")
@@ -161,9 +170,9 @@ def build_inventory(username, password, depth_levels):
                             input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
                             ]["capabilities"] == "Trans-Bridge"
+
                         ):
                             output_dict[device_id]["groups"] = ["ap_devices"]
-
                         elif (
                             "IOS"
                             in input_dict[host]["show_cdp_neighbors_detail"]["index"][
@@ -193,60 +202,27 @@ def build_inventory(username, password, depth_levels):
             open_file.write("\n" + yaml_inv)
         levels += 1    
     return site_id
-    
-def graph_build(username, password, depth_levels=3):
-    """ BUILD GRAPH FROM PARSED CDP DATA """
 
-    ### FUNCTION VARIABLES ###
-    DIAGRAMS_PATH = Path("file_display/src/documentation/")
-    inv_dict_output = {}
+def get_config(username, password, depth_levels=3):
+
+    ### VARIABLES ###
+    host_list = []
 
     ### BUILD THE INVENTORY ###
     site_id = build_inventory(username, password, depth_levels)
+    site_path = Path(f"file_display/src/documentation/{site_id}/run_config/")
+       
+    ### INITIALIZE NORNIR ###
+    ### GET RUNNING CONFIGURATION ###
+    print("Initializing connections to devices...")
+    init_nornir(username, password, get_napalm_config, site_id)
 
-    ### INITIALIZE NORNIR AND GET CDP DATA ###
-    print("Initializing connections to devices in FINAL inventory file...")
-    nr, results, dev_auth_fail_list = init_nornir(username, password)
-
-    ### PARSE DATA ###
-    print("Parse data from FINAL Inventory")
-    for result in results.keys():
-        host = str(nr.inventory.hosts[result])
-        inv_dict_output[host] = {}
-        inv_dict_output[host] = dict(nr.inventory.hosts[result])
-
-    ### CREATE TUPPLES LIST ###
-    print("Generating Graph Data...")    
-    cdp_neigh_list = []
-    for host in inv_dict_output:
-        neighbor_list = []
-        try:
-            if inv_dict_output[host] != {}:
-                for index in inv_dict_output[host]["show_cdp_neighbors_detail"][
-                    "index"
-                ]:
-                    neighbor = inv_dict_output[host]["show_cdp_neighbors_detail"][
-                        "index"
-                    ][index]["device_id"].split(".")
-                    neighbor = neighbor[0]
-                    hostname = host.split("(")
-                    hostname = hostname[0]
-                    neighbor_list = [hostname.lower(), neighbor.lower()]
-                    cdp_neigh_list.append(neighbor_list)
-        except TypeError as e:
-            print(e)
-
-    """    
-    Generate Graph
-    """
-    ### GENERATE GRAPH EDGES CDP NEIGHBORS ###
-    site_path = DIAGRAMS_PATH / f"{site_id}" / "diagrams/topology"
-    print(f"Generating Diagrams...{site_path}")
-    ### GENERATE DIRECTORY STRUCTURE ###
-    Path("file_display/src/documentation").mkdir(exist_ok=True)
-    Path(f"file_display/src/documentation/{site_id}").mkdir(exist_ok=True)
-    graph.gen_graph(f"{site_id}", cdp_neigh_list, site_path)
-    del_files()
-    return dev_auth_fail_list, site_id
-
-
+    """ Parse Running Configuration Outputs into Dictionaries """
+    ### GET RUNNING CONFIGURATIONS PER HOST AND TRANSFER TO AN OBJECT ###
+    for hostname_dir in site_path.iterdir():
+        host_tuple = ()
+        hostname = str(hostname_dir).replace(str(site_path), "")
+        host_tuple = (hostname.replace("/", ""), hostname_dir)
+        host_list.append(host_tuple)
+    
+    return host_list
