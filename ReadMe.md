@@ -35,6 +35,23 @@ To edit the links page:
 
 Enter the Core Switch of a site (the core hostname needs to be manually updated) and the configurations of the devices will be retrieved and the configuration will be put in YML.
 
+Currently Supported:
+
+- AAA
+- Legacy ACLs
+- Base Config
+- BGP
+- Interfaces
+- NTP
+- Prefix Lists
+- Route Maps
+- SNMP
+- Static Routing
+- STP
+- SVIs
+- VLANs
+- VRFs
+
 ### Hostname Changer
 
 Enter the Core Switch of a site (the core hostname needs to be manually updated) and switches and accesspoints will be renamed to follow the naming standard.

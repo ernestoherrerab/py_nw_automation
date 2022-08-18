@@ -5,6 +5,7 @@ Flask==2.0.3
 genie==22.2
 graphviz==0.19.1
 httpx==0.22.0
+netaddr==0.7.19
 nornir==3.2.0
 nornir-napalm==0.2.0
 nornir-scrapli==2022.1.30
