@@ -241,7 +241,6 @@ def graph_build(username, password, depth_levels=3):
     """
     ### GENERATE GRAPH EDGES CDP NEIGHBORS ###
     site_path = DIAGRAMS_PATH / f"{site_id}" / "diagrams/topology"
-    print(site_path)
     print(f"Generating Diagrams...{site_path}")
     ### GENERATE DIRECTORY STRUCTURE ###
     Path("file_display/src/documentation").mkdir(exist_ok=True)
