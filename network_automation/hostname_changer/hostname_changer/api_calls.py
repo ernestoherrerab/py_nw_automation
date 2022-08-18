@@ -5,7 +5,6 @@ Module to group the CRUD operations for API calls
 
 from json import loads
 from httpx import get, put, Response
-from decouple import config
 
 def get_operations(ops_type: str, url_var: str, username: str, password: str) -> Response:
     """API GET operations """

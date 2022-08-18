@@ -3,7 +3,6 @@
 Script to discover neighbors and get running config
 """
 
-import re
 import sys
 from decouple import config
 from pathlib import Path
@@ -69,7 +68,7 @@ def get_napalm_config(get_napalm_task, progress_bar, site_id=""):
     """Retrieve device running configuration and create a file """
 
     ### GET RUNNING CONFIGURATION ###
-    site_path = Path(f"documentation/{site_id}/run_config/")
+    site_path = Path(f"file_display/src/documentation/{site_id}/run_config/")
     napalm_getters = ['config']
     hostname = get_napalm_task.host.hostname
     dev_dir = site_path / hostname
@@ -211,7 +210,7 @@ def get_config(username, password, depth_levels=3):
 
     ### BUILD THE INVENTORY ###
     site_id = build_inventory(username, password, depth_levels)
-    site_path = Path(f"documentation/{site_id}/run_config/")
+    site_path = Path(f"file_display/src/documentation/{site_id}/run_config/")
        
     ### INITIALIZE NORNIR ###
     ### GET RUNNING CONFIGURATION ###

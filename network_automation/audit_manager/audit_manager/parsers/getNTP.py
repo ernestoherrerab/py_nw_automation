@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Script to parse AAA configs
+Script to parse NTP & Clock configs
 """
 
 def audit_ntp(parse_obj):
