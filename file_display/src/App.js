@@ -4,12 +4,14 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TreeItem from '@mui/lab/TreeItem';
 
+const flaskServer = process.env.REACT_APP_FLASK_SERVER 
 
 export default function App() {
   const [data, setData] = useState([])
+  
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8080/site_documentation/home").then(res => res.json()).then(res => {
+    fetch(flaskServer + 'site_documentation/home').then(res => res.json()).then(res => {
    const chil = []
    for(let i = 0; i < res.data.length; i++){
     	chil.push({...res.data[i], path:res.data[i].name})
@@ -21,9 +23,6 @@ export default function App() {
   },[])
 
   const handleDownloadFile = async (node, file) => {
-    const path = node.path.split("sites/")[1]
-    //console.log(path)
-
     var el = document.createElement("a")
     el.setAttribute("href", "./")
     el.setAttribute("download", file) 
@@ -47,7 +46,12 @@ export default function App() {
 
   return (
     <div>
-      <a class="btn btn-primary" href="http://127.0.0.1:8080/home" role="button">Back To Home</a>
+      <a href={flaskServer + 'home'} target="_blank" rel="noreferrer">
+      <button>Back To Home</button>
+      </a>
+      <br/>
+      <p></p>
+      <br/>
       {data ? (<TreeView
           aria-label="rich object"
           defaultCollapseIcon={<ExpandMoreIcon />}
@@ -59,5 +63,6 @@ export default function App() {
         </TreeView>) : <h2>Loading...</h2>}
         
     </div>
+    
   );
 }

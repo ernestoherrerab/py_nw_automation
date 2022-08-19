@@ -5,7 +5,6 @@ test.py
 network_automation/audit_manager/audit_manager/inventory/hosts.yml
 network_automation/audit_manager/run_config/
 network_automation/audit_manager/audits/
-documentation/
 network_automation/hostname_changer/hostname_changer/host_references/
 network_automation/hostname_changer/hostname_changer/inventory/hosts.yml
 network_automation/ise_mac_bypass/mac_bypass/csv_data/
@@ -13,11 +12,11 @@ network_automation/topology_builder/graphviz/inventory/hosts.yml
 network_automation/topology_builder/graphviz/nornir.log
 network_automation/topology_builder/graphviz/hosts.yml
 nornir.log
-frontend_service.sh
 scrapli.log
 testbed.yml
 !file_display/
 file_display/*
+file_display/src/documentation/*
 !file_display/*.json
 !file_display/src/
 !file_display/public/
