@@ -16,6 +16,7 @@ from network_automation.topology_builder.views import topology_builder
 sys.dont_write_bytecode = True
 
 FLASK_KEY = config("FLASK_SECRET_KEY")
+REACT_SERVER = config("REACT_SERVER")
 
 ### INITIALIZE THE MAIN APP ###
 app = Flask(__name__)
@@ -33,7 +34,7 @@ app.register_blueprint(topology_builder, url_prefix="/topology-builder")
 ### VIEWS OR ROUTES ###
 @app.route("/home")
 def home():
-    return render_template("home.html")
+    return render_template("home.html", REACT_SERVER=REACT_SERVER)
 
 @app.route("/")
 def home_redirect():

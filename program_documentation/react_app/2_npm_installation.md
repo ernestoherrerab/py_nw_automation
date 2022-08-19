@@ -6,3 +6,4 @@ This will allow you to install modules and packages to use with Node.js
 
 2. Test npm was installed by running npm -v on the CLI, you should be able to see the version.
 
+3. Install TreeView module: npm install react-treeview
