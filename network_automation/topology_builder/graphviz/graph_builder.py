@@ -12,7 +12,7 @@ def gen_graph(name, source_list, filename):
     """
     ### VARIABLES ###
     ### IMAGES LOCATION RELATIVE TO DOT FILE ###
-    IMAGES_LOCATION = "./../../../../../network_automation/topology_builder/graphviz/diagrams/"
+    IMAGES_LOCATION = "./../../../../../network_automation/topology_builder/graphviz/"
     dot = Digraph(name, format="png")
     core_dot = Digraph('coregraph')
     core_dot.graph_attr.update(rank='min')

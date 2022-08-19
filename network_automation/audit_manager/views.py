@@ -3,7 +3,7 @@
 Creates the views (routes) for the secondary app
 """
 from decouple import config
-from flask import render_template, request, redirect, session, send_file
+from flask import render_template, request, redirect, session
 from pathlib import Path
 from yaml import dump
 from network_automation.audit_manager import audit_manager
@@ -13,12 +13,12 @@ import network_automation.audit_manager.audit_manager.audit as audit
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 AUDIT_MANAGER_INV_DIR = Path("network_automation/audit_manager/audit_manager/inventory/")
-template_dir = "audit_manager"
+TEMPLATE_DIR = "audit_manager"
 
 ### VIEW TO CREATE DATA ###
 @audit_manager.route("/home")
 def home():
-    return render_template(f"{template_dir}/home.html")
+    return render_template(f"{TEMPLATE_DIR}/home.html")
 
 @audit_manager.route("/")
 def home_redirect():
@@ -61,7 +61,7 @@ def tacacs_login():
     host_yaml = dump(core_switch, default_flow_style=False)
     with open(AUDIT_MANAGER_INV_DIR / "hosts.yml", "w") as open_file:
         open_file.write(host_yaml)
-    return render_template(f"{template_dir}/tacacs_login.html", core_switch=core_switch)
+    return render_template(f"{TEMPLATE_DIR}/tacacs_login.html", core_switch=core_switch)
 
 @audit_manager.route("/tacacs_auth", methods=["POST", "GET"])
 def tacacs_auth():
@@ -72,11 +72,11 @@ def tacacs_auth():
             depth_levels = session.get("levels")
             depth_levels = int(depth_levels)
             audit.do_audit(username, password, depth_levels)
-            return render_template(f"{template_dir}/audit_results.html")
+            return render_template(f"{TEMPLATE_DIR}/audit_results.html")
 
 
 ### ERROR & SUCCESS VIEWS ###
 
 @audit_manager.route("/audit_results")
 def audit_results():
-    return render_template(f"{template_dir}/audit_results.html")
+    return render_template(f"{TEMPLATE_DIR}/audit_results.html")

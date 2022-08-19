@@ -8,7 +8,7 @@ class Device:
     transport_options = {
         "open_cmd": [
             "-o",
-            "KexAlgorithms=+diffie-hellman-group1-sha1,diffie-hellman-group14-sha1",
+            "KexAlgorithms=+diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1",
             "-o",
             "Ciphers=+aes256-cbc",
         ]
