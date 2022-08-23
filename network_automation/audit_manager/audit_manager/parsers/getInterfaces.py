@@ -4,6 +4,7 @@ Script to parse Interfaces configs
 """
 
 import regex as re
+from netaddr import valid_ipv4, IPAddress
 
 def audit_interfaces(parse_obj):
     """ Parse Interfaces """
@@ -32,6 +33,8 @@ def audit_interfaces(parse_obj):
             ### PARSING PORT CHANNELS ###
             ### PARSE DESCRIPTION, STATUS, VRF, IP ADDRESS, HELPER ADDRESS ###
             if "Port-channel" in if_line.text:
+                po_ip_match = re.match(r'ip\saddress\s\S+\s\S+$', if_data)
+                po_ip_sec_match = re.match(r'ip\saddress\s\S+\s\S+\ssecondary$', if_data)
                 if "description" in if_data:
                     dev_data["port_channels"][po_id]["description"] = if_data.replace("description ", "")
                 elif "shutdown" in if_data:
@@ -42,10 +45,22 @@ def audit_interfaces(parse_obj):
                     dev_data["port_channels"][po_id]["duplex"] = if_data.replace("duplex ", "")
                 elif "ip vrf" in if_data:
                     dev_data["port_channels"][po_id]["vrf"] = if_data.replace("ip vrf forwarding ", "")
-                elif "ip address" in if_data:
-                    ip_params = if_data.replace("ip address ", "").split()
-                    dev_data["port_channels"][po_id]["ip_address"] = ip_params[0]
-                    dev_data["port_channels"][po_id]["subnet_mask"] = ip_params[1]
+                elif po_ip_match:
+                    po_ip_params = re.findall(r'ip\saddress\s(\S+)\s(\S+)$', if_data)
+                    po_ip_add = po_ip_params[0][0]
+                    po_prefix = IPAddress(po_ip_params[0][1]).netmask_bits()
+                    dev_data["port_channels"][po_id]["ip_address"] = f'{po_ip_add}/{po_prefix}'
+                elif po_ip_sec_match and "ip_address_secondaries" not in dev_data["port_channels"][po_id]:
+                    dev_data["port_channels"][po_id]["ip_address_secondaries"] = []
+                    po_sec_ip_params = re.findall(r'ip\saddress\s(\S+)\s(\S+)\ssecondary', if_data)
+                    po_sec_ip_add = po_sec_ip_params[0][0]
+                    po_sec_prefix = IPAddress(po_sec_ip_params[0][1]).netmask_bits()
+                    dev_data["port_channels"][po_id]["ip_address_secondaries"].append(f'{po_sec_ip_add}/{po_sec_prefix}')
+                elif po_ip_sec_match and "ip_address_secondaries" in dev_data["port_channels"][po_id]:
+                    po_sec_ip_params = re.findall(r'ip\saddress\s(\S+)\s(\S+)\ssecondary',if_data)
+                    po_sec_ip_add = po_sec_ip_params[0][0]
+                    po_sec_prefix = IPAddress(po_sec_ip_params[0][1]).netmask_bits()
+                    dev_data["port_channels"][po_id]["ip_address_secondaries"].append(f'{po_sec_ip_add}/{po_sec_prefix}')
                 elif "ip helper-address" in if_data:
                     if "ip_helper" not in dev_data["port_channels"][po_id]:
                         dev_data["port_channels"][po_id]["ip_helper"] = []
@@ -192,6 +207,8 @@ def audit_interfaces(parse_obj):
             ### PARSING REGULAR INTERFACES ###
             elif "Port-channel" not in if_line.text:
                 ### PARSING INTERFACES ###
+                if_ip_match = re.match(r'ip\saddress\s\S+\s\S+$', if_data)
+                if_ip_sec_match = re.match(r'ip\saddress\s\S+\s\S+\ssecondary$', if_data)
                 ### PARSE DESCRIPTION, STATUS, VRF, IP ADDRESS, HELPER ADDRESS ###
                 if "description" in if_data:
                     dev_data["interfaces"][if_id]["description"] = if_data.replace("description ", "")
@@ -203,10 +220,22 @@ def audit_interfaces(parse_obj):
                     dev_data["interfaces"][if_id]["duplex"] = if_data.replace("duplex ", "")
                 elif "ip vrf" in if_data:
                     dev_data["interfaces"][if_id]["vrf"] = if_data.replace("ip vrf forwarding ", "")
-                elif "ip address" in if_data:
-                    ip_params = if_data.replace("ip address ", "").split()
-                    dev_data["interfaces"][if_id]["ip_address"] = ip_params[0]
-                    dev_data["interfaces"][if_id]["subnet_mask"] = ip_params[1]
+                elif if_ip_match:
+                    if_ip_params = re.findall(r'ip\saddress\s(\S+)\s(\S+)$', if_data)
+                    if_ip_add = if_ip_params[0][0]
+                    if_prefix = IPAddress(if_ip_params[0][1]).netmask_bits()
+                    dev_data["interfaces"][if_id]["ip_address"] = f'{if_ip_add}/{if_prefix}'
+                elif if_ip_sec_match and "ip_address_secondaries" not in dev_data["interfaces"][if_id]:
+                    dev_data["interfaces"][if_id]["ip_address_secondaries"] = []
+                    if_sec_ip_params = re.findall(r'ip\saddress\s(\S+)\s(\S+)\ssecondary', if_data)
+                    if_sec_ip_add = if_sec_ip_params[0][0]
+                    if_sec_prefix = IPAddress(if_sec_ip_params[0][1]).netmask_bits()
+                    dev_data["interfaces"][if_id]["ip_address_secondaries"].append(f'{if_sec_ip_add}/{if_sec_prefix}')
+                elif if_ip_sec_match and "ip_address_secondaries" in dev_data["interfaces"][if_id]:
+                    if_sec_ip_params = re.findall(r'ip\saddress\s(\S+)\s(\S+)\ssecondary',if_data)
+                    if_sec_ip_add = if_sec_ip_params[0][0]
+                    if_sec_prefix = IPAddress(if_sec_ip_params[0][1]).netmask_bits()
+                    dev_data["interfaces"][if_id]["ip_address_secondaries"].append(f'{if_sec_ip_add}/{if_sec_prefix}')
                 elif "ip helper-address" in if_data:
                     if "ip_helper" not in dev_data["port_channels"][po_id]:
                         dev_data["interfaces"][if_id]["ip_helper"] = []
