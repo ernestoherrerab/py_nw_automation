@@ -12,7 +12,7 @@ import network_automation.hostname_changer.hostname_changer.change_hostname as c
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 HOSTNAME_CHANGER_UPLOAD_DIR = Path("network_automation/hostname_changer/hostname_changer/inventory/")
-HOSTNAME_CHANGER_DOWNLOAD_DIR = Path("file_display/src/documentation")
+HOSTNAME_CHANGER_DOWNLOAD_DIR = Path("file_display/public/documentation")
 TEMPLATE_DIR = "hostname_changer"
 
 ### VIEW TO CREATE DATA ###

@@ -86,14 +86,14 @@ def tacacs_auth():
 @topology_builder.route("/download_diag_file")
 def download_diag_file():
     site_id = session.get("site")
-    DIAGRAMS_PATH = Path(f'file_display/src/documentation/{site_id}/diagrams/')
+    DIAGRAMS_PATH = Path(f'file_display/public/documentation/{site_id}/diagrams/')
     print(DIAGRAMS_PATH.parent)
     return send_file("./../" + str(DIAGRAMS_PATH) + "/topology.png", as_attachment=True)
 
 @topology_builder.route("/download_dot_file")
 def download_dot_file():
     site_id = session.get("site")
-    DIAGRAMS_PATH = Path(f'file_display/src/documentation/{site_id}/diagrams/')
+    DIAGRAMS_PATH = Path(f'file_display/public/documentation/{site_id}/diagrams/')
     print(DIAGRAMS_PATH.parent)
     return send_file("./../" + str(DIAGRAMS_PATH) + "/topology", as_attachment=True)
 

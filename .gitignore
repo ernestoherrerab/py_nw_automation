@@ -16,8 +16,7 @@ scrapli.log
 testbed.yml
 !file_display/
 file_display/*
-file_display/src/documentation/*
 !file_display/*.json
 !file_display/src/
-!file_display/public/
+file_display/public/documentation/*
 file-display/

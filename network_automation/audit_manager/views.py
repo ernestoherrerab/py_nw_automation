@@ -52,10 +52,10 @@ def tacacs_login():
                         core_switch[hostname]["hostname"] = ip_add
 
     ### GENERATE DIRECTORY STRUCTURE ###
-    Path("file_display/src/documentation").mkdir(exist_ok=True)
-    Path(f"file_display/src/documentation/{site_id}").mkdir(exist_ok=True)
-    Path(f"file_display/src/documentation/{site_id}/run_config").mkdir(exist_ok=True)
-    Path(f"file_display/src/documentation/{site_id}/audits").mkdir(exist_ok=True)
+    Path("file_display/public/documentation").mkdir(exist_ok=True)
+    Path(f"file_display/public/documentation/{site_id}").mkdir(exist_ok=True)
+    Path(f"file_display/public/documentation/{site_id}/run_config").mkdir(exist_ok=True)
+    Path(f"file_display/public/documentation/{site_id}/audits").mkdir(exist_ok=True)
     
     ### BUILD INITIAL NORNIR INVENTORY FILE ###
     host_yaml = dump(core_switch, default_flow_style=False)

@@ -198,7 +198,7 @@ def graph_build(username, password, depth_levels=3):
     """ BUILD GRAPH FROM PARSED CDP DATA """
 
     ### FUNCTION VARIABLES ###
-    DIAGRAMS_PATH = Path("file_display/src/documentation/")
+    DIAGRAMS_PATH = Path("file_display/public/documentation/")
     inv_dict_output = {}
 
     ### BUILD THE INVENTORY ###
@@ -243,8 +243,8 @@ def graph_build(username, password, depth_levels=3):
     site_path = DIAGRAMS_PATH / f"{site_id}" / "diagrams/topology"
     print(f"Generating Diagrams...{site_path}")
     ### GENERATE DIRECTORY STRUCTURE ###
-    Path("file_display/src/documentation").mkdir(exist_ok=True)
-    Path(f"file_display/src/documentation/{site_id}").mkdir(exist_ok=True)
+    Path("file_display/public/documentation").mkdir(exist_ok=True)
+    Path(f"file_display/public/documentation/{site_id}").mkdir(exist_ok=True)
     graph.gen_graph(f"{site_id}", cdp_neigh_list, site_path)
     del_files()
     return dev_auth_fail_list, site_id

@@ -23,8 +23,10 @@ export default function App() {
   },[])
 
   const handleDownloadFile = async (node, file) => {
+   const path =  "/documentation" + node.path.split("sites")[1]
+   
     var el = document.createElement("a")
-    el.setAttribute("href", "./")
+    el.setAttribute("href",path)
     el.setAttribute("download", file) 
     document.body.appendChild(el)
     el.click();

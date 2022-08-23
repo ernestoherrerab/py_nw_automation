@@ -8,7 +8,7 @@ import network_automation.site_documentation.dict_ops as dict_ops
 def get_documentation():
     """ Get diagrams path information """
 
-    src_dir = Path("file_display/src/documentation/")
+    src_dir = Path("file_display/public/documentation/")
     site_docs = {}
     tmp_dicts = []
     dir_contents = src_dir.glob("**/*")

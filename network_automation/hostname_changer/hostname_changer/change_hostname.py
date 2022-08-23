@@ -224,7 +224,7 @@ def del_files():
         Path.unlink(host_file)
 
 def build_file(site_id, content):
-    file_dir = Path(f'file_display/src/documentation/{site_id}/hostname_changes/')
+    file_dir = Path(f'file_display/public/documentation/{site_id}/hostname_changes/')
     file_dir.mkdir(exist_ok=True)
     file_path = file_dir / "hostname_changes.txt"
     with open(file_path, "w+") as f:
