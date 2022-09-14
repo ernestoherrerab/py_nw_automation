@@ -385,10 +385,11 @@ def audit_interfaces(parse_obj):
                 ### PORT CHANNEL MEMBERSHIP EVALUATION ###
                 if "channel-protocol" in if_data:
                     dev_data["interfaces"][if_id]["channel_protocol"] = if_data.replace("channel-protocol ", "")
-                if "channel-group"in if_data:
-                    port_ch_parameters = re.findall(r'channel-group\s(\d+)\smode\s(\S+)', if_data)
+                if "channel-group" in if_data:
+                    port_ch_parameters = re.findall(r'(?<=channel-group\s)(\S+)(?(?=\s\S+)\s\S+\s(\w+))', if_data)
                     dev_data["interfaces"][if_id]["channel_group"] = {}
                     dev_data["interfaces"][if_id]["channel_group"]["id"] = int(port_ch_parameters[0][0])
-                    dev_data["interfaces"][if_id]["channel_group"]["mode"] = port_ch_parameters[0][1]                          
+                    if port_ch_parameters[0][1]:
+                        dev_data["interfaces"][if_id]["channel_group"]["mode"] = port_ch_parameters[0][1]                          
 
     return dev_data
