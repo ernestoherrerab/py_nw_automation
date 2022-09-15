@@ -48,7 +48,8 @@ def do_audit(username, password, depth_levels=3):
         dev_data = {}
         dev_data[dev_config[0]] = {}
         parse_obj = CiscoConfParse(dev_config[1])
-
+        print(dev_config[1])
+        
         #### PARSE BASE CONFIGS & DUMP INTO FILE ###
         print("Getting Base Configs...")
         dev_data[dev_config[0]] = getBase.audit_base(parse_obj)

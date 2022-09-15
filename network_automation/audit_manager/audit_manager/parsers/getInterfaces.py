@@ -237,7 +237,7 @@ def audit_interfaces(parse_obj):
                     if_sec_prefix = IPAddress(if_sec_ip_params[0][1]).netmask_bits()
                     dev_data["interfaces"][if_id]["ip_address_secondaries"].append(f'{if_sec_ip_add}/{if_sec_prefix}')
                 elif "ip helper-address" in if_data:
-                    if "ip_helper" not in dev_data["port_channels"][po_id]:
+                    if "ip_helper" not in dev_data["interfaces"][if_id]:
                         dev_data["interfaces"][if_id]["ip_helper"] = []
                         dev_data["interfaces"][if_id]["ip_helper"].append(if_data.replace("ip helper-address ", ""))
                     else:
