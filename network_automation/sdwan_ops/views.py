@@ -5,7 +5,7 @@ Creates the views (routes) for the secondary app
 from decouple import config
 from flask import redirect, render_template, request, session, url_for
 from network_automation.sdwan_ops import sdwan_ops
-import network_automation.sdwan_ops.snmp.update_snmp as update_snmp
+import network_automation.sdwan_ops.hostname.update_hostname as update_hostname
 
 TEMPLATE_DIR = "sdwan_ops"
 VMANAGE_URL_VAR = config("VMANAGE_URL_VAR")
@@ -39,7 +39,7 @@ def snmp():
     password = session.get("password")
     #username = "admin"
     #password = "C1sco12345"
-    auth_header = update_snmp.auth(VMANAGE_URL_VAR, username, password)
-    device_list = update_snmp.update_snmp(VMANAGE_URL_VAR, auth_header)
-    print(device_list)
+    auth_header = update_hostname.auth(VMANAGE_URL_VAR, username, password)
+    device_list = update_hostname.update_hostname(VMANAGE_URL_VAR, auth_header)
+
     return str(device_list)
