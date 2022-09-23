@@ -70,11 +70,10 @@ def get_dev_config(input_list, url_var, header):
     
     dev_conf_list = []
     for dev_id in input_list: 
-        dev_conf = api.get_operations(f'dataservice/template/device/config/attachedconfig?deviceId={dev_id["deviceIds"][0]}', url_var, header)
-        print(dev_id["deviceIds"][0])
+        dev_id_str = dev_id["deviceIds"][0].replace("/","%2")
+        dev_conf = api.get_operations(f'dataservice/template/device/config/attachedconfig?deviceId={dev_id_str}', url_var, header)
         dev_conf_list.append(dev_conf)
         
-    print(dev_conf_list)
     return dev_conf_list
     
 

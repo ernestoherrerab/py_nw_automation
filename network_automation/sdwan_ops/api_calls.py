@@ -10,7 +10,7 @@ def get_operations(ops_type: str, url_var: str, headers: str) -> Response:
     """API GET operations """
 
     url = f"{url_var}/{ops_type}"
-    ops_get = get(url, headers=headers,verify=False)
+    ops_get = get(url, headers=headers,verify=False, timeout=10.0)
     if ops_get.status_code == 200:
         ops_data = loads(ops_get.text)
         return ops_data
