@@ -110,22 +110,31 @@ def eval_dev_support(input_list, url_var, header):
 def attach_feature_dev_template(input_list, url_var, header):
     """ Attach Feature Template to Device """
 
+    ### INITIALIZE FINAL DATA STRUCTURE ###
     feature_template_dict = {}
     feature_template_dict["deviceTemplateList"] = []
+
+    ### REMOVE FAILED CONFIGURATION RETRIEVALS ###
     feature_template_list = [dev_tuple[0] for dev_tuple in input_list if dev_tuple[1] != None]
-    template_id_set = {template_id["templateId"] for template_id in feature_template_list}
-    for template_id in template_id_set:
-        feature_template_dict["deviceTemplateList"].append({"templateId": template_id, "device": []})
     
+    ### REMOVE DUPLICATE TEMPLATE IDS ###
+    template_id_set = {template_id["templateId"] for template_id in feature_template_list}
+    
+    ### GENERATE FINAL DATA STRUCTURE ###
+    for template_id in template_id_set:
+        feature_template_dict["deviceTemplateList"].append(
+            {"templateId": template_id, 
+            "device": [], 
+            "isEdited": False, 
+            "isMasterEdited": False})
+    
+    ### TRANSFORM CONFIGURATION TO FINAL DATA STRUCTURE ###
     for feature_template in feature_template_list:
-        for template_id in feature_template_dict["deviceTemplateList"]:
+        for index, template_id in enumerate(feature_template_dict["deviceTemplateList"]):
             if template_id["templateId"] ==  feature_template["templateId"]: 
-                print("match", template_id["templateId"])
-                print("match", feature_template["templateId"])
-                feature_template_dict["deviceTemplateList"].append(feature_template["device"])
+                feature_template_dict["deviceTemplateList"][index]["device"].append(feature_template["device"])
             else:
-                print("no match", template_id["templateId"])
-                print("no match", feature_template["templateId"])
+                pass
 
     return feature_template_dict
 
@@ -174,8 +183,9 @@ def update_hostname(url_var, header):
     ### ATTACH FEATURE DEVICE TEMPLATE ###
     print("Attach feature device template...")
     dev_templates = attach_feature_dev_template(run_config, url_var, header)
+    dev_templates_response = api.post_operations("dataservice/template/device/config/attachfeature", url_var, dev_templates, header)
 
 
-    return dev_templates
+    return dev_templates_response
 
 
