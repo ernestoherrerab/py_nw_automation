@@ -48,12 +48,9 @@ def hostname():
     print(summary)
     print("*" * 100)
     print(dev_results)
-    return render_template(f"{TEMPLATE_DIR}/summary.html", result=result, summary=summary)
+    return render_template(f"{TEMPLATE_DIR}/summary.html", summary=summary, dev_results=dev_results, )
 
-@sdwan_ops.route("/success")
-def success():
-    return render_template(f"{TEMPLATE_DIR}/success.html")
+@sdwan_ops.route("/summary")
+def summary():
+    return render_template(f"{TEMPLATE_DIR}/summary.html")
 
-@sdwan_ops.route("/failure")
-def failure():
-    return render_template(f"{TEMPLATE_DIR}/failure.html")
