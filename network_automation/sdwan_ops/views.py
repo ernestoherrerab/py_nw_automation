@@ -38,9 +38,6 @@ def hostname():
     dev_results= []
     username = session.get("username")
     password = session.get("password")
-    #username = "admin"
-    #password = "C1sco12345"
-    #auth_header = update_hostname.auth(VMANAGE_URL_VAR, username, password)
     result = update_hostname.update_hostname(VMANAGE_URL_VAR, username, password)
 
     summary = result["summary"]

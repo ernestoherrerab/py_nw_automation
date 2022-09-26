@@ -21,8 +21,8 @@ def auth(vmanage, username, password):
         header = {'Content-Type': "application/json",'Cookie': jsessionid}
         return header
 
-def get_dev_data(url_var, header):
-    data = api.get_operations("dataservice/system/device/vedges", url_var, header)
+def get_dev_data(url_var, operation, header):
+    data = api.get_operations(operation, url_var, header)
     return data
 
 def host_template_mapping(input_dict):
@@ -40,18 +40,18 @@ def host_template_mapping(input_dict):
             output_list.append(output_dict)
     return output_list
 
-def create_device_input(input_list, url_var, header):
+def create_device_input(input_list, url_var, operation, header):
     """ Create Device Input """
     
     output_list = []
     for input in input_list:
-        dev_input = api.post_operations("dataservice/template/device/config/input", url_var, input, header) 
+        dev_input = api.post_operations(operation, url_var, input, header) 
         dev_input["templateId"] = input["templateId"]
         output_list.append(dev_input) 
     
     return output_list
 
-def duplicate_ip(input_list, url_var, header):
+def duplicate_ip(input_list, url_var, operation, header):
     """ Check if there are duplicate IPs """
     
     output_dict = {}
@@ -64,13 +64,13 @@ def duplicate_ip(input_list, url_var, header):
         transit_dict["csv-host-name"] = input["host-name"]
         output_dict["device"].append(transit_dict)
 
-    response = api.post_operations("dataservice/template/device/config/duplicateip", url_var, output_dict, header )
+    response = api.post_operations(operation, url_var, output_dict, header )
     if response["data"] == []:
         return response
     else:
         return None
 
-def get_dev_cli_config(input_list, url_var, header):
+def get_dev_cli_config(input_list, url_var, operation, header):
     """ Get running configuration """
     
     output_list = []
@@ -82,35 +82,35 @@ def get_dev_cli_config(input_list, url_var, header):
         output_dict["isRFSRequired"] = True
         output_dict["isEdited"] = False
         output_dict["isMasterEdited"] = False
-        response = api.post_operations("dataservice/template/device/config/config/", url_var, output_dict, header, False)
+        response = api.post_operations(operation, url_var, output_dict, header, False)
         output_tuple = (output_dict, response)
         output_list.append(output_tuple)
 
     return output_list
 
-def get_dev_config(input_list, url_var, header):
+def get_dev_config(input_list, url_var, operation, header):
     """ Generate Running Config """
     
     dev_conf_list = []
     for dev_id in input_list: 
         dev_id_str = dev_id["deviceIds"][0].replace("/","%2")
-        dev_conf = api.get_operations(f'dataservice/template/device/config/attachedconfig?deviceId={dev_id_str}', url_var, header)
+        dev_conf = api.get_operations(operation + dev_id_str, url_var, header)
         dev_conf_list.append(dev_conf)
         
     return dev_conf_list
 
-def eval_dev_support(input_list, url_var, header):
+def eval_dev_support(input_list, url_var, operation, header):
     """ Evaluate device model support """
 
     dev_model_list = []
     for dev_id in input_list: 
         dev_id_str = dev_id["deviceIds"][0].replace("/","%2")
-        dev_conf = api.get_operations(f'dataservice/device/models/{dev_id_str}', url_var, header)
+        dev_conf = api.get_operations(operation + dev_id_str, url_var, header)
         dev_model_list.append(dev_conf)
 
     return dev_model_list
 
-def attach_feature_dev_template(input_list, url_var, header):
+def attach_feature_dev_template(input_list, url_var, operation, header):
     """ Attach Feature Template to Device """
 
     ### INITIALIZE FINAL DATA STRUCTURE ###
@@ -140,16 +140,15 @@ def attach_feature_dev_template(input_list, url_var, header):
                 pass
     
     ### API CALL ###
-    response = api.post_operations("dataservice/template/device/config/attachfeature", url_var, feature_template_dict, header)
+    response = api.post_operations(operation, url_var, feature_template_dict, header)
 
     return response
 
-def push_template(input_dict, url_var, header):
+def push_template(input_dict, url_var, operation, header):
     """ Push generated templated"""
 
     push_id = input_dict["id"]
-    response = api.get_operations(f'dataservice/device/action/status/{push_id}', url_var, header)
-    print(response)
-
+    response = api.get_operations(operation + push_id, url_var, header)
+    
     return response
 
