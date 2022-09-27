@@ -27,6 +27,7 @@ def get_dev_data(url_var, operation, header):
     data = api.get_operations(operation, url_var, header)
     
     ### FILTER DEVICES - ONLY REACHABLE ###
+    #filtered_data = [online_dev for online_dev in data["data"] if "system-ip" in online_dev and online_dev["system-ip"] == "10.61.112.133"]
     filtered_data = [online_dev for online_dev in data["data"] if "reachability" in online_dev and online_dev["reachability"] == "reachable"]
     data["data"] = filtered_data 
     
@@ -54,8 +55,8 @@ def create_device_input(input_list, url_var, operation, header):
     for input in input_list:
         dev_input = api.post_operations(operation, url_var, input, header) 
         dev_input["templateId"] = input["templateId"]
-        #current_hostname = dev_input["data"][0]["csv-host-name"]
-        #dev_input["data"][0]["//system/host-name"] = current_hostname + "-test"
+        current_hostname = dev_input["data"][0]["csv-host-name"]
+        dev_input["data"][0]["//system/host-name"] = current_hostname + "-api-test"
         output_list.append(dev_input)
     
     return output_list
@@ -87,7 +88,7 @@ def get_dev_cli_config(input_list, url_var, operation, header):
         output_dict["templateId"] = input["templateId"]
         output_dict["device"] = input["data"][0]
         output_dict["device"]["csv-templateId"] = output_dict["templateId"]
-        #output_dict["isRFSRequired"] = True
+        output_dict["isRFSRequired"] = True
         output_dict["isEdited"] = False
         output_dict["isMasterEdited"] = False
         response = api.post_operations(operation, url_var, output_dict, header, False)

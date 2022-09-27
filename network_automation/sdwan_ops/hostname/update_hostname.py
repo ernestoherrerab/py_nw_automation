@@ -4,11 +4,13 @@ Script to update Hostnames on SDWAN
 """
 from copy import deepcopy
 from time import sleep
+import urllib3
 import network_automation.sdwan_ops.sdwan_api as sdwan
 
 def update_hostname(url_var, username, password):
     """ Update Hostname operations """
 
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     ### GENERATE AUTHENTICATION ###
     auth_header = sdwan.auth(url_var, username, password)
 
@@ -16,7 +18,7 @@ def update_hostname(url_var, username, password):
     print("Getting vEdge Data...")
     vedge_data_ops = "dataservice/system/device/vedges"
     vedge_data = sdwan.get_dev_data(url_var, vedge_data_ops, auth_header)       
-
+    
     ### MAP HOST TO TEMPLATES ###
     print("Mapping Host to Templates...")
     vedge_list = sdwan.host_template_mapping(vedge_data)
@@ -29,7 +31,8 @@ def update_hostname(url_var, username, password):
         vedge.pop("deviceIP", None)
         vedge.pop("host-name", None)
     vedge_input = sdwan.create_device_input(vedge_list_copy, url_var, vedge_input_ops, auth_header) 
-     
+    
+         
     ### CHECK FOR DUPLICATE IPS ### 
     print(" Check if there are duplicate IPs...")
     duplicate_ip_ops = "dataservice/template/device/config/duplicateip"
@@ -44,6 +47,7 @@ def update_hostname(url_var, username, password):
     print("Getting running configuration...")
     run_conf_ops = "dataservice/template/device/config/config/"
     run_config = sdwan.get_dev_cli_config(vedge_input, url_var, run_conf_ops, auth_header)
+    
     
     ### GET ATTACHED CONFIGURATION TO DEVICE ###
     print("Generate Attached Running Config...")
