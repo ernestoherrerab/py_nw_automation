@@ -13,14 +13,17 @@ VMANAGE_URL_VAR = config("VMANAGE_URL_VAR")
 ### VIEW TO CREATE DATA ###
 @sdwan_ops.route("/home")
 def home():
+    """ Homepage for SDWAN Operations """
     return render_template(f"{TEMPLATE_DIR}/home.html")
 
 @sdwan_ops.route("/")
 def home_redirect():
+    """ Home Redirect """
     return redirect(url_for("sdwan_ops.home"))
 
 @sdwan_ops.route("/vmanage_auth", methods=["POST", "GET"])
 def vmanage_auth():
+    """ Login Page """
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
@@ -31,20 +34,24 @@ def vmanage_auth():
 
 @sdwan_ops.route("/ops")
 def ops():
+    """ Select SDWAN Operation to perform"""
     return render_template(f"{TEMPLATE_DIR}/ops.html")
 
 @sdwan_ops.route("/hostname")
 def hostname():
+    """ Launch hostname change process """
     dev_results= []
     username = session.get("username")
     password = session.get("password")
     result = update_hostname.update_hostname(VMANAGE_URL_VAR, username, password)
     
+    ### FORMAT SUMMARY FOR HTML PRESENTATION ###
     summary = result["summary"]
     for dev_result in result["data"]:
         dev_data = (dev_result["host-name"], dev_result["status"])
         dev_results.append(dev_data)
-
+    
+    ### SUMMARY FOR CONSOLE ###
     print(summary)
     print("*" * 100)
     print(dev_results)

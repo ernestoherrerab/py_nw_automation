@@ -35,6 +35,8 @@ def get_dev_data(url_var, operation, header):
 
 def host_template_mapping(input_dict):
     """ Generate Host to Template Mapping """
+
+    ### GENERATE FORMATTED PAYLOAD FOR DEVICE INPUT API CALL ###
     output_list = []
     for host_template in input_dict["data"]:
         output_dict = {}
@@ -55,8 +57,6 @@ def create_device_input(input_list, url_var, operation, header):
     for input in input_list:
         dev_input = api.post_operations(operation, url_var, input, header) 
         dev_input["templateId"] = input["templateId"]
-        current_hostname = dev_input["data"][0]["csv-host-name"]
-        dev_input["data"][0]["//system/host-name"] = current_hostname + "-api-test"
         output_list.append(dev_input)
     
     return output_list
@@ -67,6 +67,7 @@ def duplicate_ip(input_list, url_var, operation, header):
     output_dict = {}
     output_dict["device"] = []
 
+    ### FORMAT PAYLOAD DATA TO GENERATE CLI CONFIG ###
     for input in input_list:
         transit_dict = {}
         transit_dict["csv-deviceIP"] = input["deviceIP"]
@@ -82,6 +83,7 @@ def duplicate_ip(input_list, url_var, operation, header):
 def get_dev_cli_config(input_list, url_var, operation, header):
     """ Get running configuration """
 
+    ### FORMAT PAYLOAD DATA TO GENERATE TEMPLATE RUNNING CONFIG ###
     output_list = []
     for input in input_list:
         output_dict = {}
@@ -156,6 +158,7 @@ def attach_feature_dev_template(input_list, url_var, operation, header):
 def push_template(input_dict, url_var, operation, header):
     """ Push generated templated"""
 
+    ### RETURNS STATUS OF OPERATION ###
     push_id = input_dict["id"]
     response = api.get_operations(operation + push_id, url_var, header)
     

@@ -10,7 +10,9 @@ import network_automation.sdwan_ops.sdwan_api as sdwan
 def update_hostname(url_var, username, password):
     """ Update Hostname operations """
 
+    ### DISABLE CERTIFICATE WARNINGS ###
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    
     ### GENERATE AUTHENTICATION ###
     auth_header = sdwan.auth(url_var, username, password)
 
@@ -32,6 +34,10 @@ def update_hostname(url_var, username, password):
         vedge.pop("host-name", None)
     vedge_input = sdwan.create_device_input(vedge_list_copy, url_var, vedge_input_ops, auth_header) 
     
+    ### APPLY CHANGES ###
+    for vedge in vedge_input:
+        current_hostname = vedge["data"][0]["csv-host-name"]
+        vedge["data"][0]["//system/host-name"] = current_hostname + "-api-test"     
          
     ### CHECK FOR DUPLICATE IPS ### 
     print(" Check if there are duplicate IPs...")
@@ -74,6 +80,8 @@ def update_hostname(url_var, username, password):
     print("Pushing changes...")
     push_status_ops = "dataservice/device/action/status/"
     push_status = sdwan.push_template(dev_templates, url_var, push_status_ops, auth_header) 
+
+    ### REQUEST STATUS UPDATE UNTIL CHANGE IS COMPLETED ###
     while push_status["summary"]["status"] != "done":
         print("Pushing changes...")
         push_status = sdwan.push_template(dev_templates, url_var, push_status_ops, auth_header)
