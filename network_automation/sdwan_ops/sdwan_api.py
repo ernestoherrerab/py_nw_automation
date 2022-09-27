@@ -47,7 +47,9 @@ def create_device_input(input_list, url_var, operation, header):
     for input in input_list:
         dev_input = api.post_operations(operation, url_var, input, header) 
         dev_input["templateId"] = input["templateId"]
-        output_list.append(dev_input) 
+        #current_hostname = dev_input["data"][0]["csv-host-name"]
+        #dev_input["data"][0]["//system/host-name"] = current_hostname + "-test"
+        output_list.append(dev_input)
     
     return output_list
 
@@ -63,7 +65,6 @@ def duplicate_ip(input_list, url_var, operation, header):
         transit_dict["csv-deviceId"] = input["deviceIds"][0]
         transit_dict["csv-host-name"] = input["host-name"]
         output_dict["device"].append(transit_dict)
-
     response = api.post_operations(operation, url_var, output_dict, header )
     if response["data"] == []:
         return response
@@ -72,14 +73,14 @@ def duplicate_ip(input_list, url_var, operation, header):
 
 def get_dev_cli_config(input_list, url_var, operation, header):
     """ Get running configuration """
-    
+
     output_list = []
     for input in input_list:
         output_dict = {}
         output_dict["templateId"] = input["templateId"]
         output_dict["device"] = input["data"][0]
         output_dict["device"]["csv-templateId"] = output_dict["templateId"]
-        output_dict["isRFSRequired"] = True
+        #output_dict["isRFSRequired"] = True
         output_dict["isEdited"] = False
         output_dict["isMasterEdited"] = False
         response = api.post_operations(operation, url_var, output_dict, header, False)
