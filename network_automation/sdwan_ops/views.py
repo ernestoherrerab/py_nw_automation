@@ -39,7 +39,7 @@ def hostname():
     username = session.get("username")
     password = session.get("password")
     result = update_hostname.update_hostname(VMANAGE_URL_VAR, username, password)
-
+    
     summary = result["summary"]
     for dev_result in result["data"]:
         dev_data = (dev_result["host-name"], dev_result["status"])

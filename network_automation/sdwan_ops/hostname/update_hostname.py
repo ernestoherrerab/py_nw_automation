@@ -15,13 +15,12 @@ def update_hostname(url_var, username, password):
     ### GET VEDGE INFO ###
     print("Getting vEdge Data...")
     vedge_data_ops = "dataservice/system/device/vedges"
-    vedge_data = sdwan.get_dev_data(url_var, vedge_data_ops, auth_header)
+    vedge_data = sdwan.get_dev_data(url_var, vedge_data_ops, auth_header)       
 
-      
     ### MAP HOST TO TEMPLATES ###
     print("Mapping Host to Templates...")
     vedge_list = sdwan.host_template_mapping(vedge_data)
-    
+
     ### CREATE DEVICE INPUT ###
     print("Creating Device Input...")
     vedge_input_ops = "dataservice/template/device/config/input"
@@ -46,7 +45,6 @@ def update_hostname(url_var, username, password):
     run_conf_ops = "dataservice/template/device/config/config/"
     run_config = sdwan.get_dev_cli_config(vedge_input, url_var, run_conf_ops, auth_header)
     
-
     ### GET ATTACHED CONFIGURATION TO DEVICE ###
     print("Generate Attached Running Config...")
     attached_dev_ops = "dataservice/template/device/config/attachedconfig?deviceId="

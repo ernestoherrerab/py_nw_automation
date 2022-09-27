@@ -22,7 +22,14 @@ def auth(vmanage, username, password):
         return header
 
 def get_dev_data(url_var, operation, header):
+    """ Get Reachable vEdge Data """
+
     data = api.get_operations(operation, url_var, header)
+    
+    ### FILTER DEVICES - ONLY REACHABLE ###
+    filtered_data = [online_dev for online_dev in data["data"] if "reachability" in online_dev and online_dev["reachability"] == "reachable"]
+    data["data"] = filtered_data 
+    
     return data
 
 def host_template_mapping(input_dict):
