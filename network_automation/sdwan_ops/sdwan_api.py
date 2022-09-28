@@ -163,4 +163,3 @@ def push_template(input_dict, url_var, operation, header):
     response = api.get_operations(operation + push_id, url_var, header)
     
     return response
-

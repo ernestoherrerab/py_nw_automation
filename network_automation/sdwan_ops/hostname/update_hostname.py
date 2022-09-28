@@ -3,6 +3,7 @@
 Script to update Hostnames on SDWAN
 """
 from copy import deepcopy
+import re
 from time import sleep
 import urllib3
 import network_automation.sdwan_ops.sdwan_api as sdwan
@@ -34,10 +35,39 @@ def update_hostname(url_var, username, password):
         vedge.pop("host-name", None)
     vedge_input = sdwan.create_device_input(vedge_list_copy, url_var, vedge_input_ops, auth_header) 
     
-    ### APPLY CHANGES ###
+    ### FORMAT DATA OF CHANGE - GROUP ROUTERS BY SITE ###
+    site_dict = {}
     for vedge in vedge_input:
         current_hostname = vedge["data"][0]["csv-host-name"]
-        vedge["data"][0]["//system/host-name"] = current_hostname + "-api-test"     
+        hostname_re = re.findall(r'(\w+)-(\w+)', current_hostname)
+        if "ron" in hostname_re[0][1].lower():
+            site_id = hostname_re[0][0]
+            router_num = hostname_re[0][1]
+            if site_id in site_dict and site_dict[site_id]:
+                site_dict[site_id].append(int(router_num.lower().replace("ron0", "")))
+            else:
+                site_dict[site_id] = []
+                site_dict[site_id].append(int(router_num.lower().replace("ron0", "")))
+    
+    ### FORMAT DATA OF CHANGE & APPLY CHANGE ###            
+    for vedge in vedge_input:
+        current_hostname = vedge["data"][0]["csv-host-name"]
+        hostname_re = re.findall(r'(\w+)-(\w+)', current_hostname)
+        if "ron" in hostname_re[0][1].lower():
+            site_id = hostname_re[0][0]
+            router_num = int(hostname_re[0][1].lower().replace("ron0", ""))
+            site_routers = site_dict[site_id]
+            if len(site_routers) == 1:
+                router_id = f'{site_id}-r01-sdw'
+                vedge["data"][0]["//system/host-name"] = router_id.lower() 
+            elif len(site_routers) == 2:
+              evaluation = all(i >= router_num for i in site_routers)
+              if evaluation:
+                router_id = f'{site_id}-r01-sdw'
+                vedge["data"][0]["//system/host-name"] = router_id.lower()        
+              elif not evaluation:
+                router_id = f'{site_id}-r02-sdw'
+                vedge["data"][0]["//system/host-name"] = router_id.lower() 
          
     ### CHECK FOR DUPLICATE IPS ### 
     print(" Check if there are duplicate IPs...")

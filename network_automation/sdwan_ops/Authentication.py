@@ -11,6 +11,8 @@ class Authentication:
 
     @staticmethod
     def get_jsessionid(vmanage_host, username, password):
+        """ Get Jsession cookie """
+
         api = "/j_security_check"
         url = vmanage_host + api
         payload = {'j_username' : username, 'j_password' : password}
@@ -27,6 +29,8 @@ class Authentication:
 
     @staticmethod
     def get_token(vmanage_host, jsessionid):
+        """ Get Access Token """
+
         headers = {'Cookie': jsessionid}
         api = "/dataservice/client/token"
         url = vmanage_host + api 
