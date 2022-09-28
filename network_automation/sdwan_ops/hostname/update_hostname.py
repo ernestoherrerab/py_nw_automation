@@ -85,10 +85,10 @@ def update_hostname(url_var, username, password):
     run_config = sdwan.get_dev_cli_config(vedge_input, url_var, run_conf_ops, auth_header)
     
     
-    ### GET ATTACHED CONFIGURATION TO DEVICE ###
-    print("Generate Attached Running Config...")
-    attached_dev_ops = "dataservice/template/device/config/attachedconfig?deviceId="
-    attached_config = sdwan.get_dev_config(vedge_list, url_var, attached_dev_ops, auth_header)
+    #### GET ATTACHED CONFIGURATION TO DEVICE ###
+    #print("Generate Attached Running Config...")
+    #attached_dev_ops = "dataservice/template/device/config/attachedconfig?deviceId="
+    #attached_config = sdwan.get_dev_config(vedge_list, url_var, attached_dev_ops, auth_header)
 
     ### EVALUATE IF DEVICE MODEL IS SUPPORTED IN VMANAGE ###
     print("Evaluate the device model support...")
