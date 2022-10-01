@@ -7,7 +7,7 @@ from httpx import get, post
 
 logger = logging.getLogger(__name__)
 
-class Authentication:
+class ViptelaAuthentication:
 
     @staticmethod
     def get_jsessionid(vmanage_host, username, password):

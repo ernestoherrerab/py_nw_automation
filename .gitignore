@@ -8,6 +8,7 @@ network_automation/audit_manager/audits/
 network_automation/hostname_changer/hostname_changer/host_references/
 network_automation/hostname_changer/hostname_changer/inventory/hosts.yml
 network_automation/ise_mac_bypass/mac_bypass/csv_data/
+network_automation/sdwan_ops/prisma_access/config.yml
 network_automation/topology_builder/graphviz/inventory/hosts.yml
 network_automation/topology_builder/graphviz/nornir.log
 network_automation/topology_builder/graphviz/hosts.yml

@@ -4,15 +4,14 @@ SDWAN API Functions
 """
 
 import network_automation.sdwan_ops.api_calls as api
-from network_automation.sdwan_ops.Authentication import Authentication
+from network_automation.sdwan_ops.ViptelaAuthentication import ViptelaAuthentication
 
 
 def auth(vmanage, username, password):
     """ Authenticate vManage"""
     
-    Auth = Authentication()
-    jsessionid = Auth.get_jsessionid(vmanage, username, password)
-    token = Auth.get_token(vmanage, jsessionid)
+    jsessionid = ViptelaAuthentication.get_jsessionid(vmanage, username, password)
+    token = ViptelaAuthentication.get_token(vmanage, jsessionid)
 
     if token is not None:
         header = {'Content-Type': "application/json",'Cookie': jsessionid, 'X-XSRF-TOKEN': token}

@@ -20,7 +20,7 @@ def update_hostname(url_var, username, password):
     ### GET VEDGE INFO ###
     print("Getting vEdge Data...")
     vedge_data_ops = "dataservice/system/device/vedges"
-    vedge_data = sdwan.get_dev_data(url_var, vedge_data_ops, auth_header)       
+    vedge_data = sdwan.get_dev_data(url_var, vedge_data_ops, auth_header)
     
     ### MAP HOST TO TEMPLATES ###
     print("Mapping Host to Templates...")
