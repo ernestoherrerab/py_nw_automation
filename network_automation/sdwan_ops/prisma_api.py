@@ -5,7 +5,7 @@ Prisma Access API Functions
 from decouple import config
 from json import dumps, loads
 from panapi import PanApiSession
-from panapi.config.network import RemoteNetwork, BandwidthAllocation, IPSecTunnel, IKEGateway, Location
+from panapi.config.network import BandwidthAllocation, IKEGateway, IPSecTunnel, Location, RemoteNetwork
 
 def auth(config_path):
     """ Authenticate Prisma"""
@@ -102,22 +102,39 @@ def create_remote_nw(session, site_id, spn_location, tunnel_names, region_id):
     response_code = session.response.status_code
 
     return response_code
-    
-def get_spn_location(session, location):
-    """ Get SPN based on Location """
 
-    location = location.lower().replace(" ","-")
-    spn_location = BandwidthAllocation(
-    name = location
-    )
-    response = spn_location.read(session)
-    if response != None:
+def del_ike_gateways(session, ike_gw_ids):
+    """ Delete IKE Gateways"""
+
+    response_code = set()
+    for ike_gw_id in ike_gw_ids:
+        ike_gw_del = IKEGateway(
+            id = ike_gw_id
+        )
+        print(f'Roll back: Deleting IKE Gateway {ike_gw_id}')
+        ike_gw_del.delete(session)
+        response_code.add(session.response.status_code)
+    
+    return response_code
+
+
+def get_ike_gateways(session, ike_gws):
+    """ Get IKE Gateways """
+    
+    ike_gws_list = []
+    for ike_gw in ike_gws:
+        ike_gws = IKEGateway(
+            folder = "Remote Networks",
+            name = ike_gw
+        )
+        response = ike_gws.read(session)
         response_json =dumps(response.payload, indent=4)
         response_dict = loads(response_json)
-        return response_dict
-    else:
-        print("The location does not exist or no bandwidth has not been allocated to this region...")
-        return None
+        ike_gws_list.append(response_dict)
+
+    return ike_gws_list
+
+
 
 def get_region(session):
     """ Get Region Name based on Location """
@@ -138,4 +155,20 @@ def get_remote_nws(session, site_id):
     response = remote_networks.read(session)
     
     return response
+
+def get_spn_location(session, location):
+    """ Get SPN based on Location """
+
+    location = location.lower().replace(" ","-")
+    spn_location = BandwidthAllocation(
+    name = location
+    )
+    response = spn_location.read(session)
+    if response != None:
+        response_json =dumps(response.payload, indent=4)
+        response_dict = loads(response_json)
+        return response_dict
+    else:
+        print("The location does not exist or no bandwidth has not been allocated to this region...")
+        return None
 

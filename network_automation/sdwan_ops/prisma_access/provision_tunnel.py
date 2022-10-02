@@ -13,6 +13,7 @@ def provision_tunnel(config, site_data, url_var, username, password):
     site_id = site_data["site_id"].upper()
     location = site_data["location_id"]
     hostname_ip_list = set()
+    ike_gws_del = []
 
     ### GENERATE IPFABRIC SESSION ###
     print("Authenticating to IPFabric...")
@@ -34,13 +35,13 @@ def provision_tunnel(config, site_data, url_var, username, password):
     print("Authenticating to Prisma...")
     prisma_session = prisma.auth(config)
 
-    ### CHECK IF SITE ALREADY EXISTS ###
+    ### CHECK IF Remote Network ALREADY EXISTS ###
     print("Checking if the remote network already exists in Prisma...")
     remote_network = prisma.get_remote_nws(prisma_session, site_id)
 
     if remote_network != None:
         print(remote_network)
-        return "Site Already Exists"
+        return "Remote Network Already Exists"
     else:
         pass
 
@@ -69,9 +70,22 @@ def provision_tunnel(config, site_data, url_var, username, password):
     print("Creating IPSEC Tunnels in Prisma...")
     ipsec_tun_result, ipsec_tun_names = prisma.create_ipsec_tunnel(prisma_session, ike_gw_names)
     if ipsec_tun_result != {201}:
-        return False
+        ### ROLL BACK IKE GATEWAYS IF IPSEC TUNNELS FAIL ###
+        print("IPSec Tunnels Could not be created...")
+        print("Deleting IKE Gateways...")
+        ike_gws = prisma.get_ike_gateways(prisma_session, ike_gw_names)
+        for ike_gw in ike_gws:
+            ike_gws_del.append(ike_gw["id"])
+        ike_gw_del_response = prisma.del_ike_gateways(prisma_session, ike_gws_del)
+        if ike_gw_del_response != {200}:
+            print("Unable to Roll Back IKE Gateways, delete manually!!")
+            return False
+        else:
+            print("Roll back successful, IKE Gateways Successfully Deleted")
+            return False
     else:
         print("IPSec Tunnels Successfully Created!")
+        
     
     ##### CREATE REMOTE NETWORK ###
     remote_network_result = prisma.create_remote_nw(prisma_session, site_id, spn_location, ipsec_tun_names, region_id)
@@ -89,11 +103,7 @@ def provision_tunnel(config, site_data, url_var, username, password):
 #    vedge_data = sdwan.get_dev_data(url_var, vedge_data_ops, auth_header)
 #    return vedge_data
 
-#    ### GET SPN LOCATION ###
-#    location = prisma.get_spn_location(prisma_session, location)
-#    ipsec_termination_node = location["spn_name_list"][0]
-#
-#    ### CREATE REMOTE NETWORK ###
-#    tunnel_provision = prisma.create_remote_nw(prisma_session, site_id, location, ipsec_termination_node)
+
+    
 
 
