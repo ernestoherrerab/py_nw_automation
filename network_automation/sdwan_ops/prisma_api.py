@@ -3,9 +3,21 @@
 Prisma Access API Functions
 """
 from decouple import config
+import logging
 from json import dumps, loads
+from pathlib import Path
 from panapi import PanApiSession
 from panapi.config.network import BandwidthAllocation, IKEGateway, IPSecTunnel, Location, RemoteNetwork
+
+
+### LOGGING SETUP ###
+LOG_FILE = Path("logs/tunnel_provision.log")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+file_handler = logging.FileHandler(LOG_FILE)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 def auth(config_path):
     """ Authenticate Prisma"""
@@ -39,11 +51,11 @@ def create_ike_gw(session, router_data):
 			}
     protocol_common_var = {"passive_mode": True}
 		       
-    for router in router_data:
+    for index, router in enumerate(router_data):
         peer_addr = {"ip": router[1]}
         ike_gw = IKEGateway(
             folder = "Remote Networks",
-            name = f'IKE_GW_{router[0].upper().replace("-", "_")}',
+            name = f'IKE_GW_{router[0].upper().replace("-", "_")}_{index}',
             authentication = psk_dict,
             peer_address = peer_addr,
             protocol = protocol_var,
@@ -51,8 +63,9 @@ def create_ike_gw(session, router_data):
         )
         ike_gw.create(session)
         print(f'IKE GW Creation for {router[0]} resulted in {session.response.status_code}')
+        logger.info(f'Prisma: IKE GW Creation for {router[0]} resulted in {session.response.status_code}')
         response_code.add(session.response.status_code)
-        ike_gws_names.append(f'IKE_GW_{router[0].upper().replace("-", "_")}')
+        ike_gws_names.append(f'IKE_GW_{router[0].upper().replace("-", "_")}_{index}')
 
     return response_code, ike_gws_names
 
@@ -71,6 +84,7 @@ def create_ipsec_tunnel(session, ike_gws):
             )
         ipsec_tunnel.create(session)
         print(f'IPSec Tunnel Creation for {ike_gw} resulted in {session.response.status_code}')
+        logger.info(f'Prisma: IPSec Tunnel Creation for {ike_gw} resulted in {session.response.status_code}')
         response_code.add(session.response.status_code)
         ipsec_tunnel_names.append(f'IPSEC_TUN_{ike_gw.replace("IKE_GW_","")}')
 
@@ -99,6 +113,7 @@ def create_remote_nw(session, site_id, spn_location, tunnel_names, region_id, ne
     )
     remote_network.create(session)
     print(f'Remote Network Creation for {site_id} resulted in {session.response.status_code}')
+    logger.info(f'Prisma: Remote Network Creation for {site_id} resulted in {session.response.status_code}')
     response_code = session.response.status_code
 
     return response_code
@@ -112,6 +127,7 @@ def del_ike_gateways(session, ike_gw_ids):
             id = ike_gw_id
         )
         print(f'Roll back: Deleting IKE Gateway {ike_gw_id}')
+        logger.info(f'Prisma: Deleting IKE Gateway {ike_gw_id}')
         ike_gw_del.delete(session)
         response_code.add(session.response.status_code)
     
@@ -125,7 +141,8 @@ def del_ipsec_tunnels(session, ipsec_tun_ids):
         ipsec_tun_del = IPSecTunnel(
             id = ipsec_tun_id
         )
-        print(f'Roll back: Deleting IKE Gateway {ipsec_tun_id}')
+        print(f'Roll back: Deleting IPSec Tunnel {ipsec_tun_id}')
+        logger.info(f'Prisma: Deleting IPSec Tunnel {ipsec_tun_id}')
         ipsec_tun_del.delete(session)
         response_code.add(session.response.status_code)
     
@@ -200,5 +217,6 @@ def get_spn_location(session, location):
         return response_dict
     else:
         print("The location does not exist or no bandwidth has not been allocated to this region...")
+        logger.error(f'Prisma: The location does not exist or no bandwidth has not been allocated to this region')
         return None
 

@@ -3,7 +3,7 @@
 Creates the views (routes) for the secondary app
 """
 from decouple import config
-from flask import redirect, render_template, request, session, url_for
+from flask import redirect, render_template, request, session, send_file, url_for
 from pathlib import Path
 from yaml import dump
 from network_automation.sdwan_ops import sdwan_ops
@@ -11,6 +11,7 @@ import network_automation.sdwan_ops.hostname.update_hostname as update_hostname
 import network_automation.sdwan_ops.prisma_access.provision_tunnel as prisma_tunnels
 
 TEMPLATE_DIR = "sdwan_ops"
+LOG_FILE = Path("logs/tunnel_provision.log")
 PANAPI_CONFIG_PATH = Path("network_automation/sdwan_ops/prisma_access/config.yml")
 VMANAGE_URL_VAR = config("VMANAGE_URL_VAR")
 PRISMA_CLIENT_ID = config("PRISMA_CLIENT_ID")
@@ -86,10 +87,10 @@ def prisma_site():
 
     return render_template(f"{TEMPLATE_DIR}/prisma_site.html")
 
-@sdwan_ops.route("/error")
-def error():
+@sdwan_ops.route("/tunnel_error")
+def tunnel_error():
     """ Error Page """
-    return render_template(f"{TEMPLATE_DIR}/error.html")
+    return render_template(f"{TEMPLATE_DIR}/tunnel_error.html")
 
 @sdwan_ops.route("/tunnel_success")
 def tunnel_success():
@@ -99,6 +100,7 @@ def tunnel_success():
 @sdwan_ops.route("provision_prisma_access", methods=["POST"])
 def provision_prisma_access():
     """ Launch Prisma Access Tunnels Provisioning """
+    
     if request.method == "POST":
         username = session.get("username")
         password = session.get("password")
@@ -131,10 +133,17 @@ def provision_prisma_access():
 
     ### PROVISION TUNNELS (REMOTE NETWORK) ###
     results = prisma_tunnels.provision_tunnel(PANAPI_CONFIG_PATH, site_data, VMANAGE_URL_VAR, username, password) 
+    with open(LOG_FILE, 'r') as f:
+        log_file = f.readlines()
 
     if results == False:
-        return redirect(url_for("sdwan_ops.error"))
+        return redirect(url_for("sdwan_ops.tunnel_error"), log_file=log_file)
     elif results == True:
-        return render_template(f"{TEMPLATE_DIR}/tunnel_success.html")
+        return render_template(f"{TEMPLATE_DIR}/tunnel_success.html", log_file=log_file)
 
+@sdwan_ops.route("prisma_log_file")
+def prisma_log_file():
+    """ Download Log File"""
+    
+    return send_file(f'./../{str(LOG_FILE)}', as_attachment=True)
 
