@@ -15,9 +15,17 @@ def auth():
     
     return ipf 
 
-def get_dev_data(ipf, filter_dict):
-    """ Get device data """
+def get_if_data(ipf, filter_dict):
+    """ Get device interfaces data """
     
-    dev_data = ipf.inventory.interfaces.all(filters=filter_dict)
+    if_data = ipf.inventory.interfaces.all(filters=filter_dict)
 
-    return dev_data
+    return if_data
+
+def get_subnets_data(ipf, filter_dict):
+    """ Get device interfaces data"""
+    
+    subnets_data = ipf.technology.routing.routes_ipv4.all(filters=filter_dict)
+    
+    return subnets_data
+    

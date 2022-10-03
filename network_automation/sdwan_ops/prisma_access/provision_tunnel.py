@@ -2,18 +2,19 @@
 """
 Script to Provision Prisma Access Tunnels
 """
-from netaddr import IPAddress
+from netaddr import IPAddress, cidr_merge
 import network_automation.sdwan_ops.ipfabric_api as ipfabric
 import network_automation.sdwan_ops.prisma_api as prisma
 import network_automation.sdwan_ops.sdwan_api as sdwan
 
 def provision_tunnel(config, site_data, url_var, username, password):
     """ Main function to provision tunnels """
-
+    
     ### VARIABLES ###
     site_id = site_data["site_id"].upper()
     location = site_data["location_id"]
     hostname_ip_list = set()
+    subnets = []
     ike_gws_del = []
     ipsec_tuns_del = []
 
@@ -23,8 +24,8 @@ def provision_tunnel(config, site_data, url_var, username, password):
 
     ### RETRIEVE INTERFACE DATA FROM DEVICE ###
     print("Getting Public Interface Data of Site Routers...")
-    filter_input = {"and": [{"hostname": ["reg",f'{site_id.lower()}-r\\d+-sdw']}]}
-    dev_data = ipfabric.get_dev_data(ipf_session, filter_input)
+    if_filter_input = {"and": [{"hostname": ["reg",f'{site_id.lower()}-r\\d+-sdw']}]}
+    dev_data = ipfabric.get_if_data(ipf_session, if_filter_input)
     
     ### GET PUBLIC IPS FROM IPFABRIC DATA ###
     for interface in dev_data:
@@ -33,6 +34,17 @@ def provision_tunnel(config, site_data, url_var, username, password):
             if ip.is_unicast() and not ip.is_private():
                 hostname_ip_list.add((interface["hostname"], interface["primaryIp"]))
 
+    ### GET SUBNET FROM IP FABRIC ###
+    print("Getting Networks Data of Site Routers...")
+    subnets_filter_input = {"and": [{"hostname": ["reg",f'{site_id.lower()}-r\\d+-sdw']},{"vrf": ["eq","10"]},{"protocol": ["reg","S|C"]}]}
+    routes = ipfabric.get_subnets_data(ipf_session, subnets_filter_input)
+
+    for subnet in routes:
+        subnets.append(subnet["network"])
+
+    summary_subnets = cidr_merge(subnets)   
+    remote_nw_subnets = [str(subnet) for subnet in summary_subnets]
+    
     ### GENERATE PRISMA SESSION ###
     print("Authenticating to Prisma...")
     prisma_session = prisma.auth(config)
@@ -50,6 +62,7 @@ def provision_tunnel(config, site_data, url_var, username, password):
     print(f'Getting SPN Location based on location entered: {location} ...')
     spn_location_dict = prisma.get_spn_location(prisma_session, location)
     if spn_location_dict == None:
+        print("SPN Location not found, check location input is correct...")
         return False
     else:
         spn_location = spn_location_dict["spn_name_list"][0]
@@ -90,7 +103,7 @@ def provision_tunnel(config, site_data, url_var, username, password):
         
     
     ##### CREATE REMOTE NETWORK ###
-    remote_network_result = prisma.create_remote_nw(prisma_session, site_id, spn_location, ipsec_tun_names, region_id)
+    remote_network_result = prisma.create_remote_nw(prisma_session, site_id, spn_location, ipsec_tun_names, region_id, remote_nw_subnets)
     if remote_network_result != 201:
         print("Remote Network could not be created...")
         print("Rolling Back...")

@@ -76,7 +76,7 @@ def create_ipsec_tunnel(session, ike_gws):
 
     return response_code, ipsec_tunnel_names
 
-def create_remote_nw(session, site_id, spn_location, tunnel_names, region_id):
+def create_remote_nw(session, site_id, spn_location, tunnel_names, region_id, networks):
     """ Create remote network & Tunnels """
 
     if len(tunnel_names) > 1:
@@ -95,7 +95,7 @@ def create_remote_nw(session, site_id, spn_location, tunnel_names, region_id):
     spn_name = spn_location,
     ipsec_tunnel = primary_tunnel,
     secondary_ipsec_tunnel = secondary_tunnel,
-    subnets = ["172.16.0.0/24"]    
+    subnets = networks    
     )
     remote_network.create(session)
     print(f'Remote Network Creation for {site_id} resulted in {session.response.status_code}')
