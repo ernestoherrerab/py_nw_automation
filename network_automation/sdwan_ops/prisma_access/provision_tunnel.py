@@ -10,10 +10,12 @@ import network_automation.sdwan_ops.sdwan_api as sdwan
 def provision_tunnel(config, site_data, url_var, username, password):
     """ Main function to provision tunnels """
 
+    ### VARIABLES ###
     site_id = site_data["site_id"].upper()
     location = site_data["location_id"]
     hostname_ip_list = set()
     ike_gws_del = []
+    ipsec_tuns_del = []
 
     ### GENERATE IPFABRIC SESSION ###
     print("Authenticating to IPFabric...")
@@ -71,7 +73,7 @@ def provision_tunnel(config, site_data, url_var, username, password):
     ipsec_tun_result, ipsec_tun_names = prisma.create_ipsec_tunnel(prisma_session, ike_gw_names)
     if ipsec_tun_result != {201}:
         ### ROLL BACK IKE GATEWAYS IF IPSEC TUNNELS FAIL ###
-        print("IPSec Tunnels Could not be created...")
+        print("IPSec Tunnels could not be created...")
         print("Deleting IKE Gateways...")
         ike_gws = prisma.get_ike_gateways(prisma_session, ike_gw_names)
         for ike_gw in ike_gws:
@@ -79,10 +81,10 @@ def provision_tunnel(config, site_data, url_var, username, password):
         ike_gw_del_response = prisma.del_ike_gateways(prisma_session, ike_gws_del)
         if ike_gw_del_response != {200}:
             print("Unable to Roll Back IKE Gateways, delete manually!!")
-            return False
         else:
             print("Roll back successful, IKE Gateways Successfully Deleted")
-            return False
+        
+        return False
     else:
         print("IPSec Tunnels Successfully Created!")
         
@@ -90,6 +92,28 @@ def provision_tunnel(config, site_data, url_var, username, password):
     ##### CREATE REMOTE NETWORK ###
     remote_network_result = prisma.create_remote_nw(prisma_session, site_id, spn_location, ipsec_tun_names, region_id)
     if remote_network_result != 201:
+        print("Remote Network could not be created...")
+        print("Rolling Back...")
+        print("Deleting IPSec Tunnels...")
+        ipsec_tuns = prisma.get_ipsec_tunnels(prisma_session, ipsec_tun_names)
+        for ipsec_tun in ipsec_tuns:
+            ipsec_tuns_del.append(ipsec_tun["id"])
+        ipsec_tun_del_response = prisma.del_ipsec_tunnels(prisma_session, ipsec_tuns_del)
+        if ipsec_tun_del_response != {200}:
+            print("Unable to Roll Back IPSec Tunnels delete manually!!")
+        else:
+            print("Roll back successful, IPSec Tunnels Successfully Deleted")
+        
+        print("Deleting IKE Gateways...")
+        ike_gws = prisma.get_ike_gateways(prisma_session, ike_gw_names)
+        for ike_gw in ike_gws:
+            ike_gws_del.append(ike_gw["id"])
+        ike_gw_del_response = prisma.del_ike_gateways(prisma_session, ike_gws_del)
+        if ike_gw_del_response != {200}:
+            print("Unable to Roll Back IKE Gateways, delete manually!!")
+        else:
+            print("Roll back successful, IKE Gateways Successfully Deleted")
+
         return False
     else:
         print("Remote Network Successfully Created!")

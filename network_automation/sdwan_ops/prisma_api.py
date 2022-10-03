@@ -117,6 +117,20 @@ def del_ike_gateways(session, ike_gw_ids):
     
     return response_code
 
+def del_ipsec_tunnels(session, ipsec_tun_ids):
+    """ Delete IKE Gateways"""
+
+    response_code = set()
+    for ipsec_tun_id in ipsec_tun_ids:
+        ipsec_tun_del = IPSecTunnel(
+            id = ipsec_tun_id
+        )
+        print(f'Roll back: Deleting IKE Gateway {ipsec_tun_id}')
+        ipsec_tun_del.delete(session)
+        response_code.add(session.response.status_code)
+    
+    return response_code
+
 
 def get_ike_gateways(session, ike_gws):
     """ Get IKE Gateways """
@@ -133,6 +147,22 @@ def get_ike_gateways(session, ike_gws):
         ike_gws_list.append(response_dict)
 
     return ike_gws_list
+
+def get_ipsec_tunnels(session, ipsec_tunnels):
+    """ Get IPSec Tunnels """
+    
+    ipsec_tuns_list = []
+    for ipsec_tunnel in ipsec_tunnels:
+        ipsec_tuns = IPSecTunnel(
+            folder = "Remote Networks",
+            name = ipsec_tunnel
+        )
+        response = ipsec_tuns.read(session)
+        response_json =dumps(response.payload, indent=4)
+        response_dict = loads(response_json)
+        ipsec_tuns_list.append(response_dict)
+
+    return ipsec_tuns_list
 
 
 
