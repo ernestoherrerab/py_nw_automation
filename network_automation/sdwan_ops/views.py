@@ -113,9 +113,9 @@ def provision_prisma_access():
                     data = data.split(",")
                     if data != [""]:
                         site_data = {}
-                        site_id = data[0]
+                        site_code = data[0]
                         location_id = data[1]
-                        site_data["site_id"] = site_id
+                        site_data["site_code"] = site_code
                         site_data["location_id"] = location_id
     else:
         return "Error"
@@ -133,13 +133,7 @@ def provision_prisma_access():
 
     ### PROVISION TUNNELS (REMOTE NETWORK) ###
     results = prisma_tunnels.provision_tunnel(PANAPI_CONFIG_PATH, site_data, VMANAGE_URL_VAR, username, password) 
-    with open(LOG_FILE, 'r') as f:
-        log_file = f.readlines()
-
-    if results == False:
-        return redirect(url_for("sdwan_ops.tunnel_error"), log_file=log_file)
-    elif results == True:
-        return render_template(f"{TEMPLATE_DIR}/tunnel_success.html", log_file=log_file)
+    return results
 
 @sdwan_ops.route("prisma_log_file")
 def prisma_log_file():
