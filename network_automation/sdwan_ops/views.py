@@ -133,6 +133,8 @@ def provision_prisma_access():
 
     ### PROVISION TUNNELS (REMOTE NETWORK) ###
     results = prisma_tunnels.provision_tunnel(PANAPI_CONFIG_PATH, site_data, VMANAGE_URL_VAR, username, password) 
+
+    return str(results)
     
     
 
