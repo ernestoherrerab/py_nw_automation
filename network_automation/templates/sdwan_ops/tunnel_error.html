@@ -8,6 +8,19 @@
         <div class="alert alert-info" role="alert">
         <h1>SDWAN OPS<br><br></h1>
         <h4>The process failed...<br><br></h4> 
+        <p>Summary:
+            Actions Taken:
+            {% for activity in summary_activity %}
+            - {{ activity }}
+            {% endfor %}
+            <br>
+            Results:
+            {% for result in summary_config %}
+            - {{ result }}
+            {% endfor %}
+
+
+        </p><br><br>
         <p>Download the log file for details:</p>
         <br>
         <a class="btn btn-primary" href="{{url_for('sdwan_ops.prisma_log_file')}}" role="button">Download Log File</a>

@@ -2,8 +2,10 @@
 """
 Creates the views (routes) for the secondary app
 """
+from textwrap import indent
 from decouple import config
 from flask import redirect, render_template, request, session, send_file, url_for
+from json import dumps, loads
 from pathlib import Path
 from yaml import dump
 from network_automation.sdwan_ops import sdwan_ops
@@ -102,8 +104,12 @@ def provision_prisma_access():
     """ Launch Prisma Access Tunnels Provisioning """
     
     if request.method == "POST":
-        username = session.get("username")
-        password = session.get("password")
+        #username = session.get("username")
+        #password = session.get("password")
+        username = "ehb"
+        #password = "hAmocrA0l0r!1=X$FR&$"
+        password = "FLS!sgood4U"
+		
         text_data = request.form
         for text in text_data.items():
             if "outputtext" in text:
@@ -135,9 +141,27 @@ def provision_prisma_access():
 
     ### PROVISION TUNNELS (REMOTE NETWORK) ###
     results = prisma_tunnels.provision_tunnel(PANAPI_CONFIG_PATH, site_data, VMANAGE_URL_VAR, username, password) 
+    #return str(results)
 
-    return str(results)
-    
+    ### FORMAT SUMMARY FOR HTML PRESENTATION ###
+    if results != False:
+        summary_status = results["action_status"]
+        summary_activity = results["action_activity"]
+        summary_config = loads(results["action_config"])
+
+
+        ### SUMMARY FOR CONSOLE ###
+        print(summary_status)
+        print("*" * 100)
+        #print(sumary_config)
+
+        if summary_status == "success":
+            return render_template(f"{TEMPLATE_DIR}/tunnel_success.html", summary_activity=summary_activity, summary_config=summary_config)
+        else:
+            return render_template(f"{TEMPLATE_DIR}/tunnel_error.html", summary_activity=summary_activity, summary_config=summary_config ) 
+    else:
+        return render_template(f"{TEMPLATE_DIR}/tunnel_error.html")
+
     
 
 @sdwan_ops.route("prisma_log_file")

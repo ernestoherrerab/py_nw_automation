@@ -69,7 +69,8 @@ Replaced the "attach_to_template" method in the "DeviceTemplates" class as follo
         utils = Utilities(self.session, self.host, self.port)
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         action_id = ParseMethods.parse_id(response)
-        utils.waitfor_action_completion(action_id)
+        summary = utils.waitfor_action_completion(action_id)
+        
 
-        return action_id
+        return action_id, summary
 ~~~

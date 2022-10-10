@@ -102,6 +102,7 @@ def host_template_mapping(input_dict):
             output_dict["deviceIP"] = host_template["deviceIP"]
             output_dict["host-name"] = host_template["host-name"]
             output_dict["templateId"] = host_template["templateId"]
+            output_dict["template"] = host_template["template"]
             output_dict["deviceIds"] = [host_template["uuid"]]
             output_dict["isEdited"] = False
             output_dict["isMasterEdited"] = False
