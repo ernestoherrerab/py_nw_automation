@@ -35,6 +35,7 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     site_code = "CPH"
     location = site_data["location_id"]
     vedge_tunnel_ip = site_data["tunnel_ip"]
+    summary_list = []
     
     ### GENERATE IPFABRIC SESSION ###
     print("Authenticating to IPFabric...")
@@ -183,11 +184,6 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
         print("Remote Network Successfully Created!")
         logger.info(f'Remote Network {site_code} Successfully Created!')
 
-
-    site_code = "cph"
-    prisma_dest_ip = "1.1.1.1"
-    vedge_tunnel_ip = "169.254.0.1/30"
-
     ### VMANAGE AUTHENTICATION ###
     print("Authenticate vManage")
     auth = sdwan.auth(vmanage_url, username, password)
@@ -198,155 +194,150 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     vedge_data = sdwan.get_vedge_list(auth, vmanage_url)
     logger.info("vManage: Get vEdge Data")
 
-    ### FILTER DEVICES BY STATUS ###   
+    ### FILTER DEVICES BY SITE CODE ###   
     vedge_list = [online_dev for online_dev in vedge_data if "reachability" in online_dev and online_dev["reachability"] == "reachable" and re.match(rf'{site_code}-r\d+-sdw', online_dev["host-name"]) ]
     logger.info(f'vManage: Filter vEdge Data...by site code')
-
-    ### GET DEVICE IDS FOR VPN10 FEATURE TEMPLATE FROM VEDGE DATA ###
-    device_type_set = {dev_type["deviceModel"] for dev_type in vedge_list}
-    feature_templates = sdwan.get_dev_feature_template(auth, vmanage_url)
-    cisco_vpn_template_ids_list = [cisco_vpn_templates["templateId"] for cisco_vpn_templates in feature_templates if cisco_vpn_templates["templateType"] == "cisco_vpn" and "vpn10" in cisco_vpn_templates["templateName"].lower() and any(ele in device_type_set for ele in cisco_vpn_templates["deviceType"])]
-
-    ### MAP HOST TO TEMPLATES ###
-    print("Mapping Host to Templates...")
-    vedge_template_map = sdwan.host_template_mapping(vedge_list)
-    logger.info(f'vManage: Map Hosts to Templates')
-    vedge_template_ids = {template_id["templateId"] for template_id in vedge_template_map}
-
-
-    ### GET SDWAN TEMPLATES AND APPEND NEW IPSEC SUB TEMPLATE ###
-    print("Retrieving Templates to clone...")
-    create_template_payload_tran_list = []
-    new_templates_names = []
-    for vedge_template_id in vedge_template_ids:
+    
+    for vedge in vedge_list:
+           
+        ### GET DEVICE ID FOR VPN10 FEATURE TEMPLATE FROM VEDGE DATA ###
+        device_type = vedge["deviceModel"]
+        feature_templates = sdwan.get_dev_feature_template(auth, vmanage_url)
+        cisco_vpn_template_id_list = [cisco_vpn_templates["templateId"] for cisco_vpn_templates in feature_templates if cisco_vpn_templates["templateType"] == "cisco_vpn" and "vpn10" in cisco_vpn_templates["templateName"].lower() and device_type in cisco_vpn_templates["deviceType"]]
+        
+        ### MAP HOST TO TEMPLATE ###
+        print("Mapping Host to Templates...")
+        vedge_template_map = sdwan.host_template_mapping(vedge)
+        logger.info(f'vManage: Map Hosts to Templates')
+        vedge_template_id = vedge_template_map["templateId"] 
+    
+        ### GET SDWAN TEMPLATE AND APPEND NEW IPSEC SUB TEMPLATE ###
+        print("Retrieving Templates to clone...")
+        create_template_payload_tran_list = []
+        new_templates_names = []
         create_template_payload = {}
         current_template = sdwan.get_template_config(auth, vmanage_url, vedge_template_id)
         for index, sub_templates in enumerate(current_template["generalTemplates"]):
-            if sub_templates["templateId"] in cisco_vpn_template_ids_list:
+            if sub_templates["templateId"] in cisco_vpn_template_id_list:
                 current_template["generalTemplates"][index]["subTemplates"].append({"templateId": VMANAGE_PRISMA_TEMPLATE_ID, "templateType": "cisco_vpn_interface_ipsec"})
         logger.info(f'vManage: Format Payload to create New Template for template {current_template["templateName"]}')
-        ##feature_template_uids = [uid["templateId"] for uid in current_template["generalTemplates"]]
         create_template_payload["templateName"] = f'PRISMA_{current_template["templateName"]}'
-        new_templates_names.append(create_template_payload["templateName"])
         create_template_payload["templateDescription"] = f'PRISMA_{current_template["templateDescription"]}'
         create_template_payload["deviceType"] = current_template["deviceType"]
         create_template_payload["factoryDefault"] = current_template["factoryDefault"]
         create_template_payload["configType"] = current_template["configType"]
         create_template_payload["generalTemplates"] = current_template["generalTemplates"]
-        #create_template_payload["featureTemplateUidRange"] = feature_template_uids
         create_template_payload["policyId"] = current_template["policyId"]
         if 'securityPolicyId' in current_template:
             create_template_payload['securityPolicyId'] = current_template['securityPolicyId']
-        create_template_payload_tran_list.append(create_template_payload)    
-    create_template_payload_list = [i for n, i in enumerate(create_template_payload_tran_list) if i not in create_template_payload_tran_list[n + 1:]]
-    logger.info(f'vManage: Retrieved templates to clone and formatted payload')
-    
-    #### CREATE NEW TEMPLATE(S) ###
-    print("Creating new cloned Templates...")
-    for index, template_payload in enumerate(create_template_payload_list):
-        response = sdwan.clone_template(auth, vmanage_url, template_payload)
+        logger.info(f'vManage: Format Payload created for template {current_template["templateName"]}')         
+
+        #### CREATE NEW TEMPLATE(S) ###
+        print("Creating new cloned Templates...")
+        response = sdwan.clone_template(auth, vmanage_url, create_template_payload)
         if response == None:
             return False
         elif response["status_code"] != 200 and index > 0:
-            print(f'Template creation for { template_payload["templateName"]} failed!!')
-            logger.error(f'Template creation for { template_payload["templateName"]} failed')
+            print(f'Template creation for { create_template_payload["templateName"]} failed!!')
+            logger.error(f'Template creation for { create_template_payload["templateName"]} failed')
             return False
         elif response["status_code"] != 200 and index >= 1:
-            print(f'Template creation for { template_payload["templateName"]} failed!!')
-            logger.error(f'Template creation for { template_payload["templateName"]} failed')
+            print(f'Template creation for { create_template_payload["templateName"]} failed!!')
+            logger.error(f'Template creation for { create_template_payload["templateName"]} failed')
             print("Continuing provisioning since at least one template has already been cloned...")
-            print(f'This failed template { template_payload["templateName"]} needs to be manually added...')
+            print(f'This failed template { create_template_payload["templateName"]} needs to be manually added...')
         elif response["status_code"] == 200:
-            print(f'Template creation for { template_payload["templateName"]} was successful')
-            logger.info(f'Template creation for { template_payload["templateName"]} successful')
+            print(f'Template creation for { create_template_payload["templateName"]} was successful')
+            logger.info(f'Template creation for { create_template_payload["templateName"]} successful')
 
-
-    ### GET NEW TEMPLATE ID ### 
-    print("Getting New Template Data...")
-    logger.info(f'vManage: New template name: { new_templates_names}')
-    new_templates = sdwan.get_all_templates_config(auth, vmanage_url, templates_names=new_templates_names)
-    logger.info(f'vManage: Retrieved new template data for {new_templates_names}')
-    new_template_ids = [template_id["templateId"] for template_id in new_templates]
+        ### GET NEW TEMPLATE ID ### 
+        print("Getting New Template Data...")
+        logger.info(f'vManage: New template name: { create_template_payload["templateName"]}')
+        new_template = sdwan.get_all_templates_config(auth, vmanage_url, template_name=[create_template_payload["templateName"]])
+        logger.info(f'vManage: Retrieved new template data for {new_templates_names}')
+        new_template_id = new_template[0]["templateId"]
         
-    #### GET CURRENT TEMPLATE INPUT INFORMATION ###
-    print("Getting current template input information...")
-    current_dev_input_list = []
-    for current_template_input in vedge_template_map:
-        current_dev_input = sdwan.get_template_input(auth, vmanage_url, current_template_input["templateId"], current_template_input["deviceIds"])
-        logger.info(f'vManage: Retrieved current template input info for {current_template_input["templateId"]}')
-        current_dev_input_list.append(current_dev_input)
-    logger.info(f'vManage: Retrieved current template input for all current templates')
-
-    ### EVALUATE IF THERE ARE MORE INPUT LISTS THAN COPIES OF THE TEMPLATE TO ALLOW MAP ###
-    if len(current_dev_input_list) > len(new_templates):
-        rev_new_templates = [item for item in new_templates for _ in (0, len(current_dev_input_list) - len(new_templates))]
-        logger.info(f'vManage: Replicated new templates')
-    else:
-        rev_new_templates = new_templates
-        logger.info(f'vManage: No need to replicate new templates')
-
-    #### GET NEW TEMPLATE INPUT INFORMATION ###
-    new_dev_input_list = []
-    for new_template_input in rev_new_templates:
-        new_dev_input = sdwan.get_template_input(auth, vmanage_url, new_template_input["templateId"])
-        new_dev_input_list.append(new_dev_input)
-        logger.info(f'vManage: Retrieved new template input info for {new_template_input["templateId"]}')
+        #### GET CURRENT TEMPLATE INPUT INFORMATION ###
+        print("Getting current template input information...")
+        current_dev_input = sdwan.get_template_input(auth, vmanage_url, vedge_template_map["templateId"], vedge_template_map["deviceIds"])
+        logger.info(f'vManage: Retrieved current template input info for {vedge_template_map["templateId"]}')
+        
+        ##### GET NEW TEMPLATE INPUT INFORMATION ###
+        print("Getting new template input information...")
+        new_dev_input = sdwan.get_template_input(auth, vmanage_url, new_template_id)
+        logger.info(f'vManage: Retrieved new template input info for {new_template_id}')
     
-    ### COPY CURRENT DEV DATA TO NEW DEV DATA IN INPUT ###
-    print("Copying data from current input to new input...")
-    for new_input, current_input in zip(new_dev_input_list, current_dev_input_list):
-        new_input["data"] = current_input["data"]
-        logger.info(f'vManage: Generated new template input for: {new_input["data"][0]["csv-host-name"]}')
+        ### COPY CURRENT DEV DATA TO NEW DEV DATA IN INPUT ###
+        print("Copying data from current input to new input...")
+        new_dev_input["data"] = current_dev_input["data"]
+        logger.info(f'vManage: Generated new template input for: {new_dev_input["data"][0]["csv-host-name"]}')
 
-    #### ENTER INPUT DATA FOR PRISMA FEATURE TEMPLATE ###
-    #hostname_ip_set = {('cph-r03-sdw', '172.16.0.80', 'GigabitEthernet0/0/0'), ('cph-r01-sdw', '172.16.0.80', 'GigabitEthernet0/0/0')}
-    print("Entering input data for prisma feature template")
-    for input_data in new_dev_input_list:
+        #### ENTER INPUT DATA FOR PRISMA FEATURE TEMPLATE ###
+        hostname_ip_set = {('cph-r03-sdw', '172.16.0.80', 'GigabitEthernet0/0/0'), ('cph-r01-sdw', '172.16.0.80', 'GigabitEthernet0/0/0')}
+        print("Entering input data for prisma feature template")
         for host_tunnel_if in hostname_ip_set:
-            if  host_tunnel_if[0] == input_data["data"][0]["csv-host-name"]:
-                input_data["data"][0]["/10/ipsec10/interface/tunnel-source-interface"] = host_tunnel_if[2]
-                input_data["data"][0]["/10/ipsec10/interface/tunnel-destination"] = prisma_dest_ip
-                input_data["data"][0]["/10/ipsec10/interface/ip/address"] = vedge_tunnel_ip
-        logger.info(f'vManage: Added new template feature input for: {input_data["data"][0]["csv-host-name"]}')
+            if  host_tunnel_if[0] == new_dev_input["data"][0]["csv-host-name"]:
+                new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-source-interface"] = host_tunnel_if[2]
+                new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-destination"] = prisma_dest_ip
+                new_dev_input["data"][0]["/10/ipsec10/interface/ip/address"] = vedge_tunnel_ip
+        logger.info(f'vManage: Added new template feature input for: {new_dev_input["data"][0]["csv-host-name"]}')
 
-    ### EVALUATE IF THERE ARE MORE TEMPLATE IDS THAN INPUT DATA TEMPLATES ###
-    if len(new_dev_input_list) > len(new_template_ids):
-        rev_new_template_ids = [item for item in new_template_ids for _ in (0, len(new_dev_input_list) - len(new_template_ids))]
-        logger.info(f'vManage: Replicated new templates ids')
-    else:
-        rev_new_template_ids = new_template_ids
-        logger.info(f'vManage: No need to replicate new templates ids')
-    
-    ### FORMAT FINAL DATA STRUCTURE ###
-    print("Formatting data to push to vManage...")
-    feature_template_dict = {}
-    feature_template_dict["deviceTemplateList"] = []
-    for template_id, template in zip(rev_new_template_ids, new_dev_input_list):
+        ### FORMAT FINAL DATA STRUCTURE ###
+        print("Formatting data to push to vManage...")
+        feature_template_dict = {}
+        feature_template_dict["deviceTemplateList"] = []
         feature_template_dict["deviceTemplateList"].append(
-            {"templateId": template_id, 
-            "device": template["data"], 
+            {"templateId": new_template_id, 
+            "device": new_dev_input["data"], 
             "isEdited": False, 
             "isMasterEdited": False})
-    logger.info(f'vManage: Data ready to be uploaded to vManage')
+        logger.info(f'vManage: Data ready to be uploaded to vManage')
 
-    ### REMOVE PROBLEM DEVICES IF THEY EXIST ###
-    print("Evaluating if there are problem templates and remove them...")
-    for dev_index, dev in enumerate(feature_template_dict["deviceTemplateList"].copy()):
-        for failed_dev in dev["device"]:
-            if failed_dev["csv-status"] != "complete":
-                feature_template_dict["deviceTemplateList"].pop(dev_index)
-                print(f'Removing {failed_dev["csv-host-name"]} for payload due to {failed_dev["csv-status"]}')
-                logger.info(f'vManage: Removed {failed_dev["csv-host-name"]} for payload due to {failed_dev["csv-status"]}')
+        ### REMOVE PROBLEM DEVICES IF THEY EXIST ###
+        print("Evaluating if there are problem templates and remove them...")
+        csv_status = feature_template_dict["deviceTemplateList"][0]["device"][0]["csv-status"]
+        csv_hostname = feature_template_dict["deviceTemplateList"][0]["device"][0]["csv-host-name"]
+        if csv_status != "complete":
+            print(f'Removing {csv_hostname} for payload due to {csv_status}')
+            print("Device will not be attached...")
+            logger.info(f'vManage: Removed {{csv_hostname}} for payload due to {csv_status}')
+            summary_list.append(
+                {
+                    "action_status": csv_status,
+                    "action_activity": "Not Pushed",
+                    "action_config": "Not Pushed"
+                    })
+        else:
+            feature_template_dict["deviceTemplateList"][0]["device"][0]["csv-templateId"] = feature_template_dict["deviceTemplateList"][0]["templateId"] 
+            logger.info(f'vManage: Evaluated templates to push')
+            ### PUSH TEMPLATES TO DEVICES ###
+            print("Pushing templates to devices...")
+            ops_id, summary_obj = sdwan.attach_dev_template(auth, vmanage_url, feature_template_dict)
+            summary = dict(summary_obj)
+            logger.info(f'vManage: {ops_id}') 
+            ### FORMAT SUMMARY FOR LOGGING ###
+            summary_status = summary["action_status"]
+            summary_activity = summary["action_activity"]
+            summary_config = loads(summary["action_config"])
+            summary_list.append(                {
+                    "action_status": summary_status,
+                    "action_activity": summary_activity,
+                    "action_config": summary_config
+                    })
+            if summary_status == "success":
+                logger.info(f'vManage: Provisioning was {summary_status}')
+                for activity in summary_activity:
+                    logger.info(f'vManage:  {activity}')
+                for configuration in summary_config:
+                    logger.info(f'vManage:  {configuration}')
             else:
-                feature_template_dict["deviceTemplateList"][dev_index]["device"][0]["csv-templateId"] = feature_template_dict["deviceTemplateList"][dev_index]["templateId"] 
-    logger.info(f'vManage: Evaluated templates to push')
-
-    #### PUSH TEMPLATES TO DEVICES ###
-    print("Pushing templates to devices...")
-    response = sdwan.attach_dev_template(auth, vmanage_url, feature_template_dict)
-    print(response)
-    
-    return feature_template_dict
+                logger.error(f'vManage: Provisioning was {summary_status}') 
+                for activity in summary_activity:
+                    logger.error(f'vManage:  {activity}')
+                for configuration in summary_config:
+                    logger.error(f'vManage:  {configuration}')       
+    print(summary_list)
+    return summary_list
 
 
     
