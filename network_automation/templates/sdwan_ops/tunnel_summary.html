@@ -7,16 +7,16 @@
     <body>
         <div class="alert alert-info" role="alert">
         <h1>SDWAN OPS<br><br></h1>
-        <h4>The tunnel provisioning process was successful!<br><br></h4> 
-        <p>Summary:
+        <h4>Tunnel provisioning Summary:<br><br></h4> 
+        <p>
             Actions Taken:
-            {% for activity in summary_activity %}
-            - {{ activity }}
+            {% for activity in results %}
+            - {{ activity["action_activity"] }}
             {% endfor %}
             <br>
             Results:
-            {% for result in summary_config %}
-            - {{ result }}
+            {% for result in results %}
+            - {{ result["action_config"] }}
             {% endfor %}
         </p><br><br>
         <p>Download the log file for details:</p>
