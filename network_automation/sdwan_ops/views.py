@@ -115,8 +115,10 @@ def provision_prisma_access():
                         site_data = {}
                         site_code = data[0]
                         location_id = data[1]
+                        tunnel_ip = data[2]
                         site_data["site_code"] = site_code
                         site_data["location_id"] = location_id
+                        site_data["tunnel_ip"] = tunnel_ip
     else:
         return "Error"
     

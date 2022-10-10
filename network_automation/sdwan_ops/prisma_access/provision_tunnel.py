@@ -34,13 +34,8 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     #site_code = site_data["site_code"].upper()
     site_code = "CPH"
     location = site_data["location_id"]
-    subnets = []
-    ike_gws_del = []
-    ipsec_tuns_del = []
-    current_template_list = []  
+    vedge_tunnel_ip = site_data["tunnel_ip"]
     
-    
-
     ### GENERATE IPFABRIC SESSION ###
     print("Authenticating to IPFabric...")
     ipf_session = ipfabric.auth()
@@ -70,6 +65,7 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     logger.info("IPFabric: Retrieved Static/Connected routes of SDWAN Routers")
 
     ### SUMMARIZE NETWORKS ###
+    subnets = []
     for subnet in routes:
         subnets.append(subnet["network"])
     summary_subnets = cidr_merge(subnets)   
@@ -112,11 +108,11 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     
     logger.info(f'Prisma: Retrieved Region ID from {location}: {region_id}')
 
-    print(hostname_ip_list)
+    print(hostname_ip_set)
 
     ### CREATE IKE GATEWAY(S) ###
     print("Creating IKE Gateways in Prisma...")
-    ike_gw_result, ike_gw_names = prisma.create_ike_gw(prisma_session, hostname_ip_list)
+    ike_gw_result, ike_gw_names = prisma.create_ike_gw(prisma_session, hostname_ip_set)
     if ike_gw_result != {201}:
         logger.error(f'Prisma: Could not create IKE Gateways')
         return False
@@ -126,6 +122,7 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
 
     ### CREATE IPSEC TUNNEL(S) ###
     print("Creating IPSEC Tunnels in Prisma...")
+    ike_gws_del = []
     ipsec_tun_result, ipsec_tun_names = prisma.create_ipsec_tunnel(prisma_session, ike_gw_names)
     if ipsec_tun_result != {201}:
         ### ROLL BACK IKE GATEWAYS IF IPSEC TUNNELS FAIL ###
@@ -150,6 +147,8 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
         
     
     ##### CREATE REMOTE NETWORK ###
+    print("Creating remote network...")
+    ipsec_tuns_del = []
     remote_network_result = prisma.create_remote_nw(prisma_session, site_code, spn_location, ipsec_tun_names, region_id, remote_nw_subnets)
     if remote_network_result != 201:
         print("Remote Network could not be created...")
@@ -187,7 +186,7 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
 
     site_code = "cph"
     prisma_dest_ip = "1.1.1.1"
-    vedge_tunnel_ip = "169.254.0.1"
+    vedge_tunnel_ip = "169.254.0.1/30"
 
     ### VMANAGE AUTHENTICATION ###
     print("Authenticate vManage")
@@ -267,7 +266,8 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     logger.info(f'vManage: New template name: { new_templates_names}')
     new_templates = sdwan.get_all_templates_config(auth, vmanage_url, templates_names=new_templates_names)
     logger.info(f'vManage: Retrieved new template data for {new_templates_names}')
-    
+    new_template_ids = [template_id["templateId"] for template_id in new_templates]
+        
     #### GET CURRENT TEMPLATE INPUT INFORMATION ###
     print("Getting current template input information...")
     current_dev_input_list = []
@@ -279,9 +279,10 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
 
     ### EVALUATE IF THERE ARE MORE INPUT LISTS THAN COPIES OF THE TEMPLATE TO ALLOW MAP ###
     if len(current_dev_input_list) > len(new_templates):
-        rev_new_templates = [item for item in new_templates for _ in (0, len(current_dev_input_list) -len(new_templates))]
+        rev_new_templates = [item for item in new_templates for _ in (0, len(current_dev_input_list) - len(new_templates))]
         logger.info(f'vManage: Replicated new templates')
     else:
+        rev_new_templates = new_templates
         logger.info(f'vManage: No need to replicate new templates')
 
     #### GET NEW TEMPLATE INPUT INFORMATION ###
@@ -298,6 +299,7 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
         logger.info(f'vManage: Generated new template input for: {new_input["data"][0]["csv-host-name"]}')
 
     #### ENTER INPUT DATA FOR PRISMA FEATURE TEMPLATE ###
+    #hostname_ip_set = {('cph-r03-sdw', '172.16.0.80', 'GigabitEthernet0/0/0'), ('cph-r01-sdw', '172.16.0.80', 'GigabitEthernet0/0/0')}
     print("Entering input data for prisma feature template")
     for input_data in new_dev_input_list:
         for host_tunnel_if in hostname_ip_set:
@@ -306,9 +308,45 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
                 input_data["data"][0]["/10/ipsec10/interface/tunnel-destination"] = prisma_dest_ip
                 input_data["data"][0]["/10/ipsec10/interface/ip/address"] = vedge_tunnel_ip
         logger.info(f'vManage: Added new template feature input for: {input_data["data"][0]["csv-host-name"]}')
+
+    ### EVALUATE IF THERE ARE MORE TEMPLATE IDS THAN INPUT DATA TEMPLATES ###
+    if len(new_dev_input_list) > len(new_template_ids):
+        rev_new_template_ids = [item for item in new_template_ids for _ in (0, len(new_dev_input_list) - len(new_template_ids))]
+        logger.info(f'vManage: Replicated new templates ids')
+    else:
+        rev_new_template_ids = new_template_ids
+        logger.info(f'vManage: No need to replicate new templates ids')
     
-    print(new_dev_input_list)
-    return new_dev_input_list
+    ### FORMAT FINAL DATA STRUCTURE ###
+    print("Formatting data to push to vManage...")
+    feature_template_dict = {}
+    feature_template_dict["deviceTemplateList"] = []
+    for template_id, template in zip(rev_new_template_ids, new_dev_input_list):
+        feature_template_dict["deviceTemplateList"].append(
+            {"templateId": template_id, 
+            "device": template["data"], 
+            "isEdited": False, 
+            "isMasterEdited": False})
+    logger.info(f'vManage: Data ready to be uploaded to vManage')
+
+    ### REMOVE PROBLEM DEVICES IF THEY EXIST ###
+    print("Evaluating if there are problem templates and remove them...")
+    for dev_index, dev in enumerate(feature_template_dict["deviceTemplateList"].copy()):
+        for failed_dev in dev["device"]:
+            if failed_dev["csv-status"] != "complete":
+                feature_template_dict["deviceTemplateList"].pop(dev_index)
+                print(f'Removing {failed_dev["csv-host-name"]} for payload due to {failed_dev["csv-status"]}')
+                logger.info(f'vManage: Removed {failed_dev["csv-host-name"]} for payload due to {failed_dev["csv-status"]}')
+            else:
+                feature_template_dict["deviceTemplateList"][dev_index]["device"][0]["csv-templateId"] = feature_template_dict["deviceTemplateList"][dev_index]["templateId"] 
+    logger.info(f'vManage: Evaluated templates to push')
+
+    #### PUSH TEMPLATES TO DEVICES ###
+    print("Pushing templates to devices...")
+    response = sdwan.attach_dev_template(auth, vmanage_url, feature_template_dict)
+    print(response)
+    
+    return feature_template_dict
 
 
     

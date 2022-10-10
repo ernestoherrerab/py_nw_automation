@@ -7,7 +7,8 @@
             function addtext() {
                 var site_id = document.siteForm.siteId.value;
                 var locationId = document.siteForm.locationId.value;
-                document.siteForm.outputtext.value += site_id + "," + locationId + "\n";
+                var tunnelIp = document.siteForm.tunnelIp.value;
+                document.siteForm.outputtext.value += site_id + "," + locationId + "," + tunnelIp +"\n";
             }
             </script>
     </head>
@@ -24,6 +25,8 @@
                             <input type="text" onfocus="this.value=''" class="form-control" id="siteId" name="siteId" placeholder="Site Code">
                             <label for="locationId">Region:</label>
                             <input type="text" onfocus="this.value=''" class="form-control" id="locationId" name="locationId" placeholder="Region">
+                            <label for="tunnelIp">Tunnel IP:</label>
+                            <input type="text" onfocus="this.value=''" class="form-control" id="tunnelIp" name="tunnelIp" placeholder="Tunnel_IP/Prefix">
                         </div>
                     </div>
                     <div class="col-2">
