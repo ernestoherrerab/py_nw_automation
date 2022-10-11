@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 import re
 import urllib3
+from time import sleep
 from netaddr import IPAddress, cidr_merge
 import network_automation.sdwan_ops.ipfabric_api as ipfabric
 import network_automation.sdwan_ops.prisma_api as prisma
@@ -31,11 +32,12 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
 
     ### VARIABLES ###
     VMANAGE_PRISMA_TEMPLATE_ID = config("VMANAGE_PRISMA_TEMPLATE_ID")
-    #site_code = site_data["site_code"].upper()
-    site_code = "CPH"
+    PRISMA_API_KEY = config("PRISMA_API_KEY")
+    site_code = site_data["site_code"].upper()
     location = site_data["location_id"]
     vedge_tunnel_ip = site_data["tunnel_ip"]
     summary_list = []
+
     
     ### GENERATE IPFABRIC SESSION ###
     print("Authenticating to IPFabric...")
@@ -103,13 +105,9 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
 
     print(f'Getting Region Name based on location entered: {location}')
     regions = prisma.get_region(prisma_session)
-    for region in regions:
-        if region["display"] == location:
-            region_id = region["region"]
-    
+    region_id = [region["value"] for region in regions if region["display"] == location]
+    region_id = region_id[0]
     logger.info(f'Prisma: Retrieved Region ID from {location}: {region_id}')
-
-    print(hostname_ip_set)
 
     ### CREATE IKE GATEWAY(S) ###
     print("Creating IKE Gateways in Prisma...")
@@ -182,7 +180,20 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
         return False
     else:
         print("Remote Network Successfully Created!")
-        logger.info(f'Remote Network {site_code} Successfully Created!')
+        logger.info(f'Prisma: Remote Network {site_code} Successfully Created!')
+        
+        ### PUSH CONFIG ###
+        response = prisma.push_config(prisma_session)
+        
+        ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
+        public_ip = []
+        while public_ip == []:
+            public_ips = prisma.get_public_ip(PRISMA_API_KEY)
+            public_ip = [ip["address"] for item in public_ips for ip in item["address_details"] if ip["addressType"] == "active" and site_code in ip["node_name"] ]
+            sleep(20)
+        logger.info(f'Prisma: The public IP is {public_ip[0]}')
+        
+
 
     ### VMANAGE AUTHENTICATION ###
     print("Authenticate vManage")
@@ -213,7 +224,6 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     
         ### GET SDWAN TEMPLATE AND APPEND NEW IPSEC SUB TEMPLATE ###
         print("Retrieving Templates to clone...")
-        create_template_payload_tran_list = []
         new_templates_names = []
         create_template_payload = {}
         current_template = sdwan.get_template_config(auth, vmanage_url, vedge_template_id)
@@ -273,12 +283,11 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
         logger.info(f'vManage: Generated new template input for: {new_dev_input["data"][0]["csv-host-name"]}')
 
         #### ENTER INPUT DATA FOR PRISMA FEATURE TEMPLATE ###
-        hostname_ip_set = {('cph-r03-sdw', '172.16.0.80', 'GigabitEthernet0/0/0'), ('cph-r01-sdw', '172.16.0.80', 'GigabitEthernet0/0/0')}
         print("Entering input data for prisma feature template")
         for host_tunnel_if in hostname_ip_set:
             if  host_tunnel_if[0] == new_dev_input["data"][0]["csv-host-name"]:
                 new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-source-interface"] = host_tunnel_if[2]
-                new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-destination"] = prisma_dest_ip
+                new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-destination"] = public_ip[0]
                 new_dev_input["data"][0]["/10/ipsec10/interface/ip/address"] = vedge_tunnel_ip
         logger.info(f'vManage: Added new template feature input for: {new_dev_input["data"][0]["csv-host-name"]}')
 
@@ -310,11 +319,13 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
         else:
             feature_template_dict["deviceTemplateList"][0]["device"][0]["csv-templateId"] = feature_template_dict["deviceTemplateList"][0]["templateId"] 
             logger.info(f'vManage: Evaluated templates to push')
+            
             ### PUSH TEMPLATES TO DEVICES ###
             print("Pushing templates to devices...")
             ops_id, summary_obj = sdwan.attach_dev_template(auth, vmanage_url, feature_template_dict)
             summary = dict(summary_obj)
             logger.info(f'vManage: {ops_id}') 
+
             ### FORMAT SUMMARY FOR LOGGING ###
             summary_status = summary["action_status"]
             summary_activity = summary["action_activity"]
