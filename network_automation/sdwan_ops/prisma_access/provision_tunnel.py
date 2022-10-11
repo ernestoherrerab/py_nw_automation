@@ -44,13 +44,15 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     ipf_session = ipfabric.auth()
     logger.info("IPFabric: Authenticated")
 
-    ### RETRIEVE INTERFACE DATA FROM DEVICE ###
+    ### RETRIEVE INTERFACE DATA FROM DEVICE FROM IPFABRIC ###
+    ### SEARCHES FOR ALL INTERFACES BELONGING TO SDW ROUTERS STARTING WITH SITE CODE VAR ###
     print("Getting Public Interface Data of Site Routers...")
     if_filter_input = {"and": [{"hostname": ["reg",f'{site_code.lower()}-r\\d+-sdw']}]}
     dev_data = ipfabric.get_if_data(ipf_session, if_filter_input)
     logger.info("IPFabric: Retrieved Interface Data from router")
-    
-    ### GET PUBLIC IPS FROM IPFABRIC DATA ###
+        
+    ### GET PUBLIC IPS FROM INTERFACE RETRIEVED IPFABRIC DATA ###
+    ### FILTERS ALL INTERFACES WITH AN IP CONFIGURED AND SEARCHES FOR PUBLIC IPS ###
     print("Getting public IP data...")
     hostname_ip_set= set()
     for interface in dev_data:
@@ -61,13 +63,14 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     logger.info("IPFabric: Retrieved Public IPs from routers")
     
 
-    ### GET SUBNET FROM IP FABRIC ###
+    ### GET CONNECTED AND STATIC ROUTES FROM SDW ROUTERS FROM IP FABRIC ###
     print("Getting Networks Data of Site Routers...")
     subnets_filter_input = {"and": [{"hostname": ["reg",f'{site_code.lower()}-r\\d+-sdw']},{"vrf": ["eq","10"]},{"protocol": ["reg","S|C"]}]}
     routes = ipfabric.get_subnets_data(ipf_session, subnets_filter_input)
     logger.info("IPFabric: Retrieved Static/Connected routes of SDWAN Routers")
+    
 
-    ### SUMMARIZE NETWORKS ###
+    ### SUMMARIZE NETWORKS OBTAINED BY IPFABRIC ROUTES USING THE NETADDR LIBRARY ###
     subnets = []
     for subnet in routes:
         subnets.append(subnet["network"])
@@ -80,11 +83,10 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     prisma_session = prisma.auth(config_file)
     logger.info("Prisma: Authenticated")
 
-    ### CHECK IF Remote Network ALREADY EXISTS ###
+    ### CHECK IF REMOTE NETWORK ALREADY EXISTS ###
     print("Checking if the remote network already exists in Prisma...")
     remote_network = prisma.get_remote_nws(prisma_session, site_code)
     logger.info(f'Prisma: Checking if {site_code} remote network exists')
-
     if remote_network != None:
         print(remote_network)
         logger.error(f'Prisma: Remote Network {site_code} already exists')
@@ -93,6 +95,7 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
         print(f'Remote Network {site_code} does not exist')
         logger.info(f'Prisma: Remote Network {site_code} does not exist')
 
+    ### RETRIEVE SPN VALUE BASED ON THE LOCATION INPUT ###
     print(f'Getting SPN Location based on location entered: {location} ...')
     spn_location_dict = prisma.get_spn_location(prisma_session, location)
     if spn_location_dict == None:
@@ -103,6 +106,7 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
         spn_location = spn_location_dict["spn_name_list"][0]
         logger.info(f'Prisma: Retrieved SPN Location from {location}: {spn_location}')
 
+    ### RETRIEVE REGION NAME BASED ON LOCATION INPUT ###
     print(f'Getting Region Name based on location entered: {location}')
     regions = prisma.get_region(prisma_session)
     region_id = [region["value"] for region in regions if region["display"] == location]
@@ -143,12 +147,13 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     else:
         logger.info(f'Prisma: IPSec Tunnels {ipsec_tun_names} Successfully Created')
         print("IPSec Tunnels Successfully Created!")
-        
-    
+   
     ##### CREATE REMOTE NETWORK ###
     print("Creating remote network...")
     ipsec_tuns_del = []
     remote_network_result = prisma.create_remote_nw(prisma_session, site_code, spn_location, ipsec_tun_names, region_id, remote_nw_subnets)
+    
+    ### ROLL BACK IF PROCESS FAILS ###
     if remote_network_result != 201:
         print("Remote Network could not be created...")
         print("Rolling Back...")
@@ -183,7 +188,7 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
         logger.info(f'Prisma: Remote Network {site_code} Successfully Created!')
         
         ### PUSH CONFIG ###
-        response = prisma.push_config(prisma_session)
+        prisma.push_config(prisma_session)
         
         ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
         public_ip = []
@@ -192,8 +197,6 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
             public_ip = [ip["address"] for item in public_ips for ip in item["address_details"] if ip["addressType"] == "active" and site_code in ip["node_name"] ]
             sleep(20)
         logger.info(f'Prisma: The public IP is {public_ip[0]}')
-        
-
 
     ### VMANAGE AUTHENTICATION ###
     print("Authenticate vManage")

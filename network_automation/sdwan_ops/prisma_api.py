@@ -5,7 +5,7 @@ Prisma Access API Functions
 from decouple import config
 import logging
 from json import dumps, loads
-from pathlib import Path
+from pathlib import Path, PosixPath
 from requests import post
 from panapi import PanApiSession
 from panapi.config.management import ConfigVersion
@@ -21,9 +21,14 @@ formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(messag
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
-def auth(config_path):
-    """ 
-    Authenticate Prisma
+def auth(config_path:PosixPath) -> PanApiSession:
+    """Authenticate Prisma
+
+    Args:
+    config_path (PosixPath): PANAPI configuration file
+
+    Returns:
+    session (PanApiSession obj): Session object
     """
     session = PanApiSession()
     session._configfile = config_path
@@ -31,9 +36,15 @@ def auth(config_path):
     
     return session
 
-def create_ike_gw(session, router_data):
-    """ 
-    Create IKEA Gateway 
+def create_ike_gw(session: PanApiSession, router_data: set) -> tuple[set, list]:
+    """Create IKEA Gateway
+    
+    Args:
+    session (PanApiSession): Session Object
+    router_data (set): SDW Public IPs
+
+    Returns:
+    response (tuple): A set containing the response codes and a list of IKE Gateways names
     """
     response_code = set()
     ike_gws_names = []
@@ -73,9 +84,15 @@ def create_ike_gw(session, router_data):
 
     return response_code, ike_gws_names
 
-def create_ipsec_tunnel(session, ike_gws):
-    """"
-    Create IPSec Tunnels 
+def create_ipsec_tunnel(session: PanApiSession, ike_gws: list) -> tuple[set, list]:
+    """"Create IPSec Tunnels 
+    
+    Args:
+    session (PanApiSession): Session Object
+    ike_gws (list): IKE Gateways names
+
+    Returns:
+    response (tuple): A set containing the response codes and a list of IPSec Tunnel names 
     """
     response_code = set()
     ipsec_tunnel_names = []
@@ -95,9 +112,19 @@ def create_ipsec_tunnel(session, ike_gws):
 
     return response_code, ipsec_tunnel_names
 
-def create_remote_nw(session, site_id, spn_location, tunnel_names, region_id, networks):
-    """ 
-    Create remote network & Tunnels 
+def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tunnel_names: list, region_id: str, networks: list) -> int:
+    """ Create remote network & Tunnels 
+    
+    Args:
+    session (PanApiSession): Session Object
+    site_id (str): From frontend input
+    spn_location (str): SPN location based on frontend input
+    tunnel_names (list): List of IPSec tunnel names
+    region_id (str): Region ID based on frontend input
+    networks (list): Subnets to Advertise
+
+    Returns:
+    response (int): Status code of API Call 
     """
     if len(tunnel_names) > 1:
         primary_tunnel = tunnel_names[0]
@@ -124,9 +151,15 @@ def create_remote_nw(session, site_id, spn_location, tunnel_names, region_id, ne
 
     return response_code
 
-def del_ike_gateways(session, ike_gw_ids):
-    """ 
-    Delete IKE Gateways
+def del_ike_gateways(session: PanApiSession, ike_gw_ids: list) -> set:
+    """Delete IKE Gateways
+    
+    Args:
+    session (PanApiSession): Session Object
+    ike_gw_ids (list): IKE Gateway ids
+
+    Returns:
+    response (set): A set containing the response codes 
     """
     response_code = set()
     for ike_gw_id in ike_gw_ids:
@@ -140,9 +173,15 @@ def del_ike_gateways(session, ike_gw_ids):
     
     return response_code
 
-def del_ipsec_tunnels(session, ipsec_tun_ids):
-    """ 
-    Delete IKE Gateways
+def del_ipsec_tunnels(session: PanApiSession, ipsec_tun_ids: list) -> set:
+    """Delete IKE Gateways
+
+    Args:
+    session (PanApiSession): Session Object
+    ipsec_tun_ids (list): IPSec Tunnel ids
+
+    Returns:
+    response (set): A set containing the response codes 
     """
     response_code = set()
     for ipsec_tun_id in ipsec_tun_ids:
@@ -156,9 +195,15 @@ def del_ipsec_tunnels(session, ipsec_tun_ids):
     
     return response_code
 
-def get_ike_gateways(session, ike_gws):
-    """ 
-    Get IKE Gateways 
+def get_ike_gateways(session: PanApiSession, ike_gws: list) -> list:
+    """Get IKE Gateways 
+    
+    Args:
+    session (PanApiSession): Session Object
+    ike_gws (list): IKE Gateway names
+
+    Returns:
+    response (list): List of IKE Gateway dictionaries  
     """
     ike_gws_list = []
     for ike_gw in ike_gws:
@@ -173,9 +218,15 @@ def get_ike_gateways(session, ike_gws):
 
     return ike_gws_list
 
-def get_ipsec_tunnels(session, ipsec_tunnels):
-    """ 
-    Get IPSec Tunnels 
+def get_ipsec_tunnels(session: PanApiSession, ipsec_tunnels: list) -> list:
+    """Get IPSec Tunnels
+    
+    Args:
+    session (PanApiSession): Session Object
+    ipsec_tunnels (list): IPSec Tunnel names
+
+    Returns:
+    response (list): List of IPSec tunnels dictionaries  
     """
     ipsec_tuns_list = []
     for ipsec_tunnel in ipsec_tunnels:
@@ -190,9 +241,15 @@ def get_ipsec_tunnels(session, ipsec_tunnels):
 
     return ipsec_tuns_list
 
-def get_public_ip(api_key):
+def get_public_ip(api_key: str) -> list:
     """
     Get Prisma Tunnel Endpoints
+
+    Args:
+    api_key (str): Prisma API Key
+
+    Returns:
+    response (list): List of Public IPs
     """
     url = "https://api.prod.datapath.prismaaccess.com/getPrismaAccessIP/v2"
     payload = dumps({
@@ -209,18 +266,29 @@ def get_public_ip(api_key):
     response = loads(response.text)
     return response["result"] 
 
-def get_region(session):
-    """ 
-    Get Region Name based on Location 
+def get_region(session: PanApiSession) -> dict:
+    """Get Region Name based on Location 
+    
+    Args:
+    session (PanApiSession): Session Object
+
+    Returns:
+    response (dict): Region Locations
     """
     region_id = Location()
     response = region_id.read(session)
 
     return response
 
-def get_remote_nws(session, site_id):
-    """ 
-    Test if a site exists
+def get_remote_nws(session: PanApiSession, site_id: str) -> RemoteNetwork:
+    """Get existing remote networks
+
+    Args:
+    session (PanApiSession): Session Object
+    site_id (str): From frontend input
+
+    Returns:
+    response (RemoteNetwork Obj): Searched Remote Network
     """
     remote_networks = RemoteNetwork(
     folder = "Remote Networks",
@@ -231,9 +299,15 @@ def get_remote_nws(session, site_id):
     
     return response
 
-def get_spn_location(session, location):
-    """ 
-    Get SPN based on Location 
+def get_spn_location(session: PanApiSession, location: str) -> dict:
+    """Get SPN based on Location 
+
+    Args:
+    session (PanApiSession): Session Object
+    location (str): From frontend input
+
+    Returns:
+    response (dict): SPN Locations
     """
     location = location.lower().replace(" ","-")
     spn_location = BandwidthAllocation(
@@ -249,7 +323,7 @@ def get_spn_location(session, location):
         logger.error(f'Prisma: The location does not exist or no bandwidth has not been allocated to this region')
         return None
 
-def push_config(session):
+def push_config(session: PanApiSession) -> dict:
     """
     Push configuration to Panorama
     """
