@@ -6,9 +6,10 @@
         <script language="javascript" type="text/javascript">
             function addtext() {
                 var site_id = document.siteForm.siteId.value;
+                var regionId = document.siteForm.regionId.value;
                 var locationId = document.siteForm.locationId.value;
                 var tunnelIp = document.siteForm.tunnelIp.value;
-                document.siteForm.outputtext.value += site_id + "," + locationId + "," + tunnelIp +"\n";
+                document.siteForm.outputtext.value += site_id + "," + regionId + "," + locationId + "," + tunnelIp +"\n";
             }
             </script>
     </head>
@@ -23,8 +24,10 @@
                         <div class="p-3">
                             <label for="siteId">Site Code:</label></td>
                             <input type="text" onfocus="this.value=''" class="form-control" id="siteId" name="siteId" placeholder="Site Code">
-                            <label for="locationId">Region:</label>
-                            <input type="text" onfocus="this.value=''" class="form-control" id="locationId" name="locationId" placeholder="Region">
+                            <label for="regionId">Region:</label>
+                            <input type="text" onfocus="this.value=''" class="form-control" id="regionId" name="regionId" placeholder="Region">
+                            <label for="locationId">Location:</label>
+                            <input type="text" onfocus="this.value=''" class="form-control" id="locationId" name="locationId" placeholder="Location">
                             <label for="tunnelIp">Tunnel IP:</label>
                             <input type="text" onfocus="this.value=''" class="form-control" id="tunnelIp" name="tunnelIp" placeholder="Tunnel_IP/Prefix">
                         </div>

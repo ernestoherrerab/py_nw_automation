@@ -64,9 +64,8 @@ def create_ike_gw(session: PanApiSession, router_data: set) -> tuple[set, list]:
 					}
 				}
 			}
-    protocol_common_var = {"passive_mode": True}
-		       
-    for index, router in enumerate(router_data):
+    protocol_common_var = {"passive_mode": True} 
+    for index, router in enumerate(router_data):    
         peer_addr = {"ip": router[1]}
         ike_gw = IKEGateway(
             folder = "Remote Networks",
@@ -76,6 +75,7 @@ def create_ike_gw(session: PanApiSession, router_data: set) -> tuple[set, list]:
             protocol = protocol_var,
             protocol_common = protocol_common_var
         )
+        print(ike_gw.payload)
         ike_gw.create(session)
         print(f'IKE GW Creation for {router[0]} resulted in {session.response.status_code}')
         logger.info(f'Prisma: IKE GW Creation for {router[0]} resulted in {session.response.status_code}')
@@ -129,27 +129,41 @@ def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tu
     if len(tunnel_names) > 1:
         primary_tunnel = tunnel_names[0]
         secondary_tunnel = tunnel_names[1]
+        remote_network = RemoteNetwork(
+        folder = "Remote Networks",
+        license_type = "FWAAS-AGGREGATE",
+        ecmp_load_balancing = "disable",
+        name = site_id,
+        region = region_id,
+        spn_name = spn_location,
+        ipsec_tunnel = primary_tunnel,
+        secondary_ipsec_tunnel = secondary_tunnel,
+        subnets = networks    
+        )
+        remote_network.create(session)
+        print(f'Remote Network Creation for {site_id} resulted in {session.response.status_code}')
+        logger.info(f'Prisma: Remote Network Creation for {site_id} resulted in {session.response.status_code}')
+        response_code = session.response.status_code
+        
+        return response_code
     else:
         primary_tunnel = tunnel_names[0]
-        secondary_tunnel = ""
+        remote_network = RemoteNetwork(
+        folder = "Remote Networks",
+        license_type = "FWAAS-AGGREGATE",
+        ecmp_load_balancing = "disable",
+        name = site_id,
+        region = region_id,
+        spn_name = spn_location,
+        ipsec_tunnel = primary_tunnel,
+        subnets = networks    
+        )
+        remote_network.create(session)
+        print(f'Remote Network Creation for {site_id} resulted in {session.response.status_code}')
+        logger.info(f'Prisma: Remote Network Creation for {site_id} resulted in {session.response.status_code}')
+        response_code = session.response.status_code
 
-    remote_network = RemoteNetwork(
-    folder = "Remote Networks",
-    license_type = "FWAAS-AGGREGATE",
-    ecmp_load_balancing = "disable",
-    name = site_id,
-    region = region_id,
-    spn_name = spn_location,
-    ipsec_tunnel = primary_tunnel,
-    secondary_ipsec_tunnel = secondary_tunnel,
-    subnets = networks    
-    )
-    remote_network.create(session)
-    print(f'Remote Network Creation for {site_id} resulted in {session.response.status_code}')
-    logger.info(f'Prisma: Remote Network Creation for {site_id} resulted in {session.response.status_code}')
-    response_code = session.response.status_code
-
-    return response_code
+        return response_code
 
 def del_ike_gateways(session: PanApiSession, ike_gw_ids: list) -> set:
     """Delete IKE Gateways
@@ -299,7 +313,7 @@ def get_remote_nws(session: PanApiSession, site_id: str) -> RemoteNetwork:
     
     return response
 
-def get_spn_location(session: PanApiSession, location: str) -> dict:
+def get_spn_location(session: PanApiSession, region: str) -> dict:
     """Get SPN based on Location 
 
     Args:
@@ -309,9 +323,9 @@ def get_spn_location(session: PanApiSession, location: str) -> dict:
     Returns:
     response (dict): SPN Locations
     """
-    location = location.lower().replace(" ","-")
+    region = region.lower().replace(" ","-")
     spn_location = BandwidthAllocation(
-    name = location
+    name = region
     )
     response = spn_location.read(session)
     if response != None:

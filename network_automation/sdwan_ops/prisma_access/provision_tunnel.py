@@ -3,7 +3,7 @@
 Script to Provision Prisma Access Tunnels
 """
 from decouple import config
-from json import dumps, loads
+from json import loads
 import logging
 from pathlib import Path
 import re
@@ -34,6 +34,7 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     VMANAGE_PRISMA_TEMPLATE_ID = config("VMANAGE_PRISMA_TEMPLATE_ID")
     PRISMA_API_KEY = config("PRISMA_API_KEY")
     site_code = site_data["site_code"].upper()
+    region = site_data["region_id"]
     location = site_data["location_id"]
     vedge_tunnel_ip = site_data["tunnel_ip"]
     summary_list = []
@@ -49,8 +50,7 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     print("Getting Public Interface Data of Site Routers...")
     if_filter_input = {"and": [{"hostname": ["reg",f'{site_code.lower()}-r\\d+-sdw']}]}
     dev_data = ipfabric.get_if_data(ipf_session, if_filter_input)
-    logger.info("IPFabric: Retrieved Interface Data from router")
-        
+    logger.info("IPFabric: Retrieved Interface Data from router") 
     ### GET PUBLIC IPS FROM INTERFACE RETRIEVED IPFABRIC DATA ###
     ### FILTERS ALL INTERFACES WITH AN IP CONFIGURED AND SEARCHES FOR PUBLIC IPS ###
     print("Getting public IP data...")
@@ -60,9 +60,10 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
             ip =  IPAddress(interface["primaryIp"])
             if ip.is_unicast() and not ip.is_private() and "Tunnel" not in interface["nameOriginal"]:
                 hostname_ip_set.add((interface["hostname"], interface["primaryIp"], interface["nameOriginal"]))
-    logger.info("IPFabric: Retrieved Public IPs from routers")
-    
+    #        elif interface["nameOriginal"] == "Tunnel0":
+    #            hostname_ip_set.add((interface["hostname"], interface["primaryIp"], interface["nameOriginal"]))
 
+    logger.info("IPFabric: Retrieved Public IPs from routers")   
     ### GET CONNECTED AND STATIC ROUTES FROM SDW ROUTERS FROM IP FABRIC ###
     print("Getting Networks Data of Site Routers...")
     subnets_filter_input = {"and": [{"hostname": ["reg",f'{site_code.lower()}-r\\d+-sdw']},{"vrf": ["eq","10"]},{"protocol": ["reg","S|C"]}]}
@@ -95,16 +96,16 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
         print(f'Remote Network {site_code} does not exist')
         logger.info(f'Prisma: Remote Network {site_code} does not exist')
 
-    ### RETRIEVE SPN VALUE BASED ON THE LOCATION INPUT ###
-    print(f'Getting SPN Location based on location entered: {location} ...')
-    spn_location_dict = prisma.get_spn_location(prisma_session, location)
+    ### RETRIEVE SPN VALUE BASED ON THE REGION INPUT ###
+    print(f'Getting SPN Location based on region entered: {region} ...')
+    spn_location_dict = prisma.get_spn_location(prisma_session, region)
     if spn_location_dict == None:
-        print("SPN Location not found, check location input is correct...")
+        print("SPN Location not found, check region input is correct...")
         logger.error(f'Prisma: SPN Location for {location} not found')
         return False
     else:
         spn_location = spn_location_dict["spn_name_list"][0]
-        logger.info(f'Prisma: Retrieved SPN Location from {location}: {spn_location}')
+        logger.info(f'Prisma: Retrieved SPN Location from {region}: {spn_location}')
 
     ### RETRIEVE REGION NAME BASED ON LOCATION INPUT ###
     print(f'Getting Region Name based on location entered: {location}')
@@ -230,7 +231,6 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     
         ### GET SDWAN CURRENT TEMPLATE AND APPEND NEW IPSEC SUB TEMPLATE ###
         print("Retrieving Templates to clone...")
-        new_templates_names = []
         create_template_payload = {}
         current_template = sdwan.get_template_config(auth, vmanage_url, vedge_template_id)
         for index, sub_templates in enumerate(current_template["generalTemplates"]):

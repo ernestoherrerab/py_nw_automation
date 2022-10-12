@@ -126,9 +126,11 @@ def provision_prisma_access():
                     if data != [""]:
                         site_data = {}
                         site_code = data[0]
-                        location_id = data[1]
-                        tunnel_ip = data[2]
+                        region_id = data[1]
+                        location_id = data[2]
+                        tunnel_ip = data[3]
                         site_data["site_code"] = site_code
+                        site_data["region_id"] = region_id
                         site_data["location_id"] = location_id
                         site_data["tunnel_ip"] = tunnel_ip
     else:
