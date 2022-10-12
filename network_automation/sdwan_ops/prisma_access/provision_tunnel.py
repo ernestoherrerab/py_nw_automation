@@ -55,15 +55,25 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     ### FILTERS ALL INTERFACES WITH AN IP CONFIGURED AND SEARCHES FOR PUBLIC IPS ###
     print("Getting public IP data...")
     hostname_ip_set= set()
+
+    tunnel_ip = (False)
     for interface in dev_data:
         if interface["primaryIp"] != None:
             ip =  IPAddress(interface["primaryIp"])
             if ip.is_unicast() and not ip.is_private() and "Tunnel" not in interface["nameOriginal"]:
                 hostname_ip_set.add((interface["hostname"], interface["primaryIp"], interface["nameOriginal"]))
-    #        elif interface["nameOriginal"] == "Tunnel0":
-    #            hostname_ip_set.add((interface["hostname"], interface["primaryIp"], interface["nameOriginal"]))
+            elif interface["intName"] == "Tunnel0":
+                tunnel_ip = [interface["hostname"], interface["primaryIp"], True]
+    
+    ### GET WAN INTERFACE WITH PUBLIC IP IF IT EXISTS ###
+    if True in tunnel_ip:
+        key = "primaryIp" 
+        ip_add = tunnel_ip[1]
+        ### SEARCH FOR THE INTERFACE NAME THAT SHARES THE SAME IP AS TUNNEL0 FROM THE IPFABRIC IF DATA ###
+        dict_item = next(filter(lambda dict_item: dict_item.get(key) == ip_add if ( dict_item["intName"] != "Tunnel0") else None, dev_data), None)
+        tunnel_ip[2] = dict_item["intName"]
+        hostname_ip_set.add(tuple(tunnel_ip)) 
 
-    logger.info("IPFabric: Retrieved Public IPs from routers")   
     ### GET CONNECTED AND STATIC ROUTES FROM SDW ROUTERS FROM IP FABRIC ###
     print("Getting Networks Data of Site Routers...")
     subnets_filter_input = {"and": [{"hostname": ["reg",f'{site_code.lower()}-r\\d+-sdw']},{"vrf": ["eq","10"]},{"protocol": ["reg","S|C"]}]}
@@ -197,7 +207,8 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
             public_ips = prisma.get_public_ip(PRISMA_API_KEY)
             public_ip = [ip["address"] for item in public_ips for ip in item["address_details"] if ip["addressType"] == "active" and site_code in ip["node_name"] ]
             sleep(20)
-        logger.info(f'Prisma: The public IP is {public_ip[0]}')
+        print(public_ip)
+        logger.info(f'Prisma: The public IP is {public_ip}')
 
     ### VMANAGE AUTHENTICATION ###
     print("Authenticate vManage")
@@ -354,10 +365,4 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
                     logger.error(f'vManage:  {activity}')
                 for configuration in summary_config:
                     logger.error(f'vManage:  {configuration}')       
-    print(summary_list)
     return summary_list
-
-
-    
-
-

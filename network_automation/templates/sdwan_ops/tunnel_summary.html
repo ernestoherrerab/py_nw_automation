@@ -9,14 +9,14 @@
         <h1>SDWAN OPS<br><br></h1>
         <h4>Tunnel provisioning Summary:<br><br></h4> 
         <p>
-            Actions Taken:
+            <b>Actions Taken:</b><br>
             {% for activity in results %}
-            - {{ activity["action_activity"] }}
+            - {{ activity["action_activity"] }} <br>
             {% endfor %}
             <br>
-            Results:
+            <b>Results:</b><br>
             {% for result in results %}
-            - {{ result["action_config"] }}
+            - {{ result["action_config"] }}<br>
             {% endfor %}
         </p><br><br>
         <p>Download the log file for details:</p>
