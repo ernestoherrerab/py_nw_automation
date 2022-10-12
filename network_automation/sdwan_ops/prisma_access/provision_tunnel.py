@@ -203,29 +203,32 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
     auth = sdwan.auth(vmanage_url, username, password)
     logger.info("vManage: Authenticated")
 
-
     ### VMANAGE GET DEVICE DATA ###
     vedge_data = sdwan.get_vedge_list(auth, vmanage_url)
     logger.info("vManage: Get vEdge Data")
 
-    ### FILTER DEVICES BY SITE CODE ###   
+    ### FILTER DEVICES BY SITE CODE AND REACHABILITY ###  
+    site_code = site_code.lower()
     vedge_list = [online_dev for online_dev in vedge_data if "reachability" in online_dev and online_dev["reachability"] == "reachable" and re.match(rf'{site_code}-r\d+-sdw', online_dev["host-name"]) ]
     logger.info(f'vManage: Filter vEdge Data...by site code')
     
+    ### FOR LOOP USED TO FORMAT NEW TEMPLATE DATA FOR DEVICE ATTACHMENT ####
     for vedge in vedge_list:
-           
         ### GET DEVICE ID FOR VPN10 FEATURE TEMPLATE FROM VEDGE DATA ###
+        ### HEAVILY DEPENDANT ON FEATURE VPN TEMPLATE BEING USING "VPN10" ON ITS NAMING ### 
         device_type = vedge["deviceModel"]
         feature_templates = sdwan.get_dev_feature_template(auth, vmanage_url)
+
+        ### FILTER DATA TO GET ID OF DEVICE VPN10 FEATURETEMPLATE ###
         cisco_vpn_template_id_list = [cisco_vpn_templates["templateId"] for cisco_vpn_templates in feature_templates if cisco_vpn_templates["templateType"] == "cisco_vpn" and "vpn10" in cisco_vpn_templates["templateName"].lower() and device_type in cisco_vpn_templates["deviceType"]]
-        
+               
         ### MAP HOST TO TEMPLATE ###
         print("Mapping Host to Templates...")
         vedge_template_map = sdwan.host_template_mapping(vedge)
         logger.info(f'vManage: Map Hosts to Templates')
         vedge_template_id = vedge_template_map["templateId"] 
     
-        ### GET SDWAN TEMPLATE AND APPEND NEW IPSEC SUB TEMPLATE ###
+        ### GET SDWAN CURRENT TEMPLATE AND APPEND NEW IPSEC SUB TEMPLATE ###
         print("Retrieving Templates to clone...")
         new_templates_names = []
         create_template_payload = {}
@@ -234,6 +237,7 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
             if sub_templates["templateId"] in cisco_vpn_template_id_list:
                 current_template["generalTemplates"][index]["subTemplates"].append({"templateId": VMANAGE_PRISMA_TEMPLATE_ID, "templateType": "cisco_vpn_interface_ipsec"})
         logger.info(f'vManage: Format Payload to create New Template for template {current_template["templateName"]}')
+        ### CLONE NEW DEVICE TEMPLATE DATA WITH CURRENT NEW TEMPLATE + NEW PRISMA FEATURE TEMPLATE ###
         create_template_payload["templateName"] = f'PRISMA_{current_template["templateName"]}'
         create_template_payload["templateDescription"] = f'PRISMA_{current_template["templateDescription"]}'
         create_template_payload["deviceType"] = current_template["deviceType"]
@@ -267,7 +271,7 @@ def provision_tunnel(config_file, site_data, vmanage_url, username, password):
         print("Getting New Template Data...")
         logger.info(f'vManage: New template name: { create_template_payload["templateName"]}')
         new_template = sdwan.get_all_templates_config(auth, vmanage_url, template_name=[create_template_payload["templateName"]])
-        logger.info(f'vManage: Retrieved new template data for {new_templates_names}')
+        logger.info(f'vManage: Retrieved new template data for {create_template_payload["templateName"]}')
         new_template_id = new_template[0]["templateId"]
         
         #### GET CURRENT TEMPLATE INPUT INFORMATION ###

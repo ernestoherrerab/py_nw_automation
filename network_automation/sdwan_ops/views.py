@@ -115,7 +115,7 @@ def provision_prisma_access():
     """
     if request.method == "POST":
         username = session.get("username")
-        password = session.get("password")	
+        password = session.get("password")
         text_data = request.form
         for text in text_data.items():
             if "outputtext" in text:
