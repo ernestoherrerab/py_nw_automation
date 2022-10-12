@@ -2,23 +2,14 @@
 """
 Creates the views (routes) for the secondary app
 """
-from decouple import config
 from flask import redirect, render_template, request, session, send_file, url_for
 from pathlib import Path
-from yaml import dump
 from network_automation.sdwan_ops import sdwan_ops
 import network_automation.sdwan_ops.hostname.update_hostname as update_hostname
 import network_automation.sdwan_ops.prisma_access.provision_tunnel as prisma_tunnels
 
 TEMPLATE_DIR = "sdwan_ops"
 LOG_FILE = Path("logs/tunnel_provision.log")
-PANAPI_CONFIG_PATH = Path("network_automation/sdwan_ops/prisma_access/config.yml")
-VMANAGE_URL_VAR = config("VMANAGE_URL_VAR")
-PRISMA_CLIENT_ID = config("PRISMA_CLIENT_ID")
-PRISMA_CLIENT_SECRET = config("PRISMA_CLIENT_SECRET")
-PRISMA_CLIENT_SCOPE = config("PRISMA_CLIENT_SCOPE")
-PRISMA_TOKEN_URL = "https://auth.apps.paloaltonetworks.com/oauth2/access_token"
-
 
 ### SDWAN HOSTNAME CHANGE ###
 
@@ -63,7 +54,7 @@ def hostname():
     dev_results= []
     username = session.get("username")
     password = session.get("password")
-    result = update_hostname.update_hostname(VMANAGE_URL_VAR, username, password)
+    result = update_hostname.update_hostname(username, password)
     
     ### FORMAT SUMMARY FOR HTML PRESENTATION ###
     summary = result["summary"]
@@ -136,19 +127,8 @@ def provision_prisma_access():
     else:
         return "Error"
     
-    ### PANAPI AUTH INPUT DATA ###
-
-    auth_input = {
-        "client_id" : PRISMA_CLIENT_ID,
-        "client_secret" : PRISMA_CLIENT_SECRET,
-        "scope": PRISMA_CLIENT_SCOPE,
-        "token_url": PRISMA_TOKEN_URL
-    }
-    with open(PANAPI_CONFIG_PATH, "w+") as f:
-        dump(auth_input, f)
-
     ### PROVISION TUNNELS (REMOTE NETWORK) ###
-    results = prisma_tunnels.provision_tunnel(PANAPI_CONFIG_PATH, site_data, VMANAGE_URL_VAR, username, password) 
+    results = prisma_tunnels.provision_tunnel(site_data, username, password) 
     #return str(results)
 
     ### FORMAT SUMMARY FOR HTML PRESENTATION ###
@@ -156,8 +136,6 @@ def provision_prisma_access():
         return render_template(f"{TEMPLATE_DIR}/tunnel_summary.html", results=results)
     else:
         return render_template(f"{TEMPLATE_DIR}/tunnel_error.html")
-
-    
 
 @sdwan_ops.route("prisma_log_file")
 def prisma_log_file():
