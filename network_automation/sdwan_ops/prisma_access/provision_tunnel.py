@@ -5,6 +5,7 @@ Script to Provision Prisma Access Tunnels
 import logging
 from pathlib import Path
 import urllib3
+import network_automation.sdwan_ops.prisma_access.infoblox as infoblox
 import network_automation.sdwan_ops.prisma_access.ipfabric as ipfabric
 import network_automation.sdwan_ops.prisma_access.prisma_access as prisma
 import network_automation.sdwan_ops.prisma_access.sdwan as sdwan
@@ -27,13 +28,18 @@ def provision_tunnel(site_data, username, password):
 
     ### GET SDWAN IPSEC FEATURE TEMPLATE VALUES ###
     ### GET SUBNETS FOR REMOTE NETWORKS IN PRISMA ACCESS ###
-    hostname_ip_set, remote_nw_subnets = ipfabric.get_ipfabric_data(site_data)
+    #hostname_ip_set, remote_nw_subnets = ipfabric.get_ipfabric_data(site_data)
+
+    ### PROVISION TUNNEL INTERFACES IN INFOBLOX ###
+    infoblox_response = infoblox.create_tunnel_ips()
+
 
     ### CREATE REMOTE NETWORKS IN PRISMA ACCESS ###
     ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
-    public_ip = prisma.create_remote_networks(site_data, hostname_ip_set, remote_nw_subnets)
+    #public_ip = prisma.create_remote_networks(site_data, hostname_ip_set, remote_nw_subnets)
 
     ### CREATE IPSEC TUNNELS ON SDWAN VMANAGE ###
-    summary_list = sdwan.create_ipsec_tunnels(site_data, username, password, hostname_ip_set, public_ip)
+    #summary_list = sdwan.create_ipsec_tunnels(site_data, username, password, hostname_ip_set, public_ip)
+
     
-    return summary_list
+    return infoblox_response

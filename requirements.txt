@@ -5,6 +5,7 @@ Flask==2.0.3
 genie==22.2
 graphviz==0.19.1
 httpx==0.22.0
+infoblox-client==0.5.2
 ipfabric==5.0.12
 netaddr==0.7.19
 nornir==3.2.0
