@@ -120,13 +120,14 @@ def provision_prisma_access():
                         region_id = data[1]
                         location_id = data[2]
                         tunnel_ip = data[3]
+                        print(tunnel_ip)
                         site_data["site_code"] = site_code
                         site_data["region_id"] = region_id
                         site_data["location_id"] = location_id
                         site_data["tunnel_ip"] = tunnel_ip
     else:
         return "Error"
-    
+
     ### PROVISION TUNNELS (REMOTE NETWORK) ###
     results = prisma_tunnels.provision_tunnel(site_data, username, password) 
     #return str(results)

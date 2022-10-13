@@ -106,24 +106,14 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
 
     ### CREATE IPSEC TUNNEL(S) ###
     print("Creating IPSEC Tunnels in Prisma...")
-    ike_gws_del = []
     ipsec_tun_result, ipsec_tun_names = prisma.create_ipsec_tunnel(prisma_session, ike_gw_names)
     if ipsec_tun_result != {201}:
         ### ROLL BACK IKE GATEWAYS IF IPSEC TUNNELS FAIL ###
         print("IPSec Tunnels could not be created...")
         logger.error(f'Prisma: Could not create IPSec Tunnels ')
-        print("Deleting IKE Gateways...")
-        ike_gws = prisma.get_ike_gateways(prisma_session, ike_gw_names)
-        for ike_gw in ike_gws:
-            ike_gws_del.append(ike_gw["id"])
-        ike_gw_del_response = prisma.del_ike_gateways(prisma_session, ike_gws_del)
-        if ike_gw_del_response != {200}:
-            print("Unable to Roll Back IKE Gateways, delete manually!!")
-            logger.error(f'Prisma: Unable to delete IKE Gateways')
-        else:
-            print("Roll back successful, IKE Gateways Successfully Deleted")
-            logger.warning(f'Prisma: IKE Gateways Successfully Deleted')
-        
+        print("Rolling back...")
+        rollback_response = prisma.rollback(prisma_session)
+        logger.error(f'Prisma: Rollback activated response: {rollback_response["message"]}')
         return False
     else:
         logger.info(f'Prisma: IPSec Tunnels {ipsec_tun_names} Successfully Created')
@@ -131,38 +121,14 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
    
     ##### CREATE REMOTE NETWORK ###
     print("Creating remote network...")
-    ipsec_tuns_del = []
     remote_network_result = prisma.create_remote_nw(prisma_session, site_code, spn_location, ipsec_tun_names, region_id, remote_nw_subnets)
     
     ### ROLL BACK IF PROCESS FAILS ###
     if remote_network_result != 201:
         print("Remote Network could not be created...")
-        print("Rolling Back...")
-        print("Deleting IPSec Tunnels...")
         logger.error(f'Prisma: Remote Network {site_code} could not be created')
-        ipsec_tuns = prisma.get_ipsec_tunnels(prisma_session, ipsec_tun_names)
-        for ipsec_tun in ipsec_tuns:
-            ipsec_tuns_del.append(ipsec_tun["id"])
-        ipsec_tun_del_response = prisma.del_ipsec_tunnels(prisma_session, ipsec_tuns_del)
-        if ipsec_tun_del_response != {200}:
-            print("Unable to Roll Back IPSec Tunnels delete manually!!")
-            logger.error(f'Prisma: Unable to delete IPSec Tunnels')
-        else:
-            print("Roll back successful, IPSec Tunnels Successfully Deleted")
-            logger.warning(f'Prisma: IPSec Tunnels Successfully Deleted')
-        
-        print("Deleting IKE Gateways...")
-        ike_gws = prisma.get_ike_gateways(prisma_session, ike_gw_names)
-        for ike_gw in ike_gws:
-            ike_gws_del.append(ike_gw["id"])
-        ike_gw_del_response = prisma.del_ike_gateways(prisma_session, ike_gws_del)
-        if ike_gw_del_response != {200}:
-            print("Unable to Roll Back IKE Gateways, delete manually!!")
-            logger.error(f'Prisma: Unable to delete IKE Gateways')
-        else:
-            print("Roll back successful, IKE Gateways Successfully Deleted")
-            logger.warning(f'Prisma: IKE Gateways Successfully Deleted')
-
+        rollback_response = prisma.rollback(prisma_session)
+        logger.error(f'Prisma: Rollback activated response: {rollback_response["message"]}')
         return False
     else:
         print("Remote Network Successfully Created!")
@@ -179,3 +145,4 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
             sleep(20)
         print(public_ip)
         logger.info(f'Prisma: The public IP is {public_ip}')
+        return public_ip

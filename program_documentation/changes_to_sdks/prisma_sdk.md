@@ -33,3 +33,25 @@ To solve this, the following has been edited:
 ~~~
 
 ***
+The "management.py" module does not have a rollback function, hence this has been added:
+
+~~~python
+
+    def rollback(self, session):
+        if session.is_expired:
+            session.reauthenticate()
+        url = self._base_url + self._endpoint + '/candidate'
+        headers = {'Content-Type': 'application/json'}
+        try:
+            session.response = session.delete(
+                url = url,
+                headers = headers
+            )
+        except Exception as err:
+            print(err)
+        else:
+            response = session.response
+            return response
+~~~
+
+***

@@ -348,4 +348,15 @@ def push_config(session: PanApiSession) -> dict:
 
     return response
 
+def rollback(session: PanApiSession):
+    """Rollback configurations
 
+    Args:
+    session (PanApiSession obj): Session Object
+    """
+    rollback_config = ConfigVersion(
+    folders = ["Remote Networks", "Service Connections"]
+    )
+    response = rollback_config.rollback(session)
+
+    return response

@@ -15,6 +15,11 @@
 
 - MAC Finder: Helps you find a MAC address at a site.
 
+- SDWAN Ops: Contains different tasks to automate the SDWAN environment:
+
+  1. SDWAN hostname update hostname (deprecated)
+  2. Orchestration of Prisma Access and SDWAN Routers IPSec tunnels provisioning.
+
 - Topology Builder: by entering either a YML host file or a specific Core Switch info, topology diagrams are generated automatically which can then be downloaded.
 
 An environment file called ".env" should also exist in the same directory where the script exists. This file contains environmental variables.
@@ -96,9 +101,17 @@ You can enter data in two ways:
 
     3. Select if it is a nxos or an IOS device.
 
+### SDWAN Ops Prisma Access Tunnels Provisioning
+
+Currently there is only support for single router connected to one ISP and dual routers connected to a single ISP each.
+
+1. Enter the vManage credentials
+
+2. Enter input data: Site code, Region and Location as specified in the provided link, tunnel IP/prefix on the SDWAN side - must belong to 10.253.0.0/23  
+
 ## Documentation
 
-You can find the documentation for the devbox, web server, and execution under the "documentation/" directory.
+You can find the documentation for the devbox, web server, and changes to the sdks, and execution under the "documentation/" directory.
 
 ## Future upgrades
 
@@ -111,3 +124,7 @@ You can find the documentation for the devbox, web server, and execution under t
 - Topology Builder:
   - YAML File upload: Does not have much benefit since we lack an inventory SoT (feature upgrade).
   - Resulting Diagrams: They do not look very pretty (feature upgrade).
+
+- SDWAN Ops Prisma Access Tunnel Provisioning
+  - Support for single router with dual ISPs.
+  - Tunnel IP Addressing to be provisioned by Infoblox SDK
