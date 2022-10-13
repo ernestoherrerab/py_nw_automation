@@ -69,7 +69,7 @@ def get_ipfabric_data(site_data: dict) -> tuple[set, list]:
         ### SEARCH FOR THE INTERFACE NAME THAT SHARES THE SAME IP AS TUNNEL0 FROM THE IPFABRIC IF DATA ###
         dict_item = next(filter(lambda dict_item: dict_item.get(key) == ip_add if ( dict_item["intName"] != "Tunnel0") else None, dev_data), None)
         tunnel_ip[2] = dict_item["intName"]
-        hostname_ip_set.add(tuple(tunnel_ip)) 
+        hostname_ip_set.add(tuple(tunnel_ip))
 
     ### GET CONNECTED AND STATIC ROUTES FROM SDW ROUTERS FROM IP FABRIC ###
     print("Getting Networks Data of Site Routers...")

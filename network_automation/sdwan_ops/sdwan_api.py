@@ -4,7 +4,6 @@ SDWAN API Functions
 """
 import logging
 from pathlib import Path
-from xmlrpc.client import Boolean, boolean
 from vmanage.api.authentication import Authentication
 from vmanage.api.device import Device
 from vmanage.api.device_templates import DeviceTemplates

@@ -7,6 +7,7 @@ import logging
 from json import dumps, loads
 from pathlib import Path, PosixPath
 from requests import post
+from netaddr import IPAddress
 from panapi import PanApiSession
 from panapi.config.management import ConfigVersion
 from panapi.config.network import BandwidthAllocation, IKEGateway, IPSecTunnel, Location, RemoteNetwork
@@ -65,22 +66,39 @@ def create_ike_gw(session: PanApiSession, router_data: set) -> tuple[set, list]:
 				}
 			}
     protocol_common_var = {"passive_mode": True} 
+
     for index, router in enumerate(router_data):    
         peer_addr = {"ip": router[1]}
-        ike_gw = IKEGateway(
-            folder = "Remote Networks",
-            name = f'IKE_GW_{router[0].upper().replace("-", "_")}_{index}',
-            authentication = psk_dict,
-            peer_address = peer_addr,
-            protocol = protocol_var,
-            protocol_common = protocol_common_var
-        )
-        print(ike_gw.payload)
-        ike_gw.create(session)
-        print(f'IKE GW Creation for {router[0]} resulted in {session.response.status_code}')
-        logger.info(f'Prisma: IKE GW Creation for {router[0]} resulted in {session.response.status_code}')
-        response_code.add(session.response.status_code)
-        ike_gws_names.append(f'IKE_GW_{router[0].upper().replace("-", "_")}_{index}')
+        peer_ip =  IPAddress(router[1])
+        if peer_ip.is_unicast() and not peer_ip.is_private():
+            ike_gw = IKEGateway(
+                folder = "Remote Networks",
+                name = f'IKE_GW_{router[0].upper().replace("-", "_")}_{index}',
+                authentication = psk_dict,
+                peer_address = peer_addr,
+                protocol = protocol_var,
+                protocol_common = protocol_common_var
+            )
+            ike_gw.create(session)
+            print(f'IKE GW Creation for {router[0]} resulted in {session.response.status_code}')
+            logger.info(f'Prisma: IKE GW Creation for {router[0]} resulted in {session.response.status_code}')
+            response_code.add(session.response.status_code)
+            ike_gws_names.append(f'IKE_GW_{router[0].upper().replace("-", "_")}_{index}')
+        elif peer_ip.is_unicast() and peer_ip.is_private():
+            ike_gw = IKEGateway(
+                folder = "Remote Networks",
+                name = f'IKE_GW_{router[0].upper().replace("-", "_")}_{index}',
+                authentication = psk_dict,
+                peer_address = {"dynamic": {}},
+                peer_id = {"type": "ipaddr","id": router[1]},
+                protocol = protocol_var,
+                protocol_common = protocol_common_var
+            )
+            ike_gw.create(session)
+            print(f'IKE GW Creation for {router[0]} resulted in {session.response.status_code}')
+            logger.info(f'Prisma: IKE GW Creation for {router[0]} resulted in {session.response.status_code}')
+            response_code.add(session.response.status_code)
+            ike_gws_names.append(f'IKE_GW_{router[0].upper().replace("-", "_")}_{index}')
 
     return response_code, ike_gws_names
 

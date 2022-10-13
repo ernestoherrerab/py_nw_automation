@@ -50,7 +50,7 @@ The "management.py" module does not have a rollback function, hence this has bee
         except Exception as err:
             print(err)
         else:
-            response = session.response
+            response = session.response.json()
             return response
 ~~~
 
