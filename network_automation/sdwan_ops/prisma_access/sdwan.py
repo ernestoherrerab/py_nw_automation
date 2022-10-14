@@ -37,9 +37,30 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
     """
     ### VARS ###
     VMANAGE_URL_VAR = config("VMANAGE_URL_VAR")
-    VMANAGE_PRISMA_TEMPLATE_ID = config("VMANAGE_PRISMA_TEMPLATE_ID")
+    VMANAGE_PRISMA_PRIM_TEMPLATE_ID = config("VMANAGE_PRISMA_PRIM_TEMPLATE_ID")
+    VMANAGE_PRISMA_SEC_TEMPLATE_ID = config("VMANAGE_PRISMA_SEC_TEMPLATE_ID")
     site_code = site_data["site_code"].upper()
+    new_template_name = ""
     summary_list = []
+
+    ### CONVERT TUPLES TO LISTS ###
+    device_parameters = list(map(list, hostname_ip_set ))
+    
+    ### ADD TUNNEL IP TO DEVICE PARAMETERS ###
+    for hostname_ip, tunnel_ip in zip(device_parameters, tunnel_ips):
+        hostname_ip.append(tunnel_ip)
+
+    ### DEFINE IF A SECONDARY IPSEC TUNNEL IS NEEDED ###
+
+    sec_tunnel = False
+    if device_parameters[0][0] == device_parameters[1][0]:
+        sec_tunnel = True
+        logger.info(f'vManage: Secondary Tunnel is needed')
+        print("Secondary Tunnel is needed...")
+    elif device_parameters[0][0] != device_parameters[1][0]:
+        logger.info(f'vManage: Secondary Tunnel is NOT needed')
+        print("Secondary Tunnel is NOT needed...")
+        
 
     ### VMANAGE AUTHENTICATION ###
     print("Authenticate vManage")
@@ -54,6 +75,8 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
     site_code = site_code.lower()
     vedge_list = [online_dev for online_dev in vedge_data if "reachability" in online_dev and online_dev["reachability"] == "reachable" and re.match(rf'{site_code}-r\d+-sdw', online_dev["host-name"]) ]
     logger.info(f'vManage: Filter vEdge Data...by site code')
+
+    
     
     ### FOR LOOP USED TO FORMAT NEW TEMPLATE DATA FOR DEVICE ATTACHMENT ####
     for vedge in vedge_list:
@@ -69,15 +92,17 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
         print("Mapping Host to Templates...")
         vedge_template_map = sdwan.host_template_mapping(vedge)
         logger.info(f'vManage: Map Hosts to Templates')
-        vedge_template_id = vedge_template_map["templateId"] 
-    
+        vedge_template_id = vedge_template_map["templateId"]     
         ### GET SDWAN CURRENT TEMPLATE AND APPEND NEW IPSEC SUB TEMPLATE ###
         print("Retrieving Templates to clone...")
         create_template_payload = {}
         current_template = sdwan.get_template_config(auth, VMANAGE_URL_VAR, vedge_template_id)
         for index, sub_templates in enumerate(current_template["generalTemplates"]):
-            if sub_templates["templateId"] in cisco_vpn_template_id_list:
-                current_template["generalTemplates"][index]["subTemplates"].append({"templateId": VMANAGE_PRISMA_TEMPLATE_ID, "templateType": "cisco_vpn_interface_ipsec"})
+            if sub_templates["templateId"] in cisco_vpn_template_id_list and not sec_tunnel:
+                current_template["generalTemplates"][index]["subTemplates"].append({"templateId": VMANAGE_PRISMA_PRIM_TEMPLATE_ID, "templateType": "cisco_vpn_interface_ipsec"})
+            elif sub_templates["templateId"] in cisco_vpn_template_id_list and sec_tunnel:
+                current_template["generalTemplates"][index]["subTemplates"].append({"templateId": VMANAGE_PRISMA_PRIM_TEMPLATE_ID, "templateType": "cisco_vpn_interface_ipsec"})
+                current_template["generalTemplates"][index]["subTemplates"].append({"templateId": VMANAGE_PRISMA_SEC_TEMPLATE_ID, "templateType": "cisco_vpn_interface_ipsec"})
         logger.info(f'vManage: Format Payload to create New Template for template {current_template["templateName"]}')
         ### CLONE NEW DEVICE TEMPLATE DATA WITH CURRENT NEW TEMPLATE + NEW PRISMA FEATURE TEMPLATE ###
         create_template_payload["templateName"] = f'PRISMA_{current_template["templateName"]}'
@@ -89,25 +114,21 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
         create_template_payload["policyId"] = current_template["policyId"]
         if 'securityPolicyId' in current_template:
             create_template_payload['securityPolicyId'] = current_template['securityPolicyId']
-        logger.info(f'vManage: Format Payload created for template {current_template["templateName"]}')         
+        logger.info(f'vManage: Format Payload created for template {current_template["templateName"]}')  
 
-        #### CREATE NEW TEMPLATE(S) ###
-        print("Creating new cloned Templates...")
-        response = sdwan.clone_template(auth, VMANAGE_URL_VAR, create_template_payload)
-        if response == None:
-            return False
-        elif response["status_code"] != 200 and index > 0:
-            print(f'Template creation for { create_template_payload["templateName"]} failed!!')
-            logger.error(f'Template creation for { create_template_payload["templateName"]} failed')
-            return False
-        elif response["status_code"] != 200 and index >= 1:
-            print(f'Template creation for { create_template_payload["templateName"]} failed!!')
-            logger.error(f'Template creation for { create_template_payload["templateName"]} failed')
-            print("Continuing provisioning since at least one template has already been cloned...")
-            print(f'This failed template { create_template_payload["templateName"]} needs to be manually added...')
-        elif response["status_code"] == 200:
-            print(f'Template creation for { create_template_payload["templateName"]} was successful')
-            logger.info(f'Template creation for { create_template_payload["templateName"]} successful')
+        if new_template_name == "" or new_template_name != create_template_payload["templateName"]:
+            #### CREATE NEW TEMPLATE(S) ###
+            print("Creating new cloned Templates...")
+            response = sdwan.clone_template(auth, VMANAGE_URL_VAR, create_template_payload)
+            if response == None:
+                return False
+            elif response["status_code"] != 200:
+                print(f'Template creation for { create_template_payload["templateName"]} failed!!')
+                logger.error(f'Template creation for { create_template_payload["templateName"]} failed')
+                return False
+            elif response["status_code"] == 200:
+                print(f'Template creation for { create_template_payload["templateName"]} was successful')
+                logger.info(f'Template creation for { create_template_payload["templateName"]} successful')
 
         ### GET NEW TEMPLATE ID ### 
         print("Getting New Template Data...")
@@ -115,6 +136,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
         new_template = sdwan.get_all_templates_config(auth, VMANAGE_URL_VAR, template_name=[create_template_payload["templateName"]])
         logger.info(f'vManage: Retrieved new template data for {create_template_payload["templateName"]}')
         new_template_id = new_template[0]["templateId"]
+        new_template_name = new_template[0]["templateName"]
         
         #### GET CURRENT TEMPLATE INPUT INFORMATION ###
         print("Getting current template input information...")
@@ -133,12 +155,24 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
 
         #### ENTER INPUT DATA FOR PRISMA FEATURE TEMPLATE ###
         print("Entering input data for prisma feature template")
-        for host_tunnel_if in hostname_ip_set:
-            if  host_tunnel_if[0] == new_dev_input["data"][0]["csv-host-name"]:
+        print(device_parameters)
+        for index, host_tunnel_if in enumerate(device_parameters):
+            print(host_tunnel_if)
+            if  host_tunnel_if[0] == new_dev_input["data"][0]["csv-host-name"] and not sec_tunnel:
                 new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-source-interface"] = host_tunnel_if[2]
                 new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-destination"] = public_ip[0]
-                new_dev_input["data"][0]["/10/ipsec10/interface/ip/address"] = tunnel_ips[0]
-        logger.info(f'vManage: Added new template feature input for: {new_dev_input["data"][0]["csv-host-name"]}')
+                new_dev_input["data"][0]["/10/ipsec10/interface/ip/address"] =  host_tunnel_if[3]
+                logger.info(f'vManage: Added new template feature input for primary ipsec tunnel: {new_dev_input["data"][0]["csv-host-name"]}')
+            elif sec_tunnel and index == 0:
+                new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-source-interface"] = host_tunnel_if[2]
+                new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-destination"] = public_ip[0]
+                new_dev_input["data"][0]["/10/ipsec10/interface/ip/address"] =  host_tunnel_if[3]
+                logger.info(f'vManage: Added new template feature input for primary ipsec tunnel: {new_dev_input["data"][0]["csv-host-name"]}')
+            elif sec_tunnel and index == 1:
+                new_dev_input["data"][0]["/10/ipsec20/interface/tunnel-source-interface"] = host_tunnel_if[2]
+                new_dev_input["data"][0]["/10/ipsec20/interface/tunnel-destination"] = public_ip[0]
+                new_dev_input["data"][0]["/10/ipsec20/interface/ip/address"] =  host_tunnel_if[3]
+                logger.info(f'vManage: Added new template feature input for secondary ipsec tunnel: {new_dev_input["data"][0]["csv-host-name"]}')
 
         ### FORMAT FINAL DATA STRUCTURE ###
         print("Formatting data to push to vManage...")

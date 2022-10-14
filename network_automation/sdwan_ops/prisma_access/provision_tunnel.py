@@ -30,11 +30,12 @@ def provision_tunnel(site_data, username, password):
     hostname_ip_set, remote_nw_subnets = ipfabric.get_ipfabric_data(site_data)
     
     ### PROVISION TUNNEL INTERFACES IN INFOBLOX ###
-    infoblox_response = infoblox.create_tunnel_ips(hostname_ip_set, site_data)
-
+    #infoblox_response = infoblox.create_tunnel_ips(hostname_ip_set, site_data)
+    infoblox_response = ['10.253.0.17', '10.253.0.21']
     ### CREATE REMOTE NETWORKS IN PRISMA ACCESS ###
     ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
-    public_ip = prisma.create_remote_networks(site_data, hostname_ip_set, remote_nw_subnets)
+    #public_ip = prisma.create_remote_networks(site_data, hostname_ip_set, remote_nw_subnets)
+    public_ip =  ["1.1.1.1"]
 
     ### CREATE IPSEC TUNNELS ON SDWAN VMANAGE ###
     summary_list = sdwan.create_ipsec_tunnels(site_data, username, password, hostname_ip_set, public_ip, infoblox_response)
