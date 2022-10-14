@@ -5,10 +5,13 @@ Flask==2.0.3
 genie==22.2
 graphviz==0.19.1
 httpx==0.22.0
+infoblox-client==0.5.2
+ipfabric==5.0.12
 netaddr==0.7.19
 nornir==3.2.0
 nornir-napalm==0.2.0
 nornir-scrapli==2022.1.30
+panapi==0.0.1
 pyats==22.2
 python-decouple==3.6
 PyYAML==6.0
@@ -16,6 +19,7 @@ regex==2022.7.25
 requests==2.27.1
 tqdm==4.63.1
 urllib3==1.26.9
+viptela==0.3.9
 waitress==2.1.1
 Werkzeug==2.0.3
 xmltodict==0.12.0
