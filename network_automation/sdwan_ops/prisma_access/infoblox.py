@@ -27,7 +27,7 @@ def create_tunnel_ips(num_nws: list, site_data: dict) -> list:
     site_data (dict): Frontend input data
 
     Returns 
-    response_list (list): List of created networks
+    tunnel_ips_list (list): List of IP addresses to use for the SDWAN tunnels
     """
     ### VARS ###
     INFOBLOX_URL = config("INFOBLOX_URL")

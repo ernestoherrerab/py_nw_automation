@@ -21,7 +21,7 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 logger.info("Begin tunnel provisioning")
 
-def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname_ip_set: set, public_ip: list) -> list:
+def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname_ip_set: set, public_ip: list, tunnel_ips: list) -> list:
     """ Create SDWAN IPSec Tunnels
     Args:
     site_data (dict): From frontend input
@@ -29,6 +29,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
     password (str): From frontend input
     hostname_ip_set (set): Contains IPFabric parameters to create IPSec Tunnels
     public_ip (list): Contains the Public IP of the Prisma Access node 
+    tunnel_ips (list): List of IP addresses to use for the SDWAN tunnels
 
     Return:
     summary_list (list): Contains a summary of the result
@@ -38,7 +39,6 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
     VMANAGE_URL_VAR = config("VMANAGE_URL_VAR")
     VMANAGE_PRISMA_TEMPLATE_ID = config("VMANAGE_PRISMA_TEMPLATE_ID")
     site_code = site_data["site_code"].upper()
-    vedge_tunnel_ip = site_data["tunnel_ip"]
     summary_list = []
 
     ### VMANAGE AUTHENTICATION ###
@@ -137,7 +137,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             if  host_tunnel_if[0] == new_dev_input["data"][0]["csv-host-name"]:
                 new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-source-interface"] = host_tunnel_if[2]
                 new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-destination"] = public_ip[0]
-                new_dev_input["data"][0]["/10/ipsec10/interface/ip/address"] = vedge_tunnel_ip
+                new_dev_input["data"][0]["/10/ipsec10/interface/ip/address"] = tunnel_ips[0]
         logger.info(f'vManage: Added new template feature input for: {new_dev_input["data"][0]["csv-host-name"]}')
 
         ### FORMAT FINAL DATA STRUCTURE ###

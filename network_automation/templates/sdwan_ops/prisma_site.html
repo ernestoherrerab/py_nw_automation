@@ -8,8 +8,7 @@
                 var site_id = document.siteForm.siteId.value;
                 var regionId = document.siteForm.regionId.value;
                 var locationId = document.siteForm.locationId.value;
-                var tunnelIp = document.siteForm.tunnelIp.value;
-                document.siteForm.outputtext.value += site_id + "," + regionId + "," + locationId + "," + tunnelIp +"\n";
+                document.siteForm.outputtext.value += site_id + "," + regionId + "," + locationId +"\n";
             }
             </script>
     </head>
@@ -28,8 +27,6 @@
                             <input type="text" onfocus="this.value=''" class="form-control" id="regionId" name="regionId" placeholder="Region">
                             <label for="locationId">Location:</label>
                             <input type="text" onfocus="this.value=''" class="form-control" id="locationId" name="locationId" placeholder="Location">
-                            <label for="tunnelIp">Tunnel IP:</label>
-                            <input type="text" onfocus="this.value=''" class="form-control" id="tunnelIp" name="tunnelIp" placeholder="Tunnel_IP/Prefix">
                         </div>
                     </div>
                     <div class="col-2">
