@@ -103,11 +103,9 @@ You can enter data in two ways:
 
 ### SDWAN Ops Prisma Access Tunnels Provisioning
 
-Currently there is only support for single router connected to one ISP and dual routers connected to a single ISP each.
-
 1. Enter the vManage credentials
 
-2. Enter input data: Site code, Region and Location as specified in the provided link, tunnel IP/prefix on the SDWAN side - must belong to 10.253.0.0/23  
+2. Enter input data: Site code, Region and Location as specified in the provided link.
 
 ## Documentation
 
@@ -124,7 +122,3 @@ You can find the documentation for the devbox, web server, and changes to the sd
 - Topology Builder:
   - YAML File upload: Does not have much benefit since we lack an inventory SoT (feature upgrade).
   - Resulting Diagrams: They do not look very pretty (feature upgrade).
-
-- SDWAN Ops Prisma Access Tunnel Provisioning
-  - Support for single router with dual ISPs.
-  - Tunnel IP Addressing to be provisioned by Infoblox SDK
