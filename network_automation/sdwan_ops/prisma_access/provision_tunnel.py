@@ -18,7 +18,6 @@ file_handler = logging.FileHandler(LOG_FILE)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-logger.info("Begin tunnel provisioning")
 
 def provision_tunnel(site_data, username, password):
     """ Main function to provision tunnels """
@@ -28,10 +27,12 @@ def provision_tunnel(site_data, username, password):
 
     ### GET SDWAN IPSEC FEATURE TEMPLATE VALUES ###
     ### GET SUBNETS FOR REMOTE NETWORKS IN PRISMA ACCESS ###
-    #hostname_ip_set, remote_nw_subnets = ipfabric.get_ipfabric_data(site_data)
-
+    hostname_ip_set, remote_nw_subnets = ipfabric.get_ipfabric_data(site_data)
+    
     ### PROVISION TUNNEL INTERFACES IN INFOBLOX ###
-    infoblox_response = infoblox.create_tunnel_ips()
+    infoblox_response = infoblox.create_tunnel_ips(hostname_ip_set, site_data)
+
+    print(infoblox_response)
 
 
     ### CREATE REMOTE NETWORKS IN PRISMA ACCESS ###
@@ -42,4 +43,4 @@ def provision_tunnel(site_data, username, password):
     #summary_list = sdwan.create_ipsec_tunnels(site_data, username, password, hostname_ip_set, public_ip)
 
     
-    return infoblox_response
+    return hostname_ip_set

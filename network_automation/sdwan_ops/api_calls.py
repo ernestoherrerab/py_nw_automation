@@ -6,7 +6,7 @@ Module to group the CRUD operations for API calls
 from json import loads
 import logging
 from pathlib import Path 
-from requests import get, post, Response, RequestException
+from requests import get, post, put, Response, RequestException
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/tunnel_provision.log")
@@ -151,6 +151,108 @@ def post_operations(ops_type: str, url_var: str, payload: dict, headers: dict, j
         except RequestException as exc:
             print(f"An error occurred while requesting {exc.request.url!r}.")
 
+def put_operations(ops_type: str, url_var: str, payload: dict, headers: dict, json=True) -> Response:
+    """ API PUT operations """
+
+    url = f"{url_var}/{ops_type}"
+    if json:
+        try:
+            ops_put = put(url, headers=headers, json=payload, verify=False)
+            if ops_put.status_code == 200:
+                print("PUT Request Successful!")
+                ops_data = loads(ops_put.text)
+                ops_put.close()
+                logger.info(f'API Call: {ops_put.status_code} PUT Request Successful! {ops_data}')
+                return ops_data       
+            elif ops_put.status_code == 400:
+                print("JSON error. Check the JSON format.")
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} JSON error. Check the JSON format.')
+                return ops_put.status_code
+            elif ops_put.status_code == 401:
+                print("Token error. Login again.")
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} Authentication error.')
+                return ops_put.status_code
+            elif ops_put.status_code == 403:
+                print("Insufficient permissions to access this resource.")
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} Insufficient permissions to access this resource.')
+                return ops_put.status_code
+            elif ops_put.status_code == 409:
+                print("The submitted resource conflicts with another.")
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} The submitted resource conflicts with another.')
+                return ops_put.status_code
+            elif ops_put.status_code == 422:
+                print('Request validation error. Check "errors" array for details.')
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} Request validation error. Check "errors" array for details.')
+                return ops_put.status_code
+            elif ops_put.status_code == 500:
+                print("Unexpected server side error.")
+                ops_data = loads(ops_put.text)
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} Unexpected server side error.')
+                return ops_data, ops_put.status_code
+            else:
+                print("POST Request Failed")
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} Request Failed...Unknown why')
+                return ops_put.status_code
+        except RequestException as exc:
+            print(f"An error occurred while requesting {exc.request.url!r}.")
+
+    else:
+        try:
+            ops_put = put(url, headers=headers, json=payload, verify=False)
+            if ops_put.status_code == 201:
+                print("PUT Request Successful!")
+                ops_data = ops_put.text
+                ops_put.close()
+                return ops_data       
+            elif ops_put.status_code == 400:
+                print("JSON error. Check the JSON format.")
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} JSON error. Check the JSON format.')
+                return ops_put.status_code
+            elif ops_put.status_code == 401:
+                print("Token error. Login again.")
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} Authentication error.')
+                return ops_put.status_code
+            elif ops_put.status_code == 403:
+                print("Insufficient permissions to access this resource.")
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} Insufficient permissions to access this resource.')
+                return ops_put.status_code
+            elif ops_put.status_code == 409:
+                print("The submitted resource conflicts with another.")
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} The submitted resource conflicts with another.')
+                return ops_put.status_code
+            elif ops_put.status_code == 422:
+                print('Request validation error. Check "errors" array for details.')
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} Request validation error. Check "errors" array for details.')
+                return ops_put.status_code
+            elif ops_put.status_code == 500:
+                print("Unexpected server side error.")
+                ops_data = loads(ops_put.text)
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} Unexpected server side error.')
+                return ops_data, ops_put.status_code
+            else:
+                print("POST Request Failed")
+                ops_put.close()
+                logger.error(f'API Call: {ops_put.status_code} Request Failed...Unknown why')
+                return ops_put.status_code
+        except RequestException as exc:
+            print(f"An error occurred while requesting {exc.request.url!r}.")
+
+
+
+    
 
 
     
