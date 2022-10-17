@@ -46,4 +46,3 @@ def get_subnets_data(ipf: IPFClient, filter_dict: dict) -> list:
     subnets_data = ipf.technology.routing.routes_ipv4.all(filters=filter_dict)
     
     return subnets_data
-    

@@ -69,7 +69,7 @@ def clone_template(authentication: Authentication.login, vmanage: str, template_
         print("Something went wrong...check log...")
         return e
 
-def get_all_templates_config(authentication: Authentication.login, vmanage: str, template_name: str =None) ->list[dict]:
+def get_all_templates_config(authentication: Authentication.login, vmanage: str, template_name: str =None) -> list[dict]:
     """Get templates information for all or specific templates
 
     Args:

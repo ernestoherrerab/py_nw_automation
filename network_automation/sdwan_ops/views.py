@@ -5,7 +5,6 @@ Creates the views (routes) for the secondary app
 from flask import redirect, render_template, request, session, send_file, url_for
 from pathlib import Path
 from network_automation.sdwan_ops import sdwan_ops
-import network_automation.sdwan_ops.hostname.update_hostname as update_hostname
 import network_automation.sdwan_ops.prisma_access.provision_tunnel as prisma_tunnels
 
 TEMPLATE_DIR = "sdwan_ops"
@@ -45,36 +44,6 @@ def ops():
     Select SDWAN Operation to perform
     """
     return render_template(f"{TEMPLATE_DIR}/ops.html")
-
-@sdwan_ops.route("/hostname")
-def hostname():
-    """ 
-    Launch hostname change process 
-    """
-    dev_results= []
-    username = session.get("username")
-    password = session.get("password")
-    result = update_hostname.update_hostname(username, password)
-    
-    ### FORMAT SUMMARY FOR HTML PRESENTATION ###
-    summary = result["summary"]
-    for dev_result in result["data"]:
-        dev_data = (dev_result["host-name"], dev_result["status"])
-        dev_results.append(dev_data)
-    
-    ### SUMMARY FOR CONSOLE ###
-    print(summary)
-    print("*" * 100)
-    print(dev_results)
-
-    return render_template(f"{TEMPLATE_DIR}/hostname_summary.html", summary=summary, dev_results=dev_results, )
-
-@sdwan_ops.route("/hostname_summary")
-def hostname_summary():
-    """ 
-    Summary of Hostname changes
-    """
-    return render_template(f"{TEMPLATE_DIR}/hostname_summary.html")
 
 #### PRISMA ACCESS TUNNEL PROVISIONING ###
 
