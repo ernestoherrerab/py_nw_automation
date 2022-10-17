@@ -39,5 +39,4 @@ def provision_tunnel(site_data, username, password):
     ### CREATE IPSEC TUNNELS ON SDWAN VMANAGE ###
     summary_list = sdwan.create_ipsec_tunnels(site_data, username, password, hostname_ip_set, public_ip, infoblox_response)
 
-    
     return summary_list

@@ -11,6 +11,7 @@ from netaddr import IPAddress
 from panapi import PanApiSession
 from panapi.config.management import ConfigVersion
 from panapi.config.network import BandwidthAllocation, IKEGateway, IPSecTunnel, Location, RemoteNetwork
+from panapi.config.objects import Address, AddressGroup, Tag
 
 
 ### LOGGING SETUP ###
@@ -37,6 +38,81 @@ def auth(config_path:PosixPath) -> PanApiSession:
     
     return session
 
+def create_address(session: PanApiSession, site_id: str, address_list: list) -> tuple:
+    """Create Address Object
+    
+    Args:
+    session (PanApiSession): Session Object
+    site_id (str): From Frontend inut
+    address_list (list): List of networks to create objects for
+
+    Returns:
+    response (tuple): Response code set, and list of address objects 
+    """
+    response_code = set()
+    address_objects = []
+
+    tag_obj = Tag(
+        folder = "Shared",
+        name = site_id
+    )
+    tag_obj.create(session)
+    logger.info(f'Prisma: Tag Object for {site_id} resulted in {session.response.status_code}')
+    response_code.add(session.response.status_code)
+
+    for index, address in enumerate(address_list):
+        address_obj = Address(
+            folder = "Shared",
+            name = f'ADD-{site_id}_{index}',
+            ip_netmask = address,
+            tag = [site_id]
+        )
+        address_obj.create(session)
+        logger.info(f'Prisma: Address Object for {address} resulted in {session.response.status_code}')
+        response_code.add(session.response.status_code)
+        address_objects.append(f'ADD-{site_id}_{index}')
+    
+    return response_code, address_objects
+
+def create_address_group(session: PanApiSession, site_id: str, address_object_list: list) -> tuple:
+    """Create Address Group Object
+    
+    Args:
+    session (PanApiSession): Session Object
+    address_object_list (list): List of address objects to group
+
+    Returns:
+    response (tuple): Response code set, and list of address group objects 
+    """   
+    response_code = set()
+    address_group_name = f'AG-{site_id}'
+    PRISMA_AG_FLS_INTERNAL_ID = config("PRISMA_AG_FLS_INTERNAL_ID")
+
+    ### CREATE ADDRESS GROUP ###
+    address_group_obj = AddressGroup(
+        folder = "Shared",
+        name = address_group_name,
+        static = address_object_list,
+        tag = [site_id]
+    )
+    address_group_obj.create(session)
+    logger.info(f'Prisma: Address Object for {address_group_name} resulted in {session.response.status_code}')
+    response_code.add(session.response.status_code)
+
+    ### UPDATE FLS INTERNAL ADDRESS GROUP ###
+    fls_internal_ag = AddressGroup(
+        folder = "Shared",
+        id = PRISMA_AG_FLS_INTERNAL_ID
+    )
+    fls_ag_data = fls_internal_ag.read(session)
+    logger.info(f'Prisma: Getting FLS Internal AG resulted in {session.response.status_code}')
+    fls_ag_data.static.append(address_group_name)
+    fls_ag_data.update(session)
+    response_code.add(session.response.status_code + 1)
+    logger.info(f'Prisma: Updating FLS Internal AG resulted in {session.response.status_code}')
+
+    return response_code, address_group_name
+        
 def create_ike_gw(session: PanApiSession, router_data: set) -> tuple:
     """Create IKEA Gateway
     

@@ -118,11 +118,30 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
     else:
         logger.info(f'Prisma: IPSec Tunnels {ipsec_tun_names} Successfully Created')
         print("IPSec Tunnels Successfully Created!")
-   
+
+    ### CREATE ADDRESS OBJECTS ###
+    print("Creating address objects...")
+    addr_obj_response, addr_obj_list = prisma.create_address(prisma_session, site_code, remote_nw_subnets)
+    if addr_obj_response != {201}:
+        logger.error(f'Prisma: Could not create Address Objects')
+    else:
+        print("Address Objects Successfully Created!")
+        logger.info(f'Prisma: Address Objects: {addr_obj_list}')
+
+    ### CREATE ADDRESS GROUPS ###
+    print("Creating address groups...")
+    addr_group_obj_response, addr_group_obj_name = prisma.create_address_group(prisma_session, site_code, addr_obj_list)
+    if addr_group_obj_response != {201}:
+        logger.error(f'Prisma: Could not create Address Group Objects')
+        return False
+    else:
+        print("Address Objects Groups Successfully Created!")
+        logger.info(f'Prisma: Address Group Objects: { addr_group_obj_name}')
+
     ##### CREATE REMOTE NETWORK ###
     print("Creating remote network...")
     remote_network_result = prisma.create_remote_nw(prisma_session, site_code, spn_location, ipsec_tun_names, region_id, remote_nw_subnets)
-    
+
     ### ROLL BACK IF PROCESS FAILS ###
     if remote_network_result != 201:
         print("Remote Network could not be created...")

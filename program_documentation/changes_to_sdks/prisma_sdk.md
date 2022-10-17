@@ -55,3 +55,13 @@ The "management.py" module does not have a rollback function, hence this has bee
 ~~~
 
 ***
+
+Add Creation of Tags under the "objects.py"
+
+~~~python
+
+class Tag(PanObject):
+    'A tag'
+    _endpoint = '/sse/config/v1/tags'
+
+~~~
