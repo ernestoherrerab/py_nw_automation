@@ -19,7 +19,7 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 logger.info("Begin tunnel provisioning")
 
-def get_ipfabric_data(site_data: dict) -> tuple[set, list]:    
+def get_ipfabric_data(site_data: dict) -> tuple:    
     """"Retrieval of needed data to provision tunnels
     
     Args:

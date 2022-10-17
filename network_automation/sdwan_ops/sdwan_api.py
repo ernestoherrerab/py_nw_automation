@@ -69,7 +69,7 @@ def clone_template(authentication: Authentication.login, vmanage: str, template_
         print("Something went wrong...check log...")
         return e
 
-def get_all_templates_config(authentication: Authentication.login, vmanage: str, template_name: str =None) -> list[dict]:
+def get_all_templates_config(authentication: Authentication.login, vmanage: str, template_name: str =None) -> list:
     """Get templates information for all or specific templates
 
     Args:
@@ -84,7 +84,7 @@ def get_all_templates_config(authentication: Authentication.login, vmanage: str,
     device_templates_list = device_template.get_device_template_list(name_list=template_name)
     return device_templates_list
 
-def get_dev_feature_template(authentication: Authentication.login, vmanage: str, factory_default: bool=False, name_list: list=None) -> list[dict]:
+def get_dev_feature_template(authentication: Authentication.login, vmanage: str, factory_default: bool=False, name_list: list=None) -> list:
     """Get feature templates data to specific template
 
     Args:
@@ -100,7 +100,7 @@ def get_dev_feature_template(authentication: Authentication.login, vmanage: str,
     feature_template_list = feature_template.get_feature_template_list(factory_default, name_list)
     return feature_template_list
 
-def get_template_config(authentication: Authentication.login, vmanage: str, template_id: str) -> list[dict]:
+def get_template_config(authentication: Authentication.login, vmanage: str, template_id: str) -> list:
     """Get Reachable vEdge Data
     
     Args:
@@ -115,7 +115,7 @@ def get_template_config(authentication: Authentication.login, vmanage: str, temp
     device_templates_list = device_templates.get_device_template_object(template_id)
     return device_templates_list
 
-def get_template_input(authentication: Authentication.login, vmanage: str, template_id: str, dev_id_list: list =None) -> list[dict]:
+def get_template_input(authentication: Authentication.login, vmanage: str, template_id: str, dev_id_list: list =None) -> list:
     """Get the template variable input data
 
     Args:
@@ -132,7 +132,7 @@ def get_template_input(authentication: Authentication.login, vmanage: str, templ
     return device_input_list
 
 
-def get_vedge_list(authentication: Authentication.login, vmanage: str) -> list[dict]:
+def get_vedge_list(authentication: Authentication.login, vmanage: str) -> list:
     """Get Reachable vEdge Data 
 
     Args:

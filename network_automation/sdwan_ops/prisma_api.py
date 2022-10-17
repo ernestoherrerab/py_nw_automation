@@ -37,7 +37,7 @@ def auth(config_path:PosixPath) -> PanApiSession:
     
     return session
 
-def create_ike_gw(session: PanApiSession, router_data: set) -> tuple[set, list]:
+def create_ike_gw(session: PanApiSession, router_data: set) -> tuple:
     """Create IKEA Gateway
     
     Args:
@@ -102,7 +102,7 @@ def create_ike_gw(session: PanApiSession, router_data: set) -> tuple[set, list]:
 
     return response_code, ike_gws_names
 
-def create_ipsec_tunnel(session: PanApiSession, ike_gws: list) -> tuple[set, list]:
+def create_ipsec_tunnel(session: PanApiSession, ike_gws: list) -> tuple:
     """"Create IPSec Tunnels 
     
     Args:
