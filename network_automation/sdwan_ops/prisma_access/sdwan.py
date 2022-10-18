@@ -203,32 +203,32 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             feature_template_dict["deviceTemplateList"][0]["device"][0]["csv-templateId"] = feature_template_dict["deviceTemplateList"][0]["templateId"] 
             logger.info(f'vManage: Evaluated templates to push')
             
-            #### PUSH TEMPLATES TO DEVICES ###
-            #print("Pushing templates to devices...")
-            #ops_id, summary_obj = sdwan.attach_dev_template(auth, VMANAGE_URL_VAR, feature_template_dict)
-            #summary = dict(summary_obj)
-            #logger.info(f'vManage: {ops_id}') 
-#
-            #### FORMAT SUMMARY FOR LOGGING ###
-            #summary_status = summary["action_status"]
-            #summary_activity = summary["action_activity"]
-            #summary_config = loads(summary["action_config"])
-            #summary_list.append(                {
-            #        "action_status": summary_status,
-            #        "action_activity": summary_activity,
-            #        "action_config": summary_config
-            #        })
-            #if summary_status == "success":
-            #    logger.info(f'vManage: Provisioning was {summary_status}')
-            #    for activity in summary_activity:
-            #        logger.info(f'vManage:  {activity}')
-            #    for configuration in summary_config:
-            #        logger.info(f'vManage:  {configuration}')
-            #    return summary_list
-            #else:
-            #    logger.error(f'vManage: Provisioning was {summary_status}') 
-            #    for activity in summary_activity:
-            #        logger.error(f'vManage:  {activity}')
-            #    for configuration in summary_config:
-            #        logger.error(f'vManage:  {configuration}')
+            ### PUSH TEMPLATES TO DEVICES ###
+            print("Pushing templates to devices...")
+            ops_id, summary_obj = sdwan.attach_dev_template(auth, VMANAGE_URL_VAR, feature_template_dict)
+            summary = dict(summary_obj)
+            logger.info(f'vManage: {ops_id}') 
+
+            ### FORMAT SUMMARY FOR LOGGING ###
+            summary_status = summary["action_status"]
+            summary_activity = summary["action_activity"]
+            summary_config = loads(summary["action_config"])
+            summary_list.append(                {
+                    "action_status": summary_status,
+                    "action_activity": summary_activity,
+                    "action_config": summary_config
+                    })
+            if summary_status == "success":
+                logger.info(f'vManage: Provisioning was {summary_status}')
+                for activity in summary_activity:
+                    logger.info(f'vManage:  {activity}')
+                for configuration in summary_config:
+                    logger.info(f'vManage:  {configuration}')
+                return summary_list
+            else:
+                logger.error(f'vManage: Provisioning was {summary_status}') 
+                for activity in summary_activity:
+                    logger.error(f'vManage:  {activity}')
+                for configuration in summary_config:
+                    logger.error(f'vManage:  {configuration}')
             return summary_list       
