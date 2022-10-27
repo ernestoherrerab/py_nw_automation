@@ -13,14 +13,13 @@ import network_automation.sdwan_ops.prisma_api as prisma
 
 
 ### LOGGING SETUP ###
-LOG_FILE = Path("logs/tunnel_provision.log")
+LOG_FILE = Path("logs/sdwan_ops.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler(LOG_FILE)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-logger.info("Begin tunnel provisioning")
 
 def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subnets: list) -> list:
     """ Main function to provision tunnels 

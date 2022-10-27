@@ -5,12 +5,12 @@
         <title>CCoE Network Automation</title>
         <script language="javascript" type="text/javascript">
             function addtext() {
-                var newtext_1 = document.macForm.macAddr.value;
-                var newtext_2 = document.macForm.devType.value;
+                var mac_address = document.macForm.macAddr.value;
+                var device_type = document.macForm.devType.value;
                 if (document.macForm.placement[1].checked) {
                     document.macForm.outputtext.value = "";
                     }
-                document.macForm.outputtext.value += newtext_1 + "," + newtext_2 + "\n";
+                document.macForm.outputtext.value += mac_address + "," + device_type + "\n";
             }
             </script>
     </head>
@@ -18,7 +18,7 @@
         <div class="alert alert-info" role="alert">
         <h1>ISE MAC Bypass<br><br></h1>
         <h4>Enter Data Manually:<br><br></h4> 
-        <form name="macForm"  action="{{url_for('ise_mac_bypass.ise_login')}}" method = "POST" role="form">
+        <form name="macForm"  action="{{url_for('ise_ops.add_mac_bypass')}}" method = "POST" role="form">
 			<div class="row gy-5">
 				<div class="col-2">
 					<div class="p-3">
@@ -32,7 +32,7 @@
 					<div class="p-5">
 						<textarea name="outputtext" rows="3" cols="60"></textarea>
                         <p><button type="submit" class="btn btn-success">Submit To ISE</button></p>  
-                        <p><a class="btn btn-primary" href="{{url_for('ise_mac_bypass.home')}}" role="button">Back To Home</a></p>
+                        <p><a class="btn btn-primary" href="{{url_for('ise_ops.home')}}" role="button">Back To Home</a></p>
 					</div>
 				</div>
 			</div>

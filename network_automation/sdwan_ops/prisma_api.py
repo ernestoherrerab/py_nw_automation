@@ -15,7 +15,7 @@ from panapi.config.objects import Address, AddressGroup, Tag
 
 
 ### LOGGING SETUP ###
-LOG_FILE = Path("logs/tunnel_provision.log")
+LOG_FILE = Path("logs/sdwan_ops.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler(LOG_FILE)

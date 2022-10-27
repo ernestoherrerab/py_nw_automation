@@ -10,7 +10,7 @@ from vmanage.api.device_templates import DeviceTemplates
 from vmanage.api.feature_templates import FeatureTemplates
 
 ### LOGGING SETUP ###
-LOG_FILE = Path("logs/tunnel_provision.log")
+LOG_FILE = Path("logs/sdwan_ops.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler(LOG_FILE)

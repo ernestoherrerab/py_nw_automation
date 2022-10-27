@@ -12,14 +12,13 @@ import network_automation.sdwan_ops.sdwan_api as sdwan
 
 
 ### LOGGING SETUP ###
-LOG_FILE = Path("logs/tunnel_provision.log")
+LOG_FILE = Path("logs/sdwan_ops.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler(LOG_FILE)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-logger.info("Begin tunnel provisioning")
 
 def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname_ip_set: set, public_ip: list, tunnel_ips: list) -> list:
     """ Create SDWAN IPSec Tunnels

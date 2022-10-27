@@ -1,4 +1,5 @@
 .env
+nano.save
 archive/
 __pycache__/
 test.py

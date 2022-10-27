@@ -8,9 +8,9 @@ from network_automation.sdwan_ops import sdwan_ops
 import network_automation.sdwan_ops.prisma_access.provision_tunnel as prisma_tunnels
 
 TEMPLATE_DIR = "sdwan_ops"
-LOG_FILE = Path("logs/tunnel_provision.log")
+LOG_FILE = Path("logs/sdwan_ops.log")
 
-### SDWAN HOSTNAME CHANGE ###
+### SDWAN OPS HOME ###
 
 @sdwan_ops.route("/home")
 def home():

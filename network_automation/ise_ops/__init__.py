@@ -4,4 +4,4 @@ Creates the Blueprint for the secondary app
 """
 from flask import Blueprint
 
-ise_mac_bypass = Blueprint("ise_mac_bypass", __name__)
+ise_ops = Blueprint("ise_ops", __name__)

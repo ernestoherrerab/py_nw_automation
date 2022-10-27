@@ -11,7 +11,7 @@ import network_automation.sdwan_ops.prisma_access.prisma_access as prisma
 import network_automation.sdwan_ops.prisma_access.sdwan as sdwan
 
 ### LOGGING SETUP ###
-LOG_FILE = Path("logs/tunnel_provision.log")
+LOG_FILE = Path("logs/sdwan_ops.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler(LOG_FILE)
