@@ -7,6 +7,7 @@ import sys
 import csv
 from decouple import config
 import logging
+from math import ceil
 from pathlib import Path
 import urllib3
 import network_automation.ise_ops.api_calls as api
@@ -101,11 +102,17 @@ def mac_bypass(username, password, manual_data=None):
 
     ### GET ALL MACS IN THE GUEST-MAB GROUP TO REMOVE ALREADY EXISTING ENTRIES ###
     guest_mab = api.get_operations(
-        f'endpoint?filter=groupId.EQ.{GUEST_MAB_ID}&?size=100&page=1', URL, username, password
+        f'endpoint?filter=groupId.EQ.{GUEST_MAB_ID}&size=100&page=1', URL, username, password
     )
-    logger.info(f'Getting all MACs in Guest MAB to check if entry exists')
-    print("The Guest MAB")
-    print(guest_mab)
+    logger.info(f'Getting the first page of MACs in Guest MAB to check if entry exists')
+    total_entries = guest_mab["SearchResult"]["total"]
+    if total_entries > 100:
+        pages = ceil(total_entries / 20) 
+        for i in range(2, pages + 1):    
+            sec_guest_mab = api.get_operations(
+                f'endpoint?filter=groupId.EQ.{GUEST_MAB_ID}&page={i}', URL, username, password
+            )
+            guest_mab["SearchResult"]["resources"].extend(sec_guest_mab["SearchResult"]["resources"])
     if guest_mab == 401:
         del_files()
         return guest_mab

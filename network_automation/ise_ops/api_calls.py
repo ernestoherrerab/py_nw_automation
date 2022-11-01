@@ -26,7 +26,6 @@ def get_operations(ops_type: str, url_var: str, username: str, password: str) ->
     )
     if ops_get.status_code == 200:
         ops_data = loads(ops_get.text)
-        print(ops_data)
         logger.info(f'API Call: {ops_get.status_code} {ops_data}')
         ops_get.close()
         return ops_data
