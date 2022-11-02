@@ -159,7 +159,7 @@ def del_endpoints(username, password, manual_data=None):
                 mac_list.append(mac)
     elif not dir_contents:
         for mac_add in manual_data:
-            mac_list.append(mac_add["mac_address"])
+            mac_list.append(mac_add["mac_address"].upper())
     
     ### EVALUATE IF INPUT DATA EXISTS AND DELETE IT ###
     guest_mab = api.get_operations(
