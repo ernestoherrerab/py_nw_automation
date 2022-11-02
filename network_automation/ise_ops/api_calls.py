@@ -63,9 +63,12 @@ def del_operations(ops_type: str, url_var: str, username: str, password: str):
     )
     if ops_del.status_code == 401:
         ops_del.close()
+        logger.info(f'API Call: {ops_del.status_code} Request Failed...Unknown why')
         return ops_del.status_code
-    ops_del.raise_for_status()
-    return ops_del.status_code
+    elif ops_del.status_code == 204:
+        ops_del.close()
+        logger.info(f'API Call: {ops_del.status_code} MAC Deleted...')
+        return ops_del.status_code
 
 def post_operations(
     ops_type: str, operations_data: dict, url_var: str, username: str, password: str
@@ -77,21 +80,43 @@ def post_operations(
     ops_post = post(
         url, headers=headers, auth=(username, password), json=payload, verify=False
     )
-    ops_post.raise_for_status()
-    if ops_post.status_code == 200 or ops_post.status_code == 201:
-        print("POST Request Successful! Feature Updated!")
+    if ops_post.status_code == 201:
+        print("POST Request Successful!")
+        ops_post.close()
+        logger.info(f'API Call: {ops_post.status_code} POST Request Successful!')
+        return ops_post.status_code     
     elif ops_post.status_code == 400:
         print("JSON error. Check the JSON format.")
+        ops_post.close()
+        logger.error(f'API Call: {ops_post.status_code} JSON error. Check the JSON format.')
+        return ops_post.status_code
     elif ops_post.status_code == 401:
         print("Token error. Login again.")
+        ops_post.close()
+        logger.error(f'API Call: {ops_post.status_code} Authentication error.')
+        return ops_post.status_code
     elif ops_post.status_code == 403:
         print("Insufficient permissions to access this resource.")
+        ops_post.close()
+        logger.error(f'API Call: {ops_post.status_code} Insufficient permissions to access this resource.')
+        return ops_post.status_code
     elif ops_post.status_code == 409:
         print("The submitted resource conflicts with another.")
+        ops_post.close()
+        logger.error(f'API Call: {ops_post.status_code} The submitted resource conflicts with another.')
+        return ops_post.status_code
     elif ops_post.status_code == 422:
         print('Request validation error. Check "errors" array for details.')
+        ops_post.close()
+        logger.error(f'API Call: {ops_post.status_code} Request validation error. Check "errors" array for details.')
+        return ops_post.status_code
     elif ops_post.status_code == 500:
         print("Unexpected server side error.")
+        ops_post.close()
+        logger.error(f'API Call: {ops_post.status_code} Unexpected server side error.')
+        return ops_post.status_code
     else:
         print("POST Request Failed")
-    return ops_post.status_code
+        ops_post.close()
+        logger.error(f'API Call: {ops_post.status_code} Request Failed...Unknown why')
+        return ops_post.status_code

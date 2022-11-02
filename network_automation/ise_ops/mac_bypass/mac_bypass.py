@@ -49,7 +49,7 @@ def mac_bypass(username, password, manual_data=None):
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     ### VARIABLES ###
-    src_dir = Path("network_automation/ise_ops/mac_bypass/csv_data/")
+    SRC_DIR = Path("network_automation/ise_ops/mac_bypass/csv_data/")
     URL = config("ISE_URL_VAR")
     GUEST_MAB_ID = config("ISE_GUEST_MAB_ID")
     mac_list = []
@@ -58,10 +58,10 @@ def mac_bypass(username, password, manual_data=None):
     headers = {"Content-Type": "application/json", "Accept": "application/json"}
 
     ### EVALUATE IF DATA COMES FROM FILE OR MANUAL INPUT ###
-    dir_contents = any(src_dir.iterdir())
+    dir_contents = any(SRC_DIR.iterdir())
     if dir_contents:
         logger.info(f'A CSV file has been input')
-        for csv_file in src_dir.iterdir():
+        for csv_file in SRC_DIR.iterdir():
             mac_data = csv_to_dict(csv_file)
     elif not dir_contents:
         mac_data = manual_data
@@ -113,6 +113,7 @@ def mac_bypass(username, password, manual_data=None):
                 f'endpoint?filter=groupId.EQ.{GUEST_MAB_ID}&page={i}', URL, username, password
             )
             guest_mab["SearchResult"]["resources"].extend(sec_guest_mab["SearchResult"]["resources"])
+            logger.info(f'Getting the page {i} of MACs in Guest MAB to check if entry exists')
     if guest_mab == 401:
         del_files()
         return guest_mab
@@ -127,10 +128,11 @@ def mac_bypass(username, password, manual_data=None):
 
     ### ADD ENDPOINTS  ###
     for endpoint in endpoint_list:
+        print(endpoint)
         mac_address = endpoint["ERSEndPoint"]["mac"]
         print(f'Adding MAC address {mac_address} to the Guest-MAB endpoint group')
         logger.info(f'Adding MAC address {mac_address} to the Guest-MAB endpoint group')
-        post_result = api.post_operations("endpoint", endpoint, URL, username, password)    
+        post_result = api.post_operations("endpoint", endpoint, URL, username, password) 
         logger.info(f'The POST operation for {mac_address} resulted in {post_result}')  
         post_results.add(post_result)
     del_files()
@@ -140,24 +142,25 @@ def del_endpoints(username, password, manual_data=None):
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     ### VARIABLES ###
-    src_dir = Path("network_automation/ise_mac_bypass/mac_bypass/csv_data/")
+    SRC_DIR = Path("network_automation/ise_ops/mac_bypass/csv_data/")
     URL = config("ISE_URL_VAR")
     GUEST_MAB_ID = config("ISE_GUEST_MAB_ID")
     mac_list = []
     del_results = set()
 
     ### EVALUATE IF DATA COMES FROM FILE OR MANUAL INPUT ###
-    dir_contents = any(src_dir.iterdir())
+    dir_contents = any(SRC_DIR.iterdir())
     if dir_contents:
-        for csv_file in src_dir.iterdir():
+        for csv_file in SRC_DIR.iterdir():
             filename = csv_file
             mac_data = csv_to_dict(filename)
             for mac_add in mac_data:
-                mac = mac_add["MAC Address"]
+                mac = mac_add["mac_address"]
                 mac_list.append(mac)
     elif not dir_contents:
-        mac_list = manual_data
-
+        for mac_add in manual_data:
+            mac_list.append(mac_add["mac_address"])
+    
     ### EVALUATE IF INPUT DATA EXISTS AND DELETE IT ###
     guest_mab = api.get_operations(
         f"endpoint?filter=groupId.EQ.{GUEST_MAB_ID}", URL, username, password
@@ -165,14 +168,28 @@ def del_endpoints(username, password, manual_data=None):
     if guest_mab == 401:
         del_files()
         return guest_mab
-    guest_mab_members = guest_mab["SearchResult"]["resources"]
-    for guest_mac in guest_mab_members:
+    guest_mab = api.get_operations(
+        f'endpoint?filter=groupId.EQ.{GUEST_MAB_ID}&size=100&page=1', URL, username, password
+    )
+    logger.info(f'Getting the first page of MACs in Guest MAB to check if entry exists')
+    total_entries = guest_mab["SearchResult"]["total"]
+    if total_entries > 100:
+        pages = ceil(total_entries / 20) 
+        for i in range(2, pages + 1):    
+            sec_guest_mab = api.get_operations(
+                f'endpoint?filter=groupId.EQ.{GUEST_MAB_ID}&page={i}', URL, username, password
+            )
+            guest_mab["SearchResult"]["resources"].extend(sec_guest_mab["SearchResult"]["resources"])
+            logger.info(f'Getting the page {i} of MACs in Guest MAB to check if entry exists')
+
+    for guest_mac in guest_mab["SearchResult"]["resources"]:
         if guest_mac["name"] in mac_list:
             print(f'{guest_mac["name"]} does exist...deleting...')
             guest_mac_id = guest_mac["id"]
             del_result = api.del_operations(
                 f"endpoint/{guest_mac_id}", URL, username, password
             )
+            logger.info(f'Deletion of {guest_mac["name"]} in Guest MAB resulted in {del_result}')
             del_results.add(del_result)
     del_files()
     return del_results
