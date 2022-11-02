@@ -9,14 +9,13 @@ from pathlib import Path
 from requests import get, post, put, Response, RequestException
 
 ### LOGGING SETUP ###
-LOG_FILE = Path("logs/tunnel_provision.log")
+LOG_FILE = Path("logs/sdwan_ops.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler(LOG_FILE)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-logger.info("Begin tunnel provisioning")
 
 def get_operations(ops_type: str, url_var: str, headers: str) -> Response:
     """API GET operations """

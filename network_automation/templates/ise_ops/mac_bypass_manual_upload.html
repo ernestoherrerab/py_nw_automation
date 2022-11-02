@@ -5,41 +5,53 @@
         <title>CCoE Network Automation</title>
         <script language="javascript" type="text/javascript">
             function addtext() {
-                var newtext_1 = document.macForm.macAddr.value;
+                var mac_address = document.macForm.macAddr.value;
+                var device_type = document.macForm.devType.value;
                 if (document.macForm.placement[1].checked) {
                     document.macForm.outputtext.value = "";
                     }
-                document.macForm.outputtext.value += newtext_1 + "\n";
+                document.macForm.outputtext.value += mac_address + "," + device_type + "\n";
             }
             </script>
     </head>
     <body>
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-info" role="alert">
         <h1>ISE MAC Bypass<br><br></h1>
         <h4>Enter Data Manually:<br><br></h4> 
-        <form name="macForm"  action="{{url_for('ise_mac_bypass.del_ise_login')}}" method = "POST" role="form">
+        <form name="macForm"  action="{{url_for('ise_ops.add_mac_bypass')}}" method = "POST" role="form">
 			<div class="row gy-5">
-				<div class="col-3">
+				<div class="col-2">
 					<div class="p-3">
 						<label for="macAddr">MAC Address</label></td>
 						<input type="text" onfocus="this.value=''" class="form-control" id="macAddr" name="macAddr" placeholder="AA:AA:AA:AA:AA:AA">
-                            <div class="p-3">
-                                <input type="radio" name="placement" value="append" checked> Add Data
-                            </div>
-                            <div class="p-4">
-                                <input type="radio" name="placement" value="replace"> Clear
-                            </div>
-                            <input type="button" value="Add MAC Address" onClick="addtext();">
-                    </div>
+                        <label for="devType">Device Type:</label>
+						<input type="text" onfocus="this.value=''" class="form-control" id="devType" name="devType" placeholder="Device Type - See Below">
+					</div>
 				</div>
 				<div class="col-2">
-					<div class="p-4">
+					<div class="p-5">
 						<textarea name="outputtext" rows="3" cols="60"></textarea>
-                        <p><button style="width:150px" type="submit" class="btn btn-success">Submit To ISE </button></p>
-                        <p><a class="btn btn-primary" style="width:150px" href="home" role="button">Back To Home</a></p>
+                        <p><button type="submit" class="btn btn-success">Submit To ISE</button></p>  
+                        <p><a class="btn btn-primary" href="{{url_for('ise_ops.home')}}" role="button">Back To Home</a></p>
 					</div>
 				</div>
 			</div>
+			<div class="row gy-5">
+				<div class="col-6">
+					<div class="p-3">
+						<input type="radio" name="placement" value="append" checked> Add Data
+					</div>
+					<div class="p-3">
+						<input type="radio" name="placement" value="replace"> Clear
+					</div>
+				</div>
+			</div>
+			<div class="row gy-5">
+				<div class="col-3">
+					<div class="p-3">
+						<input type="button" value="Add MAC Address" onClick="addtext();">
+					</div>
+				</div>
         </form>
         <div class="alert alert-success" role="alert">
         <hr width="100%" size="8" align="center">

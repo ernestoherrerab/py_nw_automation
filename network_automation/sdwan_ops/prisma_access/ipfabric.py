@@ -10,14 +10,13 @@ from netaddr import IPAddress, cidr_merge
 import network_automation.sdwan_ops.ipfabric_api as ipfabric
 
 ### LOGGING SETUP ###
-LOG_FILE = Path("logs/tunnel_provision.log")
+LOG_FILE = Path("logs/sdwan_ops.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler(LOG_FILE)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-logger.info("Begin tunnel provisioning")
 
 def get_ipfabric_data(site_data: dict) -> tuple:    
     """"Retrieval of needed data to provision tunnels

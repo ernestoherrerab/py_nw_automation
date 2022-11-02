@@ -5,17 +5,16 @@
         <title>CCoE Network Automation</title>
     </head>
     <body>
-        <div class="alert alert-danger" role="alert">
-        <h1>ISE MAC Bypass<br><br></h1>
-        <h4>{{success}}<br><br></h4>
-        <h5>Enter Credentials:<br><br></h5>
-        <form action="{{url_for('ise_mac_bypass.del_ise_auth')}}" method = "POST" role="form">
+        <div class="alert alert-info" role="alert">
+        <h1>ISE Operations<br><br></h1>
+        <h5>Enter ISE Credentials:<br><br></h5>
+        <form action="{{url_for('ise_ops.ise_auth')}}" method = "POST" role="form">
             <div class="row g-3 align-items-center">
 				<div class="col-auto">
-					<label for="username">Username:</label>
-					<input type="text" class="form-control" id="username" name="username" placeholder="ISE Username">
-					<label for="password">Password:</label>
-					<input type="password" class="form-control" id="password" name="password" placeholder="ISE Password"><br>
+					<label for="ise_username">Username:</label>
+					<input type="text" class="form-control" id="ise_username" name="ise_username" placeholder="ISE Username">
+					<label for="ise_password">Password:</label>
+					<input type="ise_password" class="form-control" id="ise_password" name="ise_password" placeholder="ISE Password"><br>
 				</div>
 			</div>
             <button type="submit" class="btn btn-success">Log In</button>
