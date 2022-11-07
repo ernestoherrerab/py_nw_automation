@@ -108,6 +108,7 @@ def build_inventory(username, password, depth_levels):
                 site_id = site_id[0]
             input_dict[host] = {}
             input_dict[host] = dict(nr.inventory.hosts[result])
+            print(input_dict)
             try:
                 if input_dict[host] != {}:
                     for index in input_dict[host]["show_cdp_neighbors_detail"][
@@ -155,13 +156,17 @@ def build_inventory(username, password, depth_levels):
                             device_ip = device_ip[0]
                         output_dict[device_id] = {}
                         output_dict[device_id]["hostname"] = device_ip
+                        output_dict[device_id]["groups"] = []
+                        if "WS-C2960S" in input_dict[host]["show_cdp_neighbors_detail"]["index"][index]["platform"]: 
+                            output_dict[device_id]["groups"].append("ws_c2960s")
+
                         if (
                             "NX-OS"
                             in input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
                             ]["software_version"]
                         ):
-                            output_dict[device_id]["groups"] = ["nxos_devices"]
+                            output_dict[device_id]["groups"].append("nxos_devices")
                         elif (
                             input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
@@ -172,16 +177,16 @@ def build_inventory(username, password, depth_levels):
                             ]["capabilities"] == "Trans-Bridge"
 
                         ):
-                            output_dict[device_id]["groups"] = ["ap_devices"]
+                            output_dict[device_id]["groups"].append("ap_devices")
                         elif (
                             "IOS"
                             in input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
                             ]["software_version"]
                         ):
-                            output_dict[device_id]["groups"] = ["ios_devices"]
+                            output_dict[device_id]["groups"].append("ios_devices")
                         else:
-                            output_dict[device_id]["groups"] = ["unmanaged_devices"]
+                            output_dict[device_id]["groups"].append("unmanaged_devices")
             except TypeError as e:
                 print(e)
 
