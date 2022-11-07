@@ -7,7 +7,7 @@ from decouple import config
 from flask import Flask, render_template, redirect
 import logging
 from pathlib import Path
-from network_automation.audit_manager.views import audit_manager
+from network_automation.standards_ops.views import standards_ops
 from network_automation.hostname_changer.views import hostname_changer
 from network_automation.ise_ops.views import ise_ops
 from network_automation.mac_finder.views import mac_finder
@@ -30,7 +30,7 @@ LOG_FILE = Path("logs/flask.log")
 logging.basicConfig(filename=LOG_FILE, level=logging.INFO)
 
 ### REGISTER BLUEPRINTS OF SECONDARY APPS ###
-app.register_blueprint(audit_manager, url_prefix="/audit-manager")
+app.register_blueprint(standards_ops, url_prefix="/standards-ops")
 app.register_blueprint(hostname_changer, url_prefix="/hostname-changer")
 app.register_blueprint(ise_ops, url_prefix="/ise-ops")
 app.register_blueprint(mac_finder, url_prefix="/mac-finder")

@@ -7,21 +7,21 @@ from pathlib import Path
 from ciscoconfparse import CiscoConfParse
 from yaml import dump
 from yaml import SafeDumper
-import network_automation.audit_manager.audit_manager.getConfig as get_config
-import network_automation.audit_manager.audit_manager.parsers.getAAA as getAAA
-import network_automation.audit_manager.audit_manager.parsers.getACL as getACL
-import network_automation.audit_manager.audit_manager.parsers.getBase as getBase
-import network_automation.audit_manager.audit_manager.parsers.getBGP as getBGP
-import network_automation.audit_manager.audit_manager.parsers.getInterfaces as getInterfaces
-import network_automation.audit_manager.audit_manager.parsers.getNTP as getNTP
-import network_automation.audit_manager.audit_manager.parsers.getPrefixList as getPrefixList
-import network_automation.audit_manager.audit_manager.parsers.getRouteMap as getRouteMap
-import network_automation.audit_manager.audit_manager.parsers.getSNMP as getSNMP
-import network_automation.audit_manager.audit_manager.parsers.getStatic as getStatic
-import network_automation.audit_manager.audit_manager.parsers.getSTP as getSTP
-import network_automation.audit_manager.audit_manager.parsers.getSVI as getSVI
-import network_automation.audit_manager.audit_manager.parsers.getVLAN as getVLAN
-import network_automation.audit_manager.audit_manager.parsers.getVRF as getVRF
+import network_automation.standards_ops.audit_manager.getConfig as get_config
+import network_automation.standards_ops.audit_manager.parsers.getAAA as getAAA
+import network_automation.standards_ops.audit_manager.parsers.getACL as getACL
+import network_automation.standards_ops.audit_manager.parsers.getBase as getBase
+import network_automation.standards_ops.audit_manager.parsers.getBGP as getBGP
+import network_automation.standards_ops.audit_manager.parsers.getInterfaces as getInterfaces
+import network_automation.standards_ops.audit_manager.parsers.getNTP as getNTP
+import network_automation.standards_ops.audit_manager.parsers.getPrefixList as getPrefixList
+import network_automation.standards_ops.audit_manager.parsers.getRouteMap as getRouteMap
+import network_automation.standards_ops.audit_manager.parsers.getSNMP as getSNMP
+import network_automation.standards_ops.audit_manager.parsers.getStatic as getStatic
+import network_automation.standards_ops.audit_manager.parsers.getSTP as getSTP
+import network_automation.standards_ops.audit_manager.parsers.getSVI as getSVI
+import network_automation.standards_ops.audit_manager.parsers.getVLAN as getVLAN
+import network_automation.standards_ops.audit_manager.parsers.getVRF as getVRF
 
 
 class NoAliasDumper(SafeDumper):

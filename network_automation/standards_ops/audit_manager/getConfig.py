@@ -32,7 +32,7 @@ def init_nornir(username, password, task_name, site_id=""):
     """INITIALIZES NORNIR SESSIONS"""
 
     nr = InitNornir(
-        config_file="network_automation/audit_manager/audit_manager/config/config.yml"
+        config_file="network_automation/standards_ops/config/config.yml"
     )
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
@@ -86,8 +86,8 @@ def build_inventory(username, password, depth_levels):
     DOMAIN_NAME_2 = config("DOMAIN_NAME_2")
     input_dict = {}
     output_dict = {}
-    inv_path_file = (
-        Path("network_automation/audit_manager/audit_manager/inventory/") / "hosts.yml"
+    INV_PATH_FILE = (
+        Path("network_automation/standards_ops/inventory/") / "hosts.yml"
    )
     levels = 1
 
@@ -194,11 +194,11 @@ def build_inventory(username, password, depth_levels):
                 output_dict.pop(key, None)
 
         ### BUILDING INVENTORY FILE ###
-        with open(inv_path_file) as f:
+        with open(INV_PATH_FILE) as f:
             inv_dict = load(f, Loader=FullLoader)
         inv_tmp = {**output_dict, **inv_dict}
         yaml_inv = dump(inv_tmp, default_flow_style=False)
-        with open(inv_path_file, "w+") as open_file:
+        with open(INV_PATH_FILE, "w+") as open_file:
             open_file.write("\n" + yaml_inv)
         levels += 1    
     return site_id
