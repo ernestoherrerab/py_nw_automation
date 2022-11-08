@@ -4,16 +4,27 @@ Creates the views (routes) for the secondary app
 """
 from decouple import config
 from flask import render_template, request, redirect, session, url_for
+import logging
 from pathlib import Path
 from yaml import dump
 from network_automation.standards_ops import standards_ops
 import network_automation.standards_ops.audit_manager.audit as audit
+import network_automation.standards_ops.aaa.apply_aaa as do_aaa
 
+### LOGGING SETUP ###
+LOG_FILE = Path("logs/standards_ops.log")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+file_handler = logging.FileHandler(LOG_FILE)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 AUDIT_MANAGER_INV_DIR = Path("network_automation/standards_ops/inventory/")
 TEMPLATE_DIR = "standards_ops"
+LOG_FILE = Path("logs/standards_ops.log")
 
 ### VIEW TO CREATE DATA ###
 @standards_ops.route("/home")
@@ -47,6 +58,20 @@ def audit_manager():
     Audit Manager Home Data input
     """
     return render_template(f"{TEMPLATE_DIR}/audit_manager.html")
+
+@standards_ops.route("/aaa_manager")
+def aaa_manager():
+    """ 
+    AAA Manager Home Data input
+    """
+    return render_template(f"{TEMPLATE_DIR}/aaa_manager.html")
+
+@standards_ops.route("/aaa")
+def aaa():
+    """ 
+    Apply AAA Standards Home Data input
+    """
+    return render_template(f"{TEMPLATE_DIR}/aaa_manager.html")
 
 @standards_ops.route("/do_audit", methods=["POST"])
 def do_audit():
@@ -84,8 +109,18 @@ def do_audit():
         audit.do_audit(username, password, depth_levels)
         return render_template(f"{TEMPLATE_DIR}/audit_results.html")
         
-### ERROR & SUCCESS VIEWS ###
+@standards_ops.route("/apply_aaa", methods=["POST"])
+def apply_aaa():
+    if request.method == "POST":
+        site_code = request.form["siteId"]
+        username = session.get("cli_username")
+        password = session.get("cli_password")
+        logger.info(f'Applying AAA standards to {site_code}')
+        results = do_aaa.apply_aaa(site_code, username, password)
+        
+        return render_template(f"{TEMPLATE_DIR}/aaa_results.html")
 
+### ERROR & SUCCESS VIEWS ###
 @standards_ops.route("/audit_results")
 def audit_results():
     return render_template(f"{TEMPLATE_DIR}/audit_results.html")

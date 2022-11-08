@@ -108,7 +108,7 @@ def build_inventory(username, password, depth_levels):
                 site_id = site_id[0]
             input_dict[host] = {}
             input_dict[host] = dict(nr.inventory.hosts[result])
-            print(input_dict)
+
             try:
                 if input_dict[host] != {}:
                     for index in input_dict[host]["show_cdp_neighbors_detail"][
