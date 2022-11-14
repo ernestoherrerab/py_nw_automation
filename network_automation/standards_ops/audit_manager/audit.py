@@ -57,7 +57,7 @@ def do_audit(username, password, depth_levels=3):
 
         #### PARSE AAA & DUMP INTO FILE ###
         print("Getting AAA Configs...")
-        dev_data[dev_config[0]] = getAAA.audit_aaa(parse_obj)
+        dev_data[dev_config[0]] = getAAA.audit_aaa(parse_obj, dev_config[0])
         build_yml_file("aaa", dev_data[dev_config[0]], dev_audit_path)
 
         #### PARSE NTP & CLOCK & DUMP INTO FILE ###

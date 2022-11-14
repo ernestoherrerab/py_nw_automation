@@ -7,7 +7,8 @@ from pathlib import Path
 from yaml import dump, load
 from yaml.loader import FullLoader
 import network_automation.standards_ops.audit_inv as build_inv
-import network_automation.standards_ops.nornir_tasks as nornir
+import network_automation.standards_ops.aaa.configure_aaa as aaa
+import network_automation.standards_ops.nornir_commands as nornir
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/standards_ops.log")
@@ -28,25 +29,44 @@ def apply_aaa(site_code: str, username: str, password: str):
     """
     ### VARS ###
     INV_DIR = Path("network_automation/standards_ops/inventory/hosts.yml")
-
-    ### LOAD INVENTORY AS DICT ###
-    with open(INV_DIR) as f:
-        inv_dict = load(f, Loader=FullLoader)
+    AUDITS_DIR = Path(f'file_display/public/documentation/{site_code}/audits/')
+    aaa_data = []
 
     ### BUILD THE SITE INVENTORY ###
     build_inv.build_audit_inv(site_code)
     logger.info(f'Nornir: Build inventory file for {site_code}')
 
-    ### GET THE VERSION OUTPUT ###
+    ### LOAD INVENTORY AS DICT ###
+    with open(INV_DIR) as f:
+        inv_dict = load(f, Loader=FullLoader)
+
+     ### GET THE VERSION OUTPUT ###
     results = nornir.init_nornir(username, password, nornir.get_version_task)
     logger.info(f'Nornir: Retrieved "show version" output')
 
     for key, value in results.items():
         if "chassis" in value["version"] and "WS-C2960S" in value["version"]["chassis"]:
             inv_dict[key]["groups"].append("ws_c2960s")
-
-    ### DUMP INVENTORY DICTIOANRY ###
+            ### LOAD AAA DATA AS DICT ###
+            host_dir = Path(f'{key}/aaa.yml')
+            with open(AUDITS_DIR / host_dir) as f:
+                aaa_dict = load(f, Loader=FullLoader)
+                aaa_data.append(aaa_dict)
+        elif "chassis" in value["version"] and "WS-C3560X" in value["version"]["chassis"]:
+            inv_dict[key]["groups"].append("ws_c3560x")
+            ### LOAD AAA DATA AS DICT ###
+            host_dir = Path(f'{key}/aaa.yml')
+            with open(AUDITS_DIR / host_dir) as f:
+                aaa_dict = load(f, Loader=FullLoader)
+                aaa_data.append(aaa_dict)
+    
+    ### DUMP INVENTORY DICTIONARY ###
     with open(INV_DIR, "w+") as open_file:
         open_file.write("\n" + dump(inv_dict, default_flow_style=False))
+
+    ### BUILD CONFIGURATION FILE ###
+    aaa.replace_aaa(username, password, aaa_data)
+
+    
 
     return str(results)

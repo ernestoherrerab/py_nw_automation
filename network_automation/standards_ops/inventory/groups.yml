@@ -37,3 +37,6 @@ ap_devices:
 
 ws_c2960s:
   {}
+
+ws_c3560x:
+  {}

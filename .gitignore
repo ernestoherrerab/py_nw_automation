@@ -4,6 +4,7 @@ archive/
 __pycache__/
 test.py
 network_automation/standards_ops/inventory/hosts.yml
+network_automation/standards_ops/aaa/configs/
 network_automation/hostname_changer/hostname_changer/host_references/
 network_automation/hostname_changer/hostname_changer/inventory/hosts.yml
 network_automation/ise_mac_bypass/mac_bypass/csv_data/
