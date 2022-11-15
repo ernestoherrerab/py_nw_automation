@@ -18,7 +18,6 @@ def audit_aaa(parse_obj, hostname):
     aaa_radius_lines = parse_obj.find_objects(r"^radius-server")
     aaa_radius_group_lines = parse_obj.find_objects(r"^aaa server radius")
     aaa_usernames_lines = parse_obj.find_objects(r"^username")
-    aaa_enable_line = parse_obj.find_objects(r"^enable ")
     aaa_console_lines = parse_obj.find_objects(r"^line con")
     aaa_vty_lines = parse_obj.find_objects(r"^line vty")
     dev_data[hostname]["authentication"] = []
@@ -29,19 +28,24 @@ def audit_aaa(parse_obj, hostname):
     dev_data[hostname]["radius_server"] = []
     dev_data[hostname]["radius_server_group"] = []
     dev_data[hostname]["local_users"] = []
-    dev_data[hostname]["console"] = []
-    dev_data[hostname]["vtys"] = []
-    if aaa_enable_line:
-        dev_data[hostname]["enable_pass"] = aaa_enable_line[0].text
+    dev_data[hostname]["line_console_0"] = []
+    dev_data[hostname]["line_vty_0_15"] = []
     if aaa_tacacs_source_if_line:
-        dev_data[hostname]["tacacs_source_interface"] = aaa_tacacs_source_if_line[0].text
+        dev_data[hostname]["tacacs_source_interface"] = []
+        aaa_tacacs_source_if_line = aaa_tacacs_source_if_line[0].text  
+        dev_data[hostname]["tacacs_source_interface"].append( aaa_tacacs_source_if_line)   
     for aaa_authentication_line in aaa_authentication_lines:
         dev_data[hostname]["authentication"].append(aaa_authentication_line.text)
     for aaa_authorization_line in aaa_authorization_lines:
         aaa_authorization_line = aaa_authorization_line.text
         dev_data[hostname]["authorization"].append(aaa_authorization_line)
     for aaa_accounting_line in aaa_accounting_lines:
-        dev_data[hostname]["accounting"].append(aaa_accounting_line.text)
+        aaa_accounting_line = aaa_accounting_line.text
+        aaa_accounting_start_stop = re.findall(r'aaa\saccounting\ssystem\sdefault', aaa_accounting_line)
+        if aaa_accounting_start_stop: 
+            dev_data[hostname]["accounting"].append(aaa_accounting_start_stop[0])
+        else:
+            dev_data[hostname]["accounting"].append(aaa_accounting_line)
     for aaa_tacacs_line in aaa_tacacs_lines:
         aaa_tacacs_line = aaa_tacacs_line.text
         dev_data[hostname]["tacacs_server"].append(aaa_tacacs_line)
@@ -57,12 +61,12 @@ def audit_aaa(parse_obj, hostname):
     for aaa_console_line in aaa_console_lines:
         for aaa_console_access in aaa_console_line.children:
             aaa_console_access = aaa_console_access.text
-            dev_data[hostname]["console"].append(aaa_console_access[1:])
+            dev_data[hostname]["line_console_0"].append(aaa_console_access[1:])
     for aaa_vty_line in aaa_vty_lines:
         for aaa_vty_access in aaa_vty_line.children:
             aaa_vty_access = aaa_vty_access.text
             aaa_vty_transport_ssh = re.match(r'\stransport\sinput\sssh', aaa_vty_access )
             if  not aaa_vty_transport_ssh:
-                dev_data[hostname]["vtys"].append(aaa_vty_access[1:])        
+                dev_data[hostname]["line_vty_0_15"].append(aaa_vty_access[1:])        
 
     return dev_data

@@ -3,7 +3,7 @@
 Creates the views (routes) for the secondary app
 """
 from decouple import config
-from flask import render_template, request, redirect, session, url_for
+from flask import render_template, request, redirect, send_file, session, url_for
 import logging
 from pathlib import Path
 from yaml import dump
@@ -117,10 +117,28 @@ def apply_aaa():
         password = session.get("cli_password")
         logger.info(f'Applying AAA standards to {site_code}')
         results = do_aaa.apply_aaa(site_code, username, password)
-        
-        return render_template(f"{TEMPLATE_DIR}/aaa_results.html")
+       
+        if results:
+            return render_template(f"{TEMPLATE_DIR}/aaa_results_success.html")
+        elif not results:
+            return render_template(f"{TEMPLATE_DIR}/aaa_results_failure.html")
+
+@standards_ops.route("standards_log_file")
+def standards_log_file():
+    """ 
+    Download Log File
+    """
+    return send_file(f'./../{str(LOG_FILE)}', as_attachment=True)
 
 ### ERROR & SUCCESS VIEWS ###
-@standards_ops.route("/audit_results")
+@standards_ops.route("/audit_results_success")
 def audit_results():
-    return render_template(f"{TEMPLATE_DIR}/audit_results.html")
+    return render_template(f"{TEMPLATE_DIR}/audit_results_success.html")
+
+@standards_ops.route("/aaa_results_success")
+def aaa_results_success():
+    return render_template(f"{TEMPLATE_DIR}/aaa_results_success.html")
+
+@standards_ops.route("/aaa_results_failure")
+def aaa_results_failure():
+    return render_template(f"{TEMPLATE_DIR}/aaa_results_failure.html")
