@@ -116,12 +116,13 @@ def apply_aaa():
         username = session.get("cli_username")
         password = session.get("cli_password")
         logger.info(f'Applying AAA standards to {site_code}')
-        results = do_aaa.apply_aaa(site_code, username, password)
+        results, failed_hosts = do_aaa.apply_aaa(site_code, username, password)
+        print(results, failed_hosts)
        
-        if results:
+        if results == {True}:
             return render_template(f"{TEMPLATE_DIR}/aaa_results_success.html")
-        elif not results:
-            return render_template(f"{TEMPLATE_DIR}/aaa_results_failure.html")
+        else:
+            return render_template(f"{TEMPLATE_DIR}/aaa_results_failure.html", failed_hosts=failed_hosts)
 
 @standards_ops.route("standards_log_file")
 def standards_log_file():

@@ -45,15 +45,16 @@ def apply_aaa(site_code: str, username: str, password: str):
     for key, value in results.items():
         if "chassis" in value["version"] and "WS-C2960S" in value["version"]["chassis"]:
             inv_dict[key]["groups"].append("ws_c2960s")
-
         elif "chassis" in value["version"] and "WS-C3560X" in value["version"]["chassis"]:
             inv_dict[key]["groups"].append("ws_c3560x")
+        elif "chassis" in value["version"] and "WS-C2960X" in value["version"]["chassis"]:
+            inv_dict[key]["groups"].append("ws_c2960x")
     
     ### DUMP INVENTORY DICTIONARY ###
     with open(INV_DIR, "w+") as open_file:
         open_file.write("\n" + dump(inv_dict, default_flow_style=False))
 
     ### BUILD CONFIGURATION FILE ###
-    result = aaa.replace_aaa(username, password, site_code)
-
-    return result
+    result, failed_hosts = aaa.replace_aaa(username, password, site_code)
+    
+    return result, failed_hosts

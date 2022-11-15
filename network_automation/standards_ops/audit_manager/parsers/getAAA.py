@@ -23,11 +23,6 @@ def audit_aaa(parse_obj, hostname):
     dev_data[hostname]["authentication"] = []
     dev_data[hostname]["authorization"] = []
     dev_data[hostname]["accounting"] = []
-    dev_data[hostname]["tacacs_server"] = []
-    dev_data[hostname]["tacacs_server_group"] = []
-    dev_data[hostname]["radius_server"] = []
-    dev_data[hostname]["radius_server_group"] = []
-    dev_data[hostname]["local_users"] = []
     dev_data[hostname]["line_console_0"] = []
     dev_data[hostname]["line_vty_0_15"] = []
     if aaa_tacacs_source_if_line:
@@ -46,18 +41,28 @@ def audit_aaa(parse_obj, hostname):
             dev_data[hostname]["accounting"].append(aaa_accounting_start_stop[0])
         else:
             dev_data[hostname]["accounting"].append(aaa_accounting_line)
-    for aaa_tacacs_line in aaa_tacacs_lines:
-        aaa_tacacs_line = aaa_tacacs_line.text
-        dev_data[hostname]["tacacs_server"].append(aaa_tacacs_line)
-    for aaa_radius_line in aaa_radius_lines:
-        aaa_radius_line = aaa_radius_line.text
-        dev_data[hostname]["radius_server"].append(aaa_radius_line)
-    for aaa_usernames_line in aaa_usernames_lines:
-        dev_data[hostname]["local_users"].append(aaa_usernames_line.text)
-    for aaa_tacacs_group_line in aaa_tacacs_group_lines:
-        dev_data[hostname]["tacacs_server_group"].append(aaa_tacacs_group_line.text)
-    for aaa_radius_group_line in aaa_radius_group_lines:
-        dev_data[hostname]["radius_server_group"].append(aaa_radius_group_line.text)            
+    if aaa_tacacs_lines:
+        dev_data[hostname]["tacacs_server"] = []
+        for aaa_tacacs_line in aaa_tacacs_lines:
+            aaa_tacacs_line = aaa_tacacs_line.text
+            dev_data[hostname]["tacacs_server"].append(aaa_tacacs_line)
+    if aaa_radius_lines:
+        dev_data[hostname]["radius_server"] = []
+        for aaa_radius_line in aaa_radius_lines:
+            aaa_radius_line = aaa_radius_line.text
+            dev_data[hostname]["radius_server"].append(aaa_radius_line)
+    if aaa_usernames_lines:
+        dev_data[hostname]["local_users"] = []
+        for aaa_usernames_line in aaa_usernames_lines:
+            dev_data[hostname]["local_users"].append(aaa_usernames_line.text)
+    if aaa_tacacs_group_lines:
+        dev_data[hostname]["tacacs_server_group"] = []
+        for aaa_tacacs_group_line in aaa_tacacs_group_lines:
+            dev_data[hostname]["tacacs_server_group"].append(aaa_tacacs_group_line.text)
+    if aaa_radius_group_lines:
+        dev_data[hostname]["radius_server_group"] = []
+        for aaa_radius_group_line in aaa_radius_group_lines:
+            dev_data[hostname]["radius_server_group"].append(aaa_radius_group_line.text)            
     for aaa_console_line in aaa_console_lines:
         for aaa_console_access in aaa_console_line.children:
             aaa_console_access = aaa_console_access.text

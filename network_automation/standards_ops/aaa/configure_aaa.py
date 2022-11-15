@@ -5,7 +5,7 @@ Delete and Configure AAA standard configurations
 import logging
 from pathlib import Path
 from nornir_scrapli.tasks import send_configs_from_file
-from yaml import dump, load
+from yaml import load
 from yaml.loader import FullLoader
 from nornir import InitNornir
 from nornir.core.filter import F
@@ -85,6 +85,49 @@ def del_files():
     except IOError as e:
         print(e)
 
+def aaa_operation(nr, platforms: list, site_code: str):
+    """Run Nornir Tasks
+    """
+
+    ### VARS ### 
+    failed_hosts = []
+    dry_run = True
+    results_set = set()
+
+    for platform in platforms:
+        ### FILTER HOSTS BY PLATFORM ###
+        platform_devs = nr.filter(F(groups__contains=platform))
+        platform_hosts = platform_devs.inventory.hosts
+        logger.info(f'Nornir: Grouped {platform} devs')
+
+        ### BUILD PLATFORM CONFIGURATION FILE ###
+        for platform_host in platform_hosts.keys():
+            platform_gold_file = f'{platform}.txt'
+            build_staging_file(site_code, platform_host, platform_gold_file)
+
+       ### APPLY CHANGES TO PLATFORM ###
+        platform_results = platform_devs.run(aaa_send_config)
+
+        ### HANDLE RESULTS FOR PLATFORM ###
+        for key in platform_results.keys():
+            if not platform_results[key][0].failed:
+                dry_run = False
+            else:
+                failed_hosts.append(key)
+                del_files()
+                print(f'{platform} hosts Failed')
+                logger.error(f'Nornir: {platform} Hosts Failed {failed_hosts}')
+                results_set.add(True)
+
+        print(f'Failed Hosts: {failed_hosts}')
+        if not dry_run:
+            platform_results = platform_devs.run(aaa_send_config, dry_run=False)
+            del_files()
+            logger.info(f'Nornir: AAA configurations Applied')
+            print("Line 149")
+            results_set.add(True)
+    return results_set, failed_hosts
+
 def replace_aaa(username: str, password: str, site_code: str):
     """Delete and configure AAA
 
@@ -94,9 +137,11 @@ def replace_aaa(username: str, password: str, site_code: str):
     task_name (task): Name of Nornir task to run
     
     """
+    ### VARS ###
+    ### THE BELOW ARE THE SUPPORTED PLATFORMS ###
+    supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x"]
+
     ### INITIALIZE NORNIR ###
-    dry_run = True
-    failed_hosts = []
     nr = InitNornir(
         config_file="network_automation/standards_ops/config/config.yml"
     )
@@ -104,57 +149,6 @@ def replace_aaa(username: str, password: str, site_code: str):
     nr.inventory.defaults.password = password
     logger.info("Nornir: Session Initiated")
 
-    ### RUN NORNIR TASK ###
-    ws2960s_devs = nr.filter(F(groups__contains="ws_c2960s"))
-    logger.info(f'Nornir: Grouped 2960S devs')
-    ws_c3560x_devs = nr.filter(F(groups__contains="ws_c3560x"))
-    logger.info(f'Nornir: Grouped 3560x devs')
-    ws2960s_hosts = ws2960s_devs.inventory.hosts
-    ws_c3560x_hosts = ws_c3560x_devs.inventory.hosts
-   
-    ### BUILD 2960S CONFIGURATION FILE ###
-    for ws2960_host in ws2960s_hosts.keys():
-        ws2960s_gold_file = "ws_2960s.txt"
-        build_staging_file(site_code, ws2960_host, ws2960s_gold_file)
-    
-    ### APPLY CHANGES TO 2960S ###
-    ws2960s_results = ws2960s_devs.run(aaa_send_config)
+    results = aaa_operation(nr, supported_platforms, site_code)
 
-    ### BUILD 3560X CONFIGURATION FILE ###
-    for ws_c3560x_host in ws_c3560x_hosts.keys():
-        ws_c3560x_gold_file = "ws_c3560x.txt"
-        build_staging_file(site_code, ws_c3560x_host, ws_c3560x_gold_file)
-
-    ### APPLY CHANGES TO 3560X ###
-    ws3560x_results = ws_c3560x_devs.run(aaa_send_config)
-    
-    ### HANDLE RESLTS 3560X ###
-    for key in ws3560x_results.keys():
-        if not ws3560x_results[key][0].failed:
-            dry_run = False
-        else:
-            failed_hosts.append(key)
-            del_files()
-            print(failed_hosts)
-            logger.error(f'Nornir: Hosts Failed {failed_hosts}')
-            print("Line 133")
-            return False
-    
-    ### HANDLE RESLTS 2960S ###
-    for key in ws2960s_results.keys():
-        if not ws2960s_results[key][0].failed:
-            dry_run = False
-        else:
-            failed_hosts.append(key)
-            del_files()
-            logger.error(f'Nornir: Hosts Failed {failed_hosts}')
-            print("Line 141")
-            return False
-    print(f'Failed Hosts: {failed_hosts}')
-    if not dry_run:
-        ws3560x_results = ws_c3560x_devs.run(aaa_send_config, dry_run=False)
-        ws2960s_results = ws2960s_devs.run(aaa_send_config, dry_run=False)
-        del_files()
-        logger.info(f'Nornir: AAA configurations Applied')
-        print("Line 149")
-        return True
+    return results
