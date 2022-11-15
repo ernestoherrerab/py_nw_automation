@@ -19,7 +19,7 @@ formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(messag
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
-def apply_aaa(site_code: str, username: str, password: str):
+def build_inventory(site_code: str, username: str, password: str):
     """Apply AAA standard configurations
 
     Args:
@@ -49,6 +49,8 @@ def apply_aaa(site_code: str, username: str, password: str):
             inv_dict[key]["groups"].append("ws_c3560x")
         elif "chassis" in value["version"] and "WS-C2960X" in value["version"]["chassis"]:
             inv_dict[key]["groups"].append("ws_c2960x")
+        elif "chassis" in value["version"] and "WS-C3750G" in value["version"]["chassis"]:
+            inv_dict[key]["groups"].append("ws_c3750g")
     
     ### DUMP INVENTORY DICTIONARY ###
     with open(INV_DIR, "w+") as open_file:

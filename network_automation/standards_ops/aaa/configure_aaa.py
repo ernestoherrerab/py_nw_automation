@@ -139,7 +139,7 @@ def replace_aaa(username: str, password: str, site_code: str):
     """
     ### VARS ###
     ### THE BELOW ARE THE SUPPORTED PLATFORMS ###
-    supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x"]
+    supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x", "ws_c3750g.txt"]
 
     ### INITIALIZE NORNIR ###
     nr = InitNornir(

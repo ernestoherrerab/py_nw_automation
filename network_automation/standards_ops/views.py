@@ -9,7 +9,7 @@ from pathlib import Path
 from yaml import dump
 from network_automation.standards_ops import standards_ops
 import network_automation.standards_ops.audit_manager.audit as audit
-import network_automation.standards_ops.aaa.apply_aaa as do_aaa
+import network_automation.standards_ops.aaa.build_inventory as do_aaa
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/standards_ops.log")
@@ -116,7 +116,7 @@ def apply_aaa():
         username = session.get("cli_username")
         password = session.get("cli_password")
         logger.info(f'Applying AAA standards to {site_code}')
-        results, failed_hosts = do_aaa.apply_aaa(site_code, username, password)
+        results, failed_hosts = do_aaa.build_inventory(site_code, username, password)
         print(results, failed_hosts)
        
         if results == {True}:
