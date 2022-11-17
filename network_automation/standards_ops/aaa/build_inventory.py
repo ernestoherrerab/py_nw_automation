@@ -41,9 +41,8 @@ def build_inventory(site_code: str, username: str, password: str):
      ### GET THE VERSION OUTPUT ###
     results = nornir.init_nornir(username, password, nornir.get_version_task)
     logger.info(f'Nornir: Retrieved "show version" output')
-
     for key, value in results.items():
-        if "chassis" in value["version"] and "WS-C2960S" in value["version"]["chassis"]:
+        if "chassis" in value["version"] and ("WS-C2960S" in value["version"]["chassis"] or "WS-C2960-24PC-S" in value["version"]["chassis"]):
             inv_dict[key]["groups"].append("ws_c2960s")
         elif "chassis" in value["version"] and "WS-C3560X" in value["version"]["chassis"]:
             inv_dict[key]["groups"].append("ws_c3560x")
@@ -58,5 +57,5 @@ def build_inventory(site_code: str, username: str, password: str):
 
     ### BUILD CONFIGURATION FILE ###
     result, failed_hosts = aaa.replace_aaa(username, password, site_code)
-    
+
     return result, failed_hosts

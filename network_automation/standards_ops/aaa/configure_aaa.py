@@ -50,7 +50,7 @@ def build_staging_file(site_code: str, host: str, gold_file: str):
     AAA_GOLD_CONFIG = Path(f'network_automation/standards_ops/aaa/configs/')
     AUDITS_DIR = Path(f'file_display/public/documentation/{site_code}/audits/')
     STAGING_DIR = Path(f'network_automation/standards_ops/staging/')
-    special_lines = ["console_0", "line_vty_0_15"]
+    special_lines = ["line_console_0", "line_vty_0_15"]
 
     with open(AAA_GOLD_CONFIG / gold_file, "r+") as gold:
         gold_config = gold.read()
@@ -60,7 +60,10 @@ def build_staging_file(site_code: str, host: str, gold_file: str):
         logger.info(f'Nornir: Loaded AAA device configuration')
     for key, value in host_aaa[host].items():
         with open(STAGING_DIR /  host, "a+") as stage:
-            if key not in special_lines:
+            if key == "local_users":
+                for line in value:
+                    stage.write(f"no {line}\n\n")
+            elif key not in special_lines:
                 for line in value:
                     stage.write(f"no {line}\n")
             else:
@@ -124,7 +127,6 @@ def aaa_operation(nr, platforms: list, site_code: str):
             platform_results = platform_devs.run(aaa_send_config, dry_run=False)
             del_files()
             logger.info(f'Nornir: AAA configurations Applied')
-            print("Line 149")
             results_set.add(True)
     return results_set, failed_hosts
 
@@ -139,6 +141,7 @@ def replace_aaa(username: str, password: str, site_code: str):
     """
     ### VARS ###
     ### THE BELOW ARE THE SUPPORTED PLATFORMS ###
+    ### WS-C2960S is grouped with WS-C2960 ###
     supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x", "ws_c3750g.txt"]
 
     ### INITIALIZE NORNIR ###
