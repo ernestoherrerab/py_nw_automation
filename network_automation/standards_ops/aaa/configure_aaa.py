@@ -60,10 +60,7 @@ def build_staging_file(site_code: str, host: str, gold_file: str):
         logger.info(f'Nornir: Loaded AAA device configuration')
     for key, value in host_aaa[host].items():
         with open(STAGING_DIR /  host, "a+") as stage:
-            if key == "local_users":
-                for line in value:
-                    stage.write(f"no {line}\n\n")
-            elif key not in special_lines:
+            if key not in special_lines:
                 for line in value:
                     stage.write(f"no {line}\n")
             else:
@@ -74,6 +71,12 @@ def build_staging_file(site_code: str, host: str, gold_file: str):
     with open(STAGING_DIR / host , "a+") as add_gold:
         add_gold.write(f'\n{gold_config}')
         logger.info(f'Nornir: Staged configuration to configure')
+    ### REMOVE SPACES ###
+    with open(STAGING_DIR / host) as filehandle:
+        lines = filehandle.readlines()
+    with open(STAGING_DIR / host, 'w') as filehandle:
+        lines = filter(str.strip, lines)
+        filehandle.writelines(lines)  
 
 def del_files():
     """ Delete staging files 
@@ -117,15 +120,15 @@ def aaa_operation(nr, platforms: list, site_code: str):
                 dry_run = False
             else:
                 failed_hosts.append(key)
-                del_files()
+                #del_files()
                 print(f'{platform} hosts Failed')
                 logger.error(f'Nornir: {platform} Hosts Failed {failed_hosts}')
                 results_set.add(True)
 
         print(f'Failed Hosts: {failed_hosts}')
         if not dry_run:
-            platform_results = platform_devs.run(aaa_send_config, dry_run=False)
-            del_files()
+            platform_results = platform_devs.run(aaa_send_config, dry_run=True)
+            #del_files()
             logger.info(f'Nornir: AAA configurations Applied')
             results_set.add(True)
     return results_set, failed_hosts
@@ -142,7 +145,7 @@ def replace_aaa(username: str, password: str, site_code: str):
     ### VARS ###
     ### THE BELOW ARE THE SUPPORTED PLATFORMS ###
     ### WS-C2960S is grouped with WS-C2960 ###
-    supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x", "ws_c3750g.txt"]
+    supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x", "ws_c3750g"]
 
     ### INITIALIZE NORNIR ###
     nr = InitNornir(
