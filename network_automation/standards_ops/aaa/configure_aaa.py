@@ -146,10 +146,18 @@ def replace_aaa(username: str, password: str, site_code: str):
     password (str): From user input
     task_name (task): Name of Nornir task to run
     
+    THE BELOW ARE THE SUPPORTED PLATFORMS 
+    WS-C2960S is grouped with WS-C2960
+    WS-C2960CX IS GROUPED WITH  WS-C2960x 
+    C9300 IS GROUPED WITH C9200 
+    WS-C3560CG & WS-C3560G  IS GROUPED WITH 3560X
     """
     ### VARS ###
     ### THE BELOW ARE THE SUPPORTED PLATFORMS ###
-    ### WS-C2960S is grouped with WS-C2960 ###
+    ### WS-C2960S is grouped with WS-C2960
+    ### WS-C2960CX IS GROUPED WITH  WS-C2960x ###
+    ### C9300 IS GROUPED WITH C9200 ###
+
     supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x", "ws_c3750g", "c9200"]
 
     ### INITIALIZE NORNIR ###

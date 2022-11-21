@@ -13,6 +13,7 @@ def audit_aaa(parse_obj, hostname):
     aaa_authorization_lines = parse_obj.find_objects(r"^aaa authorization")
     aaa_accounting_lines = parse_obj.find_objects(r"^aaa accounting")
     aaa_tacacs_lines = parse_obj.find_objects(r"^tacacs-server")
+    aaa_tacacs_servers_lines = parse_obj.find_objects(r"^tacacs\sserver\s")
     aaa_tacacs_group_lines = parse_obj.find_objects(r"^aaa group server tacacs")
     aaa_tacacs_source_if_line = parse_obj.find_objects(r'ip tacacs source-interface')
     aaa_radius_lines = parse_obj.find_objects(r"^radius-server")
@@ -27,7 +28,9 @@ def audit_aaa(parse_obj, hostname):
     if aaa_tacacs_source_if_line:
         dev_data[hostname]["tacacs_source_interface"] = []
         aaa_tacacs_source_if_line = aaa_tacacs_source_if_line[0].text  
-        dev_data[hostname]["tacacs_source_interface"].append( aaa_tacacs_source_if_line)   
+        dev_data[hostname]["tacacs_source_interface"].append( aaa_tacacs_source_if_line)
+    if aaa_tacacs_servers_lines:
+        dev_data[hostname]["tacacs_servers"] = [server.text for server in aaa_tacacs_servers_lines]
     for aaa_authentication_line in aaa_authentication_lines:
         dev_data[hostname]["authentication"].append(aaa_authentication_line.text)
     for aaa_authorization_line in aaa_authorization_lines:
