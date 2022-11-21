@@ -4,7 +4,8 @@ Delete and Configure AAA standard configurations
 """
 import logging
 from pathlib import Path
-from nornir_scrapli.tasks import send_configs_from_file
+import re
+from nornir_scrapli.tasks import send_configs
 from yaml import load
 from yaml.loader import FullLoader
 from nornir import InitNornir
@@ -26,13 +27,16 @@ def aaa_send_config(task, dry_run=True):
     Args:
     file (str): Commands file path
     """
-
     dev_file = task.host.hostname
     staging_dir = Path(f'network_automation/standards_ops/staging/{dev_file}') 
-    staging_dir = str(staging_dir)
+    
+    ### CONVERT FILE TO LIST OF COMMANDS ###
+    with open(staging_dir, "r+") as f:
+        data = f.read()
+        commands = data.split('\n')
+
     logger.info(f'Nornir: Sending config changes')
-    results = task.run(task=send_configs_from_file, file=staging_dir, dry_run=dry_run)
-    logger.info(f'Nornir: Config resulted in {results}')
+    task.run(task=send_configs, configs=commands, dry_run=dry_run)
     
 def build_staging_file(site_code: str, host: str, gold_file: str):
     """Build the configuration staging file
@@ -112,6 +116,7 @@ def aaa_operation(nr, platforms: list, site_code: str):
             build_staging_file(site_code, platform_host, platform_gold_file)
 
        ### APPLY CHANGES TO PLATFORM ###
+        print("Apply Changes")
         platform_results = platform_devs.run(aaa_send_config)
 
         ### HANDLE RESULTS FOR PLATFORM ###
@@ -120,15 +125,15 @@ def aaa_operation(nr, platforms: list, site_code: str):
                 dry_run = False
             else:
                 failed_hosts.append(key)
-                #del_files()
+                del_files()
                 print(f'{platform} hosts Failed')
                 logger.error(f'Nornir: {platform} Hosts Failed {failed_hosts}')
                 results_set.add(True)
 
         print(f'Failed Hosts: {failed_hosts}')
         if not dry_run:
-            platform_results = platform_devs.run(aaa_send_config, dry_run=True)
-            #del_files()
+            platform_results = platform_devs.run(aaa_send_config, dry_run=False)
+            del_files()
             logger.info(f'Nornir: AAA configurations Applied')
             results_set.add(True)
     return results_set, failed_hosts
@@ -145,7 +150,7 @@ def replace_aaa(username: str, password: str, site_code: str):
     ### VARS ###
     ### THE BELOW ARE THE SUPPORTED PLATFORMS ###
     ### WS-C2960S is grouped with WS-C2960 ###
-    supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x", "ws_c3750g"]
+    supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x", "ws_c3750g", "c9200"]
 
     ### INITIALIZE NORNIR ###
     nr = InitNornir(

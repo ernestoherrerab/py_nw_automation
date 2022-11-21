@@ -50,6 +50,8 @@ def build_inventory(site_code: str, username: str, password: str):
             inv_dict[key]["groups"].append("ws_c2960x")
         elif "chassis" in value["version"] and "WS-C3750G" in value["version"]["chassis"]:
             inv_dict[key]["groups"].append("ws_c3750g")
+        elif "chassis" in value["version"] and "C9200" in value["version"]["chassis"]:
+            inv_dict[key]["groups"].append("c9200")
     
     ### DUMP INVENTORY DICTIONARY ###
     with open(INV_DIR, "w+") as open_file:
