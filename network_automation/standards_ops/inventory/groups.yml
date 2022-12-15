@@ -30,7 +30,34 @@ routers:
           transport_options: {"open_cmd": ["-o", "KexAlgorithms=+diffie-hellman-group1-sha1"]}
 
 unmanaged_devices:
-    {}
+  {}
 
 ap_devices:
-    {}
+  {}
+
+sdw_routers:
+  {}
+
+ws_c2960s:
+  {}
+
+ws_c3560x:
+  {}
+
+ws_c2960x:
+ {}
+
+ws_c3750g:
+ {}
+
+c9200:
+ {}
+
+ws_c4510r:
+  {}
+
+ws_c3650:
+  {}
+
+ws_c3560cx:
+  {}

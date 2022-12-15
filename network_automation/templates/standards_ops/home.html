@@ -6,21 +6,19 @@
     </head>
     <body>
         <div class="alert alert-info" role="alert">
-        <h1>Audit Manager<br><br></h1>
-        <h5>Enter TACACS Credentials:<br><br></h5>
-        <form action="{{url_for('audit_manager.tacacs_auth')}}" method = "POST" role="form">
+        <h1>Standards Operations<br><br></h1>
+        <h5>Enter Credentials:<br><br></h5>
+        <form action="{{url_for('standards_ops.cli_auth')}}" method = "POST" role="form">
             <div class="row g-3 align-items-center">
 				<div class="col-auto">
-					<label for="username">Username:</label>
-					<input type="text" class="form-control" id="username" name="username" placeholder="TACACS Username">
-					<label for="password">Password:</label>
-					<input type="password" class="form-control" id="password" name="password" placeholder="TACACS Password"><br>
+					<label for="cli_username">Username:</label>
+					<input type="text" class="form-control" id="cli_username" name="cli_username" placeholder="Username">
+					<label for="cli_password">Password:</label>
+					<input type="password" class="form-control" id="cli_password" name="cli_password" placeholder="Password"><br>
 				</div>
 			</div>
             <button type="submit" class="btn btn-success">Log In</button>
           </form>
-          <br><h4>*Do not refresh or press the "back" button, this might take some time to process.</h4>
-          <br><h4>**Bug: An authentication failure will result in a "Internal Server Error", navigate back to the homepage.</h4>
           <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
         </div>
     </body>

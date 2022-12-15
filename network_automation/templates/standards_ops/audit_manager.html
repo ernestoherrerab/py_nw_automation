@@ -12,7 +12,7 @@
                 var depth_level = document.hostsForm.depth_val.value;
 
                 if (depth_level == "") {
-                    depth_level = "3";
+                    depth_level = "2";
                 }
                  
                 if (document.hostsForm.nos[1].checked) {
@@ -32,7 +32,7 @@
         <div class="alert alert-info" role="alert">
         <h1>Audit Manager<br><br></h1>
         <h4>Enter Required Data or View Sites Audits:<br><br></h4> 
-        <form name="hostsForm"  action="{{url_for('audit_manager.tacacs_login')}}" method = "POST" role="form">
+        <form name="hostsForm"  action="{{url_for('standards_ops.do_audit')}}" method = "POST" role="form">
 			<div class="row gy-5">
 				<div class="col-2">
 					<div class="p-3">
@@ -47,8 +47,8 @@
 					</div>
                     <div class="col-6 p-3">
                         <div class="slidecontainer">
-                            <label for="depthLevel">Select Depth Level (Default is 3)</label><br>
-                            <input type="range" min="3" max="8" value="3" class="slider" id="depthLevel" onchange="addSlider(this.value);">
+                            <label for="depthLevel">Select Depth Level (Default is 2)</label><br>
+                            <input type="range" min="2" max="8" value="3" class="slider" id="depthLevel" onchange="addSlider(this.value);">
                             <input type="hidden" id="depth_val">
                             <p id="d_val"></p>
     
@@ -69,7 +69,7 @@
 			</div>
         </form>
         <hr width="100%" size="6" align="center">
-        <h3>*Usually 4 levels is enough...</h3>
+        <h3>*Usually 3 levels is enough...</h3>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     </body>
 </html>

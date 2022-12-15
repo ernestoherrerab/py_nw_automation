@@ -32,7 +32,7 @@ def init_nornir(username, password, task_name, site_id=""):
     """INITIALIZES NORNIR SESSIONS"""
 
     nr = InitNornir(
-        config_file="network_automation/audit_manager/audit_manager/config/config.yml"
+        config_file="network_automation/standards_ops/config/config.yml"
     )
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
@@ -86,8 +86,8 @@ def build_inventory(username, password, depth_levels):
     DOMAIN_NAME_2 = config("DOMAIN_NAME_2")
     input_dict = {}
     output_dict = {}
-    inv_path_file = (
-        Path("network_automation/audit_manager/audit_manager/inventory/") / "hosts.yml"
+    INV_PATH_FILE = (
+        Path("network_automation/standards_ops/inventory/") / "hosts.yml"
    )
     levels = 1
 
@@ -155,13 +155,16 @@ def build_inventory(username, password, depth_levels):
                             device_ip = device_ip[0]
                         output_dict[device_id] = {}
                         output_dict[device_id]["hostname"] = device_ip
+                        output_dict[device_id]["groups"] = []
                         if (
                             "NX-OS"
                             in input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
                             ]["software_version"]
                         ):
-                            output_dict[device_id]["groups"] = ["nxos_devices"]
+                            output_dict[device_id]["groups"].append("nxos_devices")
+                        elif "sdw" in input_dict[host]["show_cdp_neighbors_detail"]["index"][index]["device_id"]:
+                            output_dict[device_id]["groups"].append("sdw_routers")
                         elif (
                             input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
@@ -172,16 +175,16 @@ def build_inventory(username, password, depth_levels):
                             ]["capabilities"] == "Trans-Bridge"
 
                         ):
-                            output_dict[device_id]["groups"] = ["ap_devices"]
+                            output_dict[device_id]["groups"].append("ap_devices")
                         elif (
                             "IOS"
                             in input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index
                             ]["software_version"]
                         ):
-                            output_dict[device_id]["groups"] = ["ios_devices"]
+                            output_dict[device_id]["groups"].append("ios_devices")
                         else:
-                            output_dict[device_id]["groups"] = ["unmanaged_devices"]
+                            output_dict[device_id]["groups"].append("unmanaged_devices")
             except TypeError as e:
                 print(e)
 
@@ -194,11 +197,11 @@ def build_inventory(username, password, depth_levels):
                 output_dict.pop(key, None)
 
         ### BUILDING INVENTORY FILE ###
-        with open(inv_path_file) as f:
+        with open(INV_PATH_FILE) as f:
             inv_dict = load(f, Loader=FullLoader)
         inv_tmp = {**output_dict, **inv_dict}
         yaml_inv = dump(inv_tmp, default_flow_style=False)
-        with open(inv_path_file, "w+") as open_file:
+        with open(INV_PATH_FILE, "w+") as open_file:
             open_file.write("\n" + yaml_inv)
         levels += 1    
     return site_id
