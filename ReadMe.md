@@ -7,9 +7,11 @@
 
 - Site Documentation - This a repository of all site files collected through the different apps, and are available for download.
 
-- Audit Manager - Used to create configurations as code.
+- Standards Ops  
+  1. Audit Manager - Used to create configurations as code.
+  2. Apply AAA - Used to standardize AAA configs.
 
-- Hostname Changer - Used to update hostnames for network devices (switches and APs).
+- Hostname Changer - Used to update hostnames for network devices (switches and APs) (Dephased).
 
 - ISE MAC Bypass: adds MAC addresses to a bypass list for guest users in ISE.
 

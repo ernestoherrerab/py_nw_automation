@@ -108,7 +108,6 @@ def build_inventory(username, password, depth_levels):
                 site_id = site_id[0]
             input_dict[host] = {}
             input_dict[host] = dict(nr.inventory.hosts[result])
-
             try:
                 if input_dict[host] != {}:
                     for index in input_dict[host]["show_cdp_neighbors_detail"][
@@ -157,9 +156,6 @@ def build_inventory(username, password, depth_levels):
                         output_dict[device_id] = {}
                         output_dict[device_id]["hostname"] = device_ip
                         output_dict[device_id]["groups"] = []
-                        if "WS-C2960S" in input_dict[host]["show_cdp_neighbors_detail"]["index"][index]["platform"]: 
-                            output_dict[device_id]["groups"].append("ws_c2960s")
-
                         if (
                             "NX-OS"
                             in input_dict[host]["show_cdp_neighbors_detail"]["index"][
@@ -167,6 +163,8 @@ def build_inventory(username, password, depth_levels):
                             ]["software_version"]
                         ):
                             output_dict[device_id]["groups"].append("nxos_devices")
+                        elif "sdw" in input_dict[host]["show_cdp_neighbors_detail"]["index"][index]["device_id"]:
+                            output_dict[device_id]["groups"].append("sdw_routers")
                         elif (
                             input_dict[host]["show_cdp_neighbors_detail"]["index"][
                                 index

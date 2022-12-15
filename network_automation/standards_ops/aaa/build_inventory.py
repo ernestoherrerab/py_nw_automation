@@ -41,18 +41,23 @@ def build_inventory(site_code: str, username: str, password: str):
      ### GET THE VERSION OUTPUT ###
     results = nornir.init_nornir(username, password, nornir.get_version_task)
     logger.info(f'Nornir: Retrieved "show version" output')
-    print(results.items())
     for key, value in results.items():
-        if "chassis" in value["version"] and ("WS-C2960S" in value["version"]["chassis"] or "WS-C2960-24PC-S" in value["version"]["chassis"]):
+        if "chassis" in value["version"] and ("WS-C2960S" in value["version"]["chassis"] or "WS-C2960" in value["version"]["chassis"] or "WS-C2960S" in value["version"]["chassis"] or "WS-C2960G" in value["version"]["chassis"] or "WS-C2960C" in value["version"]["chassis"]):
             inv_dict[key]["groups"].append("ws_c2960s")
         elif "chassis" in value["version"] and ("WS-C3560X" in value["version"]["chassis"] or "WS-C3560CG" in value["version"]["chassis"] or "WS-C3560G" in value["version"]["chassis"] ):
             inv_dict[key]["groups"].append("ws_c3560x")
-        elif "chassis" in value["version"] and ("WS-C2960X" in value["version"]["chassis"] or "WS-C2960CX" in value["version"]["chassis"]):
+        elif "chassis" in value["version"] and "WS-C3560CX" in value["version"]["chassis"]:
+            inv_dict[key]["groups"].append("ws_c3560cx")
+        elif "chassis" in value["version"] and ("WS-C2960X" in value["version"]["chassis"] or "WS-C2960CX" in value["version"]["chassis"] or "WS-C2960L" in value["version"]["chassis"] or "WS-C2960CPD" in value["version"]["chassis"]):
             inv_dict[key]["groups"].append("ws_c2960x")
-        elif "chassis" in value["version"] and "WS-C3750G" in value["version"]["chassis"]:
+        elif "chassis" in value["version"] and ("WS-C3750G" in value["version"]["chassis"] or "WS-C3750X" in value["version"]["chassis"]):
             inv_dict[key]["groups"].append("ws_c3750g")
-        elif "chassis" in value["version"] and ("C9200" in value["version"]["chassis"] or "C9300" in value["version"]["chassis"]):
+        elif "chassis" in value["version"] and ("C9200" in value["version"]["chassis"] or "C9300" in value["version"]["chassis"] or "C9410R" in value["version"]["chassis"] or "C9407R" in value["version"]["chassis"] or "C9500" in value["version"]["chassis"]):
             inv_dict[key]["groups"].append("c9200")
+        elif "chassis" in value["version"] and ("WS-C4510R" in value["version"]["chassis"] or "WS-C4506-E" in value["version"]["chassis"]):
+            inv_dict[key]["groups"].append("ws_c4510r")
+        elif "chassis" in value["version"] and "WS-C3650" in value["version"]["chassis"]:
+            inv_dict[key]["groups"].append("ws_c3650")
     
     ### DUMP INVENTORY DICTIONARY ###
     with open(INV_DIR, "w+") as open_file:

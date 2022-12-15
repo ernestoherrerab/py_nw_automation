@@ -4,8 +4,7 @@ Delete and Configure AAA standard configurations
 """
 import logging
 from pathlib import Path
-import re
-from nornir_scrapli.tasks import send_configs
+from nornir_scrapli.tasks import send_configs_from_file
 from yaml import load
 from yaml.loader import FullLoader
 from nornir import InitNornir
@@ -27,16 +26,13 @@ def aaa_send_config(task, dry_run=True):
     Args:
     file (str): Commands file path
     """
+
     dev_file = task.host.hostname
     staging_dir = Path(f'network_automation/standards_ops/staging/{dev_file}') 
-    
-    ### CONVERT FILE TO LIST OF COMMANDS ###
-    with open(staging_dir, "r+") as f:
-        data = f.read()
-        commands = data.split('\n')
-
+    staging_dir = str(staging_dir)
     logger.info(f'Nornir: Sending config changes')
-    task.run(task=send_configs, configs=commands, dry_run=dry_run)
+    results = task.run(task=send_configs_from_file, file=staging_dir, dry_run=dry_run)
+    logger.info(f'Nornir: Config resulted in {results}')
     
 def build_staging_file(site_code: str, host: str, gold_file: str):
     """Build the configuration staging file
@@ -64,7 +60,10 @@ def build_staging_file(site_code: str, host: str, gold_file: str):
         logger.info(f'Nornir: Loaded AAA device configuration')
     for key, value in host_aaa[host].items():
         with open(STAGING_DIR /  host, "a+") as stage:
-            if key not in special_lines:
+            if key == "local_users":
+                for line in value:
+                    stage.write(f"no {line}\n\n")
+            elif key not in special_lines:
                 for line in value:
                     stage.write(f"no {line}\n")
             else:
@@ -75,12 +74,6 @@ def build_staging_file(site_code: str, host: str, gold_file: str):
     with open(STAGING_DIR / host , "a+") as add_gold:
         add_gold.write(f'\n{gold_config}')
         logger.info(f'Nornir: Staged configuration to configure')
-    ### REMOVE SPACES ###
-    with open(STAGING_DIR / host) as filehandle:
-        lines = filehandle.readlines()
-    with open(STAGING_DIR / host, 'w') as filehandle:
-        lines = filter(str.strip, lines)
-        filehandle.writelines(lines)  
 
 def del_files():
     """ Delete staging files 
@@ -116,7 +109,6 @@ def aaa_operation(nr, platforms: list, site_code: str):
             build_staging_file(site_code, platform_host, platform_gold_file)
 
        ### APPLY CHANGES TO PLATFORM ###
-        print("Apply Changes")
         platform_results = platform_devs.run(aaa_send_config)
 
         ### HANDLE RESULTS FOR PLATFORM ###
@@ -146,18 +138,11 @@ def replace_aaa(username: str, password: str, site_code: str):
     password (str): From user input
     task_name (task): Name of Nornir task to run
     
-    THE BELOW ARE THE SUPPORTED PLATFORMS 
-    WS-C2960S, WS-C2960G, WS-C2960C, WS-C2960 (GROUPED)
-    WS-C2960CPD, WS-C2960L, WS-C2960CX, WS-C2960X (GROUPED)
-    WS-3750G, WS3750X (GROUPED)
-    C9500, C9407R, C9410R, C9300, C9200 (GROUPED)
-    WS-C3560CG & WS-C3560G, WS-C3560X (GROUPED)
-    WS-C3560CX
-    WS-C4506, WS-C4510R (GROUPED)
-    WS-C3650
     """
     ### VARS ###
-    supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x", "ws_c3750g", "c9200", "ws_c4510r", "ws_c3650",  "ws_c3560cx"]
+    ### THE BELOW ARE THE SUPPORTED PLATFORMS ###
+    ### WS-C2960S is grouped with WS-C2960 ###
+    supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x", "ws_c3750g.txt"]
 
     ### INITIALIZE NORNIR ###
     nr = InitNornir(
