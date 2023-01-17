@@ -503,6 +503,7 @@ def audit_bgp(parse_obj):
                             dev_data["router_bgp"]["address_family_ipv4_vrfs"][ipv4_vrf_af_name[0]]["neighbors"][ipv4_vrf_neighbor[0]][f'route_map_{ipv4_route_map_filter[0][1]}'] = ipv4_route_map_filter[0][0]
                     elif ipv4_vrf_neigh_match and "neighbors" in dev_data["router_bgp"]["address_family_ipv4_vrfs"][ipv4_vrf_af_name[0]]: 
                         ipv4_vrf_neighbor = re.findall(r'neighbor\s(\S+)', bgp_ipv4_vrf_params_text)
+                        ipv4_vrf_neighbor = ipv4_vrf_neighbor[0]
                         if "description" in bgp_ipv4_vrf_params_text and ipv4_vrf_neighbor not in dev_data["router_bgp"]["address_family_ipv4_vrfs"][ipv4_vrf_af_name[0]]["neighbors"]:
                             dev_data["router_bgp"]["address_family_ipv4_vrfs"][ipv4_vrf_af_name[0]]["neighbors"][ipv4_vrf_neighbor] = {} 
                             dev_data["router_bgp"]["address_family_ipv4_vrfs"][ipv4_vrf_af_name[0]]["neighbors"][ipv4_vrf_neighbor]["description"] = re.sub(r'\s\sneighbor\s\S+\sdescription\s', "", bgp_ipv4_vrf_params_text)

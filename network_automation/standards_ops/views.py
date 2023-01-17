@@ -10,6 +10,7 @@ from yaml import dump
 from network_automation.standards_ops import standards_ops
 import network_automation.standards_ops.audit_manager.audit as audit
 import network_automation.standards_ops.aaa.build_inventory as do_aaa
+import network_automation.standards_ops.ntp.build_inventory as do_ntp
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/standards_ops.log")
@@ -66,12 +67,26 @@ def aaa_manager():
     """
     return render_template(f"{TEMPLATE_DIR}/aaa_manager.html")
 
+@standards_ops.route("/ntp_manager")
+def ntp_manager():
+    """ 
+    NTP Manager Home Data input
+    """
+    return render_template(f"{TEMPLATE_DIR}/ntp_manager.html")
+
 @standards_ops.route("/aaa")
 def aaa():
     """ 
     Apply AAA Standards Home Data input
     """
     return render_template(f"{TEMPLATE_DIR}/aaa_manager.html")
+
+@standards_ops.route("/ntp")
+def ntp():
+    """ 
+    Apply NTP Standards Home Data input
+    """
+    return render_template(f"{TEMPLATE_DIR}/ntp_manager.html")
 
 @standards_ops.route("/do_audit", methods=["POST"])
 def do_audit():
@@ -120,9 +135,40 @@ def apply_aaa():
         print(results, failed_hosts)
        
         if results == {True}:
-            return render_template(f"{TEMPLATE_DIR}/aaa_results_success.html")
+            return render_template(f"{TEMPLATE_DIR}/results_success.html")
         else:
-            return render_template(f"{TEMPLATE_DIR}/aaa_results_failure.html", failed_hosts=failed_hosts)
+            return render_template(f"{TEMPLATE_DIR}/results_failure.html", failed_hosts=failed_hosts)
+
+@standards_ops.route("/apply_ntp", methods=["POST"])
+def apply_ntp():
+    if request.method == "POST":
+        ntp_text_data = request.form
+        for text in ntp_text_data.items():
+            if "outputtext" in text:
+                ntp_data_input = text[1]
+                ntp_data_input = ntp_data_input.replace("\n", "").split("\r")
+                for ntp_data in ntp_data_input:
+                    ntp_data = ntp_data.split(",")
+                    if ntp_data != [""]:
+                        site_code = ntp_data[0]
+                        time_zone = ntp_data[1]
+                        dls_zone = ntp_data[2]
+                        offset = ntp_data[3]
+                        ntp_dict = {}
+                        ntp_dict["site_code"] = site_code
+                        ntp_dict["time_zone"] = time_zone
+                        ntp_dict["daylight_zone"] = dls_zone
+                        ntp_dict["offset"] = offset
+        username = session.get("cli_username")
+        password = session.get("cli_password")
+        logger.info(f'Applying NTP standards to {site_code}')
+        results, failed_hosts = do_ntp.build_inventory(ntp_dict, username, password)
+        print(results, failed_hosts)
+       
+        if results == {True}:
+            return render_template(f"{TEMPLATE_DIR}/results_success.html")
+        else:
+            return render_template(f"{TEMPLATE_DIR}/results_failure.html", failed_hosts=failed_hosts)
 
 @standards_ops.route("standards_log_file")
 def standards_log_file():
@@ -136,10 +182,10 @@ def standards_log_file():
 def audit_results():
     return render_template(f"{TEMPLATE_DIR}/audit_results_success.html")
 
-@standards_ops.route("/aaa_results_success")
-def aaa_results_success():
-    return render_template(f"{TEMPLATE_DIR}/aaa_results_success.html")
+@standards_ops.route("/results_success")
+def results_success():
+    return render_template(f"{TEMPLATE_DIR}/results_success.html")
 
-@standards_ops.route("/aaa_results_failure")
-def aaa_results_failure():
-    return render_template(f"{TEMPLATE_DIR}/aaa_results_failure.html")
+@standards_ops.route("/results_failure")
+def results_failure():
+    return render_template(f"{TEMPLATE_DIR}/results_failure.html")

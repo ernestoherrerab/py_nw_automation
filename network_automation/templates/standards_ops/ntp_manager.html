@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <title>CCoE Network Automation</title>
+        <script language="javascript" type="text/javascript">
+
+            function addtext() {
+                var site_code = document.hostsForm.siteCode.value;
+                var time_zone = document.hostsForm.timeZone.value;
+                var dls_zone = document.hostsForm.dlsZone.value;
+                var time_offset = document.hostsForm.timeOffset.value;
+
+                document.hostsForm.outputtext.value += site_code + "," + time_zone + "," + dls_zone + "," + time_offset + "\n";
+            }           
+        </script>
+    </head>
+    <body>
+        <div class="alert alert-info" role="alert">
+            <h4>Enter NTP Required Data: <br><br></h4> 
+            <form name="hostsForm"  action="{{url_for('standards_ops.apply_ntp')}}" method = "POST" role="form">
+                <div class="row gy-5">
+                    <div class="col-2">
+                        <div class="p-3">
+                            <label for="siteCode">Site Code:</label></td>
+                            <input type="text" onfocus="this.value=''" class="form-control" id="siteCode" name="siteCode" placeholder="Site Code">
+                            <label for="timeZone">Time Zone:</label>
+                            <input type="text" onfocus="this.value=''" class="form-control" id="timeZone" name="timeZone" placeholder="Time Zone">
+                            <label for="timeOffset">Time Offset:</label>
+                            <input type="text" onfocus="this.value=''" class="form-control" id="timeOffset" name="timeOffset" placeholder="UTC Offset">
+                            <label for="dlsZone">Daylight Time Zone:</label>
+                            <input type="text" onfocus="this.value=''" class="form-control" id="dlsZone" name="dlsZone" placeholder="Daylight Savings Zone">
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="p-5">
+                            <textarea name="outputtext" rows="3" cols="60"></textarea>
+                            <p><button type="submit" class="btn btn-success">Submit Data</button>
+                            <a class="btn btn-primary" href="{{url_for('home')}}" role="button" style="margin-left:50px;">Back To Home</a>
+                            </p>      
+                        </div>
+                        <div class="p-3">
+                            <input style="margin-left:40px;" type="button" value="Add Data to Text Box" onClick="addtext();">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        <hr width="100%" size="6" align="center">
+        <h3>*Time Zone data needs to be entered as shown on this  <a href="https://www.cisco.com/c/en/us/td/docs/routers/xr12000/software/xr12k_r4-0/system_management/command/reference/yr40xr12k_chapter4.html#wp1849862459__tab_1484419" target="_blank">LINK</a></h3>
+        <h3>**Ensure the audit documentation for this site exists already, otherwise run the audit manager...</h3>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    </body>
+</html>
