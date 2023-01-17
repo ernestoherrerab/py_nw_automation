@@ -50,6 +50,7 @@ def init_nornir(username, password, task_name, site_id=""):
         print(
             f"{len(list(results.failed_hosts.keys()))}/{len(managed_devs.inventory.hosts)} devices failed authentication..."
         )
+    
     return managed_devs, results, dev_auth_fail_list
 
 def get_cdp_data_task(task, progress_bar, site_id):

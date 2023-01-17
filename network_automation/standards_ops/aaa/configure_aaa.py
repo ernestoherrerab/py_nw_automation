@@ -155,9 +155,10 @@ def replace_aaa(username: str, password: str, site_code: str):
     WS-C3560CX
     WS-C4506, WS-C4510R (GROUPED)
     WS-C3650
+    WS-C6509
     """
     ### VARS ###
-    supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x", "ws_c3750g", "c9200", "ws_c4510r", "ws_c3650",  "ws_c3560cx"]
+    supported_platforms = ["ws_c2960s", "ws_c2960x", "ws_c3560x", "ws_c3750g", "c9200", "ws_c4510r", "ws_c3650",  "ws_c3560cx", "ws_c6509"]
 
     ### INITIALIZE NORNIR ###
     nr = InitNornir(

@@ -6,15 +6,12 @@
     </head>
     <body>
         <div class="alert alert-info" role="alert">
-        <h1>AAA Standards<br><br></h1>
-        <h3>Some or all devices failed deploying the configuration<br><br></h3> 
+        <h3>Task Completed<br><br></h3> 
         <br>
-        <p>{{failed_hosts}}</p>
         <h4>Check on the Site Documentation Link in the Home Page</h4>
         <br>
-        <br><br>
-        <p>Download the log file for details:</p>
         <br>
+        <br><br>
         <a class="btn btn-primary" href="{{url_for('standards_ops.standards_log_file')}}" role="button">Download Log File</a>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
         <a class="btn btn-primary" href="{{url_for('home')}}" role="button">Back To Home</a>

@@ -62,7 +62,7 @@ def do_audit(username, password, depth_levels=3):
 
         #### PARSE NTP & CLOCK & DUMP INTO FILE ###
         print("Getting NTP Configs...")
-        dev_data[dev_config[0]] = getNTP.audit_ntp(parse_obj)
+        dev_data[dev_config[0]] = getNTP.audit_ntp(parse_obj, dev_config[0])
         build_yml_file("ntp", dev_data[dev_config[0]], dev_audit_path)
 
         #### PARSE VLANS & DUMP INTO FILE ###
@@ -95,10 +95,10 @@ def do_audit(username, password, depth_levels=3):
         dev_data[dev_config[0]] = getBGP.audit_bgp(parse_obj)
         build_yml_file("router_bgp", dev_data[dev_config[0]], dev_audit_path)
 
-        #### PARSE STATIC ROUTES & DUMP INTO FILE ###
-        print("Getting Static Routes Configs...")
-        dev_data[dev_config[0]] = getStatic.audit_static(parse_obj)
-        build_yml_file("routing_static", dev_data[dev_config[0]], dev_audit_path)
+        ##### PARSE STATIC ROUTES & DUMP INTO FILE ###
+        #print("Getting Static Routes Configs...")
+        #dev_data[dev_config[0]] = getStatic.audit_static(parse_obj)
+        #build_yml_file("routing_static", dev_data[dev_config[0]], dev_audit_path)
 
         #### PARSE ACLS & DUMP INTO FILE ###
         print("Getting ACLs Configs...")

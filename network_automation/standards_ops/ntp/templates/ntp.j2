@@ -1,0 +1,8 @@
+no ntp clock-period
+clock timezone {{ time_zone }} {{ offset}}
+clock summer-time {{ daylight_zone }} recurring
+ntp server 10.31.134.5 prefer
+ntp server 10.45.16.25
+ntp server 10.91.12.25
+ntp server 10.1.65.25
+ntp source Vlan2
