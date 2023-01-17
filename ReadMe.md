@@ -10,6 +10,7 @@
 - Standards Ops  
   1. Audit Manager - Used to create configurations as code.
   2. Apply AAA - Used to standardize AAA configs.
+  3. Apply NTP - Used to standardize NTP configs.
 
 - Hostname Changer - Used to update hostnames for network devices (switches and APs) (Dephased).
 
