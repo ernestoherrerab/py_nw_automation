@@ -51,7 +51,7 @@ def build_staging_file(ntp_dict: dict, host: str, gold_file: str):
     ### VARS ###
     site_code = ntp_dict["site_code"]
     NTP_GOLD_CONFIG = Path(f'network_automation/standards_ops/ntp/templates/')
-    AUDITS_DIR = Path(f'file_display/public/documentation/{site_code}/audits/')
+    AUDITS_DIR = Path(f'file_display/public/documentation/{site_code.lower()}/audits/')
     STAGING_DIR = Path(f'network_automation/standards_ops/staging/')
     
     ### WORK WITH JINJA2 TEMPLATES ###

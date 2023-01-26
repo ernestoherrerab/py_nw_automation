@@ -127,6 +127,7 @@ def do_audit():
 @standards_ops.route("/apply_aaa", methods=["POST"])
 def apply_aaa():
     if request.method == "POST":
+        Path(f"network_automation/standards_ops/staging").mkdir(exist_ok=True)
         site_code = request.form["siteId"]
         username = session.get("cli_username")
         password = session.get("cli_password")
@@ -142,6 +143,7 @@ def apply_aaa():
 @standards_ops.route("/apply_ntp", methods=["POST"])
 def apply_ntp():
     if request.method == "POST":
+        Path(f"network_automation/standards_ops/staging").mkdir(exist_ok=True)
         ntp_text_data = request.form
         for text in ntp_text_data.items():
             if "outputtext" in text:
