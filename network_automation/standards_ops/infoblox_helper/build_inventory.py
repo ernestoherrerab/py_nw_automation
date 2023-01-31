@@ -4,11 +4,10 @@ Apply AAA standard configurations
 """
 import logging
 from pathlib import Path
-from yaml import dump, load
+from yaml import dump
 from yaml.loader import FullLoader
 import network_automation.standards_ops.ipfabric_api as ipfabric
 import network_automation.standards_ops.infoblox_helper.add_ib_helper as ib_helper
-import network_automation.standards_ops.nornir_commands as nornir
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/standards_ops.log")
@@ -66,6 +65,7 @@ def build_inventory(site_code: str, username: str, password: str):
     site_code = site_code.lower()
     dhcp_relay_filter = {"hostname": ["like", site_code]}
     mgmt_filter = {"or": []}
+    nornir_inv_dict = {}
 
     ### GENERATE IPFABRIC SESSION ###
     print("Authenticating to IPFabric...")
@@ -79,23 +79,25 @@ def build_inventory(site_code: str, username: str, password: str):
     logger.info(f'Format DHCP Relay data from IPFabric')
 
     ### GET MANAGEMENT IPS FOR NORNIR INVENTORY ###
+    ### CREATE FILTER ###
     for host in list(dhcp_data.keys()):
         mgmt_filter["or"].append({"hostname": ["eq", host]})
 
+    ### APPLY FILTER TO INVENTORY SEARCH ###
     inv_data = ipfabric.get_mgmt_ips(ipf_session, mgmt_filter)
-    print(inv_data)
 
-#    ### LOAD INVENTORY AS DICT ###
-#    with open(INV_DIR) as f:
-#        inv_dict = load(f, Loader=FullLoader)
-#
-#
-#    
-#    ### DUMP INVENTORY DICTIONARY ###
-#    with open(INV_DIR, "w+") as open_file:
-#        open_file.write("\n" + dump(inv_dict, default_flow_style=False))
-#
-#    ### BUILD CONFIGURATION FILE ###
-#    result, failed_hosts = aaa.replace_aaa(username, password, site_code)
-#
-#    return result, failed_hosts
+    for data in inv_data:
+        if "sdw" not in data["hostname"]:
+            nornir_inv_dict[data["hostname"]] = {"groups": ["ios_devices"], "hostname": data["loginIp"]}
+        elif "sdw" in data["hostname"]:
+            nornir_inv_dict[data["hostname"]] = {"groups": ["sdwan_routers"], "hostname": data["loginIp"]}
+
+ 
+    ### DUMP INVENTORY DICTIONARY ###
+    with open(INV_DIR, "w+") as open_file:
+        open_file.write("\n" + dump(nornir_inv_dict, default_flow_style=False))
+
+    ### BUILD CONFIGURATION FILE ###
+    result, failed_hosts = ib_helper.add_helper(username, password, dhcp_data)
+
+    return result, failed_hosts

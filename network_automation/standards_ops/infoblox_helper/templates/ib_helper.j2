@@ -1,0 +1,8 @@
+{% for int in if_list %}
+interface {{ int }}
+ip helper-address 10.45.16.25
+ip helper-address 10.1.64.25
+ip helper-address 10.91.12.25
+!
+{% endfor %}
+do wr mem

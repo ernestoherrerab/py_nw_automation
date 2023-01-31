@@ -36,13 +36,12 @@ def ntp_send_config(task, dry_run=True):
     logger.info(f'Nornir: Sending config changes')
     task.run(task=send_configs, configs=commands, dry_run=dry_run)
     
-def build_staging_file(ntp_dict: dict, host: str, gold_file: str):
+def build_staging_file(ntp_dict: dict, host: str):
     """Build the configuration staging file
     
     Args: 
     ntp_dict (dict): From user input
     platform (str): Device platform
-    gold_file (str): Golden Config File Name
 
     Returns:
     Build staging file
@@ -109,8 +108,7 @@ def ntp_operation(nr, ntp_dict: dict):
     platform_hosts = nr.inventory.hosts
         
     for platform_host in platform_hosts.keys():
-        platform_gold_file = "ntp.j2"
-        build_staging_file(ntp_dict, platform_host, platform_gold_file)   
+        build_staging_file(ntp_dict, platform_host)   
     
        ### APPLY CHANGES TO PLATFORM ###
     print("Apply Changes")
