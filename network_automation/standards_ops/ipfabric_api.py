@@ -57,6 +57,8 @@ def get_dhcp_relay_ifs(ipf: IPFClient, filter_dict: dict) -> list:
     Returns:
     subnets_data (list): List of dictionaries of DHCP Relays data 
     """
+
+    
     dhcp_relay_ifs = ipf.technology.dhcp.relay_interfaces.all(filters=filter_dict)
     
     return dhcp_relay_ifs

@@ -128,14 +128,15 @@ def aaa_operation(nr, platforms: list, site_code: str):
                 del_files()
                 print(f'{platform} hosts Failed')
                 logger.error(f'Nornir: {platform} Hosts Failed {failed_hosts}')
-                results_set.add(True)
-
+                results_set.add(False)
         print(f'Failed Hosts: {failed_hosts}')
+
         if not dry_run:
             platform_results = platform_devs.run(aaa_send_config, dry_run=False)
             del_files()
             logger.info(f'Nornir: AAA configurations Applied')
             results_set.add(True)
+
     return results_set, failed_hosts
 
 def replace_aaa(username: str, password: str, site_code: str):

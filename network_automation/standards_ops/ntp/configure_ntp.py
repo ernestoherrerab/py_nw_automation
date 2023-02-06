@@ -123,7 +123,7 @@ def ntp_operation(nr, ntp_dict: dict):
             del_files()
             print(f'{key} Failed')
             logger.error(f'Nornir: Hosts Failed {failed_hosts}')
-            results_set.add(True)
+            results_set.add(False)
     print(f'Failed Hosts: {failed_hosts}')
     if not dry_run:
         platform_results = nr.run(ntp_send_config, dry_run=False)

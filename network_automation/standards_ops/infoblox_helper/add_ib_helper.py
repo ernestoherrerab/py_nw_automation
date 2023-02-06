@@ -6,6 +6,7 @@ from jinja2 import Environment, FileSystemLoader
 import logging
 from pathlib import Path
 from nornir import InitNornir
+from nornir.core.filter import F
 from nornir_scrapli.tasks import send_configs
 
 ### LOGGING SETUP ###
@@ -32,6 +33,7 @@ def ib_helper_send_config(task, dry_run=True):
         data = f.read()
         commands = data.split('\n')
     logger.info(f'Nornir: Sending config changes')
+    
     task.run(task=send_configs, configs=commands, dry_run=dry_run)
     
 def build_staging_file(dhcp_data: dict, host: str):
@@ -55,6 +57,7 @@ def build_staging_file(dhcp_data: dict, host: str):
     env = Environment(loader=FileSystemLoader(INFOBLOX_HELPER_GOLD_CONFIG), trim_blocks=True, lstrip_blocks=True)
     ib_helper_template = env.get_template("ib_helper.j2")
     ib_helper_config = ib_helper_template.render(if_list = dhcp_data[host]) 
+    
     
     with open(STAGING_DIR / host , "a+") as add_gold:
         add_gold.write(f'\n{ib_helper_config}')
@@ -95,7 +98,8 @@ def add_helper_op(nr, dhcp_data: dict):
     results_set = set()
     
     ### BUILD PLATFORM CONFIGURATION FILE ###
-    platform_hosts = nr.inventory.hosts        
+    platform_hosts = nr.inventory.hosts 
+    print(platform_hosts)       
     for platform_host in platform_hosts.keys():
         build_staging_file(dhcp_data, platform_host)   
     
@@ -112,12 +116,13 @@ def add_helper_op(nr, dhcp_data: dict):
             del_files()
             print(f'{key} Failed')
             logger.error(f'Nornir: Hosts Failed {failed_hosts}')
-            results_set.add(True)
+            results_set.add(False)
     print(f'Failed Hosts: {failed_hosts}')
+
     if not dry_run:
         platform_results = nr.run(ib_helper_send_config, dry_run=False)
         del_files()
-        logger.info(f'Nornir: NTP configurations Applied')
+        logger.info(f'Nornir: IP Helper Address configurations Applied')
         results_set.add(True)
 
     return results_set, failed_hosts
@@ -139,8 +144,9 @@ def add_helper(username: str, password: str, dhcp_data: dict):
     )
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
+    platform_devs = nr.filter(F(groups__contains="ios_devices"))
     logger.info("Nornir: Session Initiated")
 
-    results = add_helper_op(nr, dhcp_data)
+    results = add_helper_op(platform_devs, dhcp_data)
 
     return results
