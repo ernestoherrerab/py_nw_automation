@@ -87,12 +87,12 @@ def build_inventory(site_code: str, username: str, password: str):
     inv_data = ipfabric.get_mgmt_ips(ipf_session, mgmt_filter)
 
     for data in inv_data:
-        if "sdw" not in data["hostname"]:
-            nornir_inv_dict[data["hostname"]] = {"groups": ["ios_devices"], "hostname": data["loginIp"]}
-        elif "sdw" in data["hostname"]:
+        if "sdw" in data["hostname"]:
             nornir_inv_dict[data["hostname"]] = {"groups": ["sdwan_routers"], "hostname": data["loginIp"]}
         elif "wlc" in data["hostname"]:
             nornir_inv_dict[data["hostname"]] = {"groups": ["wlcs"], "hostname": data["loginIp"]}
+        else:
+            nornir_inv_dict[data["hostname"]] = {"groups": ["ios_devices"], "hostname": data["loginIp"]}
 
  
     ### DUMP INVENTORY DICTIONARY ###
