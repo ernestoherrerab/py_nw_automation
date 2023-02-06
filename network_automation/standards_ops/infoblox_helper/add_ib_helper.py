@@ -5,9 +5,8 @@ Delete and Configure AAA standard configurations
 from jinja2 import Environment, FileSystemLoader
 import logging
 from pathlib import Path
-from yaml import load
-from yaml.loader import FullLoader
 from nornir import InitNornir
+from nornir.core.filter import F
 from nornir_scrapli.tasks import send_configs
 
 ### LOGGING SETUP ###
@@ -19,14 +18,14 @@ formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(messag
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
-
-def ntp_send_config(task, dry_run=True):
+def ib_helper_send_config(task, dry_run=True):
     """ Nornir send config task
 
     Args:
     file (str): Commands file path
     """
-    dev_file = task.host.hostname
+
+    dev_file = task.host
     staging_dir = Path(f'network_automation/standards_ops/staging/{dev_file}') 
     
     ### CONVERT FILE TO LIST OF COMMANDS ###
@@ -34,43 +33,36 @@ def ntp_send_config(task, dry_run=True):
         data = f.read()
         commands = data.split('\n')
     logger.info(f'Nornir: Sending config changes')
+    
     task.run(task=send_configs, configs=commands, dry_run=dry_run)
     
-def build_staging_file(ntp_dict: dict, host: str):
+def build_staging_file(dhcp_data: dict, host: str):
     """Build the configuration staging file
     
     Args: 
-    ntp_dict (dict): From user input
+    dhcp_data (dict): From user input
     platform (str): Device platform
+    gold_file (str): Golden Config File Name
 
     Returns:
     Build staging file
     """
 
     ### VARS ###
-    site_code = ntp_dict["site_code"]
-    NTP_GOLD_CONFIG = Path(f'network_automation/standards_ops/ntp/templates/')
-    AUDITS_DIR = Path(f'file_display/public/documentation/{site_code.lower()}/audits/')
+    INFOBLOX_HELPER_GOLD_CONFIG = Path(f'network_automation/standards_ops/infoblox_helper/templates/')
     STAGING_DIR = Path(f'network_automation/standards_ops/staging/')
     
     ### WORK WITH JINJA2 TEMPLATES ###
-    ### INPUT VARIABLES ORIGINATE FROM THE USER INPUT ###
-    env = Environment(loader=FileSystemLoader(NTP_GOLD_CONFIG), trim_blocks=True, lstrip_blocks=True)
-    ntp_template = env.get_template("ntp.j2")
-    ntp_config = ntp_template.render(ntp_dict)
+    ### INPUT VARIABLES ORIGINATE FROM USER INPUT ###
+    env = Environment(loader=FileSystemLoader(INFOBLOX_HELPER_GOLD_CONFIG), trim_blocks=True, lstrip_blocks=True)
+    ib_helper_template = env.get_template("ib_helper.j2")
+    ib_helper_config = ib_helper_template.render(if_list = dhcp_data[host]) 
     
-    with open(AUDITS_DIR / Path(f'{host}/ntp.yml')) as f:
-        host_ntp = load(f, Loader=FullLoader)
-        logger.info(f'Nornir: Loaded NTP device configuration')
-    for _, value in host_ntp[host].items():
-        with open(STAGING_DIR /  host, "a+") as stage:
-            for line in value:
-                stage.write(f"no {line}\n")
-        logger.info(f'Nornir: Staged configuration to delete')
+    
     with open(STAGING_DIR / host , "a+") as add_gold:
-        add_gold.write(f'\n{ntp_config}')
+        add_gold.write(f'\n{ib_helper_config}')
         logger.info(f'Nornir: Staged configuration to configure')
-    ### REMOVE SPACES ###
+    #### REMOVE SPACES ###
     with open(STAGING_DIR / host) as filehandle:
         lines = filehandle.readlines()
     with open(STAGING_DIR / host, 'w') as filehandle:
@@ -80,6 +72,7 @@ def build_staging_file(ntp_dict: dict, host: str):
 def del_files():
     """ Delete staging files 
     """
+    
     staging_dir = Path("network_automation/standards_ops/staging/")
     try:
         for host_file in staging_dir.iterdir():
@@ -90,12 +83,12 @@ def del_files():
     except IOError as e:
         print(e)
 
-def ntp_operation(nr, ntp_dict: dict):
+def add_helper_op(nr, dhcp_data: dict):
     """Run Nornir Tasks
     
     Args:
     nr (object): Nornir Object
-    ntp_dict: From user input
+    dhcp_data: From user input
 
     """
 
@@ -103,16 +96,16 @@ def ntp_operation(nr, ntp_dict: dict):
     failed_hosts = []
     dry_run = True
     results_set = set()
-
-    ### BUILD PLATFORM CONFIGURATION FILE ###
-    platform_hosts = nr.inventory.hosts
-        
-    for platform_host in platform_hosts.keys():
-        build_staging_file(ntp_dict, platform_host)   
     
-       ### APPLY CHANGES TO PLATFORM ###
+    ### BUILD PLATFORM CONFIGURATION FILE ###
+    platform_hosts = nr.inventory.hosts 
+    print(platform_hosts)       
+    for platform_host in platform_hosts.keys():
+        build_staging_file(dhcp_data, platform_host)   
+    
+    ### APPLY CHANGES TO PLATFORM ###
     print("Apply Changes")
-    platform_results = nr.run(ntp_send_config)
+    platform_results = nr.run(ib_helper_send_config)
 
     ### HANDLE RESULTS FOR PLATFORM ###
     for key in platform_results.keys():
@@ -125,33 +118,35 @@ def ntp_operation(nr, ntp_dict: dict):
             logger.error(f'Nornir: Hosts Failed {failed_hosts}')
             results_set.add(False)
     print(f'Failed Hosts: {failed_hosts}')
+
     if not dry_run:
-        platform_results = nr.run(ntp_send_config, dry_run=False)
+        platform_results = nr.run(ib_helper_send_config, dry_run=False)
         del_files()
-        logger.info(f'Nornir: NTP configurations Applied')
+        logger.info(f'Nornir: IP Helper Address configurations Applied')
         results_set.add(True)
 
     return results_set, failed_hosts
 
 
-def replace_ntp(username: str, password: str, ntp_dict: dict):
+def add_helper(username: str, password: str, dhcp_data: dict):
     """Delete and configure NTP
 
     Args:
     username (str): From user input
     password (str): From user input
-    ntp_dict (dict): From user input
-    
+        
     """   
 
     ### INITIALIZE NORNIR ###
+
     nr = InitNornir(
         config_file="network_automation/standards_ops/config/config.yml"
     )
     nr.inventory.defaults.username = username
     nr.inventory.defaults.password = password
+    platform_devs = nr.filter(F(groups__contains="ios_devices"))
     logger.info("Nornir: Session Initiated")
 
-    results = ntp_operation(nr, ntp_dict)
+    results = add_helper_op(platform_devs, dhcp_data)
 
     return results

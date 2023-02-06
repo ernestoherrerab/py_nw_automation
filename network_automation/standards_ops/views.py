@@ -11,6 +11,7 @@ from network_automation.standards_ops import standards_ops
 import network_automation.standards_ops.audit_manager.audit as audit
 import network_automation.standards_ops.aaa.build_inventory as do_aaa
 import network_automation.standards_ops.ntp.build_inventory as do_ntp
+import network_automation.standards_ops.infoblox_helper.build_inventory as add_ib_helper
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/standards_ops.log")
@@ -60,20 +61,6 @@ def audit_manager():
     """
     return render_template(f"{TEMPLATE_DIR}/audit_manager.html")
 
-@standards_ops.route("/aaa_manager")
-def aaa_manager():
-    """ 
-    AAA Manager Home Data input
-    """
-    return render_template(f"{TEMPLATE_DIR}/aaa_manager.html")
-
-@standards_ops.route("/ntp_manager")
-def ntp_manager():
-    """ 
-    NTP Manager Home Data input
-    """
-    return render_template(f"{TEMPLATE_DIR}/ntp_manager.html")
-
 @standards_ops.route("/aaa")
 def aaa():
     """ 
@@ -87,6 +74,13 @@ def ntp():
     Apply NTP Standards Home Data input
     """
     return render_template(f"{TEMPLATE_DIR}/ntp_manager.html")
+
+@standards_ops.route("/infoblox_dhcp")
+def infoblox_dhcp():
+    """ 
+    Add Infoblox IP Helper Address Home Data input
+    """
+    return render_template(f"{TEMPLATE_DIR}/infoblox_dhcp_manager.html")
 
 @standards_ops.route("/do_audit", methods=["POST"])
 def do_audit():
@@ -165,6 +159,22 @@ def apply_ntp():
         password = session.get("cli_password")
         logger.info(f'Applying NTP standards to {site_code}')
         results, failed_hosts = do_ntp.build_inventory(ntp_dict, username, password)
+        print(results, failed_hosts)
+       
+        if results == {True}:
+            return render_template(f"{TEMPLATE_DIR}/results_success.html")
+        else:
+            return render_template(f"{TEMPLATE_DIR}/results_failure.html", failed_hosts=failed_hosts)
+
+@standards_ops.route("/add_helper", methods=["POST"])
+def add_infoblox_helper():
+    if request.method == "POST":
+        Path(f"network_automation/standards_ops/staging").mkdir(exist_ok=True)
+        site_code = request.form["siteId"]
+        username = session.get("cli_username")
+        password = session.get("cli_password")
+        logger.info(f'Adding Infoblox Helper standards to {site_code}')
+        results, failed_hosts = add_ib_helper.build_inventory(site_code, username, password)
         print(results, failed_hosts)
        
         if results == {True}:
