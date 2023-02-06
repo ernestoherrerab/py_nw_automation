@@ -63,7 +63,7 @@ def build_inventory(site_code: str, username: str, password: str):
     ### VARS ###
     INV_DIR = Path("network_automation/standards_ops/inventory/hosts.yml")
     site_code = site_code.lower()
-    dhcp_relay_filter = {"hostname": ["like", site_code]}
+    dhcp_relay_filter = {"hostname": ["like", site_code + "-"]}
     mgmt_filter = {"or": []}
     nornir_inv_dict = {}
 
@@ -91,6 +91,8 @@ def build_inventory(site_code: str, username: str, password: str):
             nornir_inv_dict[data["hostname"]] = {"groups": ["ios_devices"], "hostname": data["loginIp"]}
         elif "sdw" in data["hostname"]:
             nornir_inv_dict[data["hostname"]] = {"groups": ["sdwan_routers"], "hostname": data["loginIp"]}
+        elif "wlc" in data["hostname"]:
+            nornir_inv_dict[data["hostname"]] = {"groups": ["wlcs"], "hostname": data["loginIp"]}
 
  
     ### DUMP INVENTORY DICTIONARY ###

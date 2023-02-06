@@ -67,3 +67,6 @@ ws_c6509:
 
 sdwan_routers:
   {}
+
+wlcs:
+  {}
