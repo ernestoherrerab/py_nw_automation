@@ -73,6 +73,7 @@ def build_inventory(site_code: str, username: str, password: str):
     logger.info("IPFabric: Authenticated")
     
     ### GET DHCP RELAY INTERFACES ###
+    print(dhcp_relay_filter)
     dhcp_dev_ifs = ipfabric.get_dhcp_relay_ifs(ipf_session, dhcp_relay_filter)
     logger.info(f'IPFabric: Got Interfaces Used for DHCP Relay {site_code}')
     dhcp_data = format_dhcp_relay_data(dhcp_dev_ifs)
@@ -89,7 +90,7 @@ def build_inventory(site_code: str, username: str, password: str):
     for data in inv_data:
         if "sdw" in data["hostname"]:
             nornir_inv_dict[data["hostname"]] = {"groups": ["sdwan_routers"], "hostname": data["loginIp"]}
-        elif "wlc" in data["hostname"]:
+        elif "wlc" in data["hostname"] or "wc" in data["hostname"]:
             nornir_inv_dict[data["hostname"]] = {"groups": ["wlcs"], "hostname": data["loginIp"]}
         else:
             nornir_inv_dict[data["hostname"]] = {"groups": ["ios_devices"], "hostname": data["loginIp"]}
