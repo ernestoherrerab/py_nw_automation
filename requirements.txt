@@ -11,6 +11,7 @@ nornir==3.2.0
 nornir-napalm==0.2.0
 nornir-scrapli==2022.1.30
 panapi==0.0.1
+pandas==1.5.3
 pyats==22.2
 python-decouple==3.6
 PyYAML==6.0

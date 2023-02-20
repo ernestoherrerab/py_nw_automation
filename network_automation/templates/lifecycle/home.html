@@ -7,26 +7,16 @@
     <body>
         <div class="alert alert-info" role="alert">
         <h1>Lifecycle Information<br><br></h1>
-        <h4>Enter Site Code:<br><br></h4> 
         <form action="{{url_for('lifecycle.get_lifecycle_data')}}" method = "POST" role="form">
-			<div class="row gy-5">
-				<div class="col-2">
-					<div class="p-3">
-                        <label for="siteId">Site Code:</label></td>
-                        <input type="text" onfocus="this.value=''" class="form-control" id="siteId" name="siteId" placeholder="Site Code">
-					</div>
-				</div>
-				<div class="col-3">
-					<div class="p-5">
-                        <p><button type="submit" class="btn btn-success">Submit</button>
-                        <a class="btn btn-primary" href="{{url_for('home')}}" role="button" style="margin-left:50px;">Back To Home</a>
-                        </p>      
-					</div>
+			<div class="col-3">
+				<div class="p-5">
+                    <p><button type="submit" class="btn btn-success">Get Report</button>
+                    <a class="btn btn-primary" href="{{url_for('home')}}" role="button" style="margin-left:50px;">Back To Home</a>
+                    </p>      
 				</div>
 			</div>
+		</div>
         </form>
-        <hr width="100%" size="6" align="center">
-        <h3>**Ensure the audit documentation for this site exists already, otherwise run the audit manager...</h3>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     </body>
 </html>

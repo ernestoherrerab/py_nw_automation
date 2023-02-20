@@ -3,13 +3,26 @@
 Creates the views (routes) for the secondary app
 """
 from decouple import config
-from flask import render_template, request, session, redirect
-from network_automation.mac_finder import mac_finder
-import network_automation.mac_finder.mac_finder.find_mac as find_mac
+from flask import render_template, request, send_file, redirect
+import logging
+from pathlib import Path
+from network_automation.lifecycle import lifecycle
+import network_automation.lifecycle.lifecycle_data as get_lifecycle
+
+
 
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 template_dir = "lifecycle"
+
+### LOGGING SETUP ###
+LOG_FILE = Path("logs/lifecycle.log")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+file_handler = logging.FileHandler(LOG_FILE)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 ### VIEW TO CREATE DATA ###
 @lifecycle.route("/home")
@@ -24,21 +37,18 @@ def home_redirect():
 @lifecycle.route("/get_lifecycle_data", methods=["POST"])
 def get_lifecycle_data():
     if request.method == "POST":
-        Path(f"network_automation/standards_ops/staging").mkdir(exist_ok=True)
-        site_code = request.form["siteId"]
-        username = session.get("cli_username")
-        password = session.get("cli_password")
-        logger.info(f'Adding Infoblox Helper standards to {site_code}')
-        results, failed_hosts = add_ib_helper.build_inventory(site_code, username, password)
-        print(results, failed_hosts)
-       
-        if results == {True}:
-            return render_template(f"{TEMPLATE_DIR}/results_success.html")
-        else:
-            return render_template(f"{TEMPLATE_DIR}/results_failure.html", failed_hosts=failed_hosts)
+        logger.info(f'Generating report')
+        print(f'Generating report')
+        get_lifecycle.build_lifecycle_report()
+
+        return send_file(f'./lifecycle/archive/eol_summary.xlsx', as_attachment=True)
+
 
 ### ERROR & SUCCESS VIEWS ###
 
-@lifecycle.route("/mac_found")
-def mac_found():
-    return render_template(f"{template_dir}/mac_found.html")
+@lifecycle.route("lifecycle_log_file")
+def standards_log_file():
+    """ 
+    Download Log File
+    """
+    return send_file(f'./../{str(LOG_FILE)}', as_attachment=True)

@@ -5,8 +5,7 @@ Apply AAA standard configurations
 import logging
 from pathlib import Path
 from yaml import dump
-from yaml.loader import FullLoader
-import network_automation.standards_ops.ipfabric_api as ipfabric
+import network_automation.ipfabric_api as ipfabric
 import network_automation.standards_ops.infoblox_helper.add_ib_helper as ib_helper
 
 ### LOGGING SETUP ###
@@ -73,7 +72,6 @@ def build_inventory(site_code: str, username: str, password: str):
     logger.info("IPFabric: Authenticated")
     
     ### GET DHCP RELAY INTERFACES ###
-    print(dhcp_relay_filter)
     dhcp_dev_ifs = ipfabric.get_dhcp_relay_ifs(ipf_session, dhcp_relay_filter)
     logger.info(f'IPFabric: Got Interfaces Used for DHCP Relay {site_code}')
     dhcp_data = format_dhcp_relay_data(dhcp_dev_ifs)
