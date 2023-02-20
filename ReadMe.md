@@ -73,6 +73,10 @@ Currently Supported:
 
 Enter the Core Switch of a site (the core hostname needs to be manually updated) and switches and accesspoints will be renamed to follow the naming standard.
 
+### Lifecycle Manager
+
+Used to get a report of all network devices and their EoL information
+
 ### ISE MAC Bypass
 
 There are two ways to enter data:  

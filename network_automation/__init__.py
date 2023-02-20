@@ -10,6 +10,7 @@ from pathlib import Path
 from network_automation.standards_ops.views import standards_ops
 from network_automation.hostname_changer.views import hostname_changer
 from network_automation.ise_ops.views import ise_ops
+from network_automation.lifecycle.views import lifecycle
 from network_automation.mac_finder.views import mac_finder
 from network_automation.nw_infra_links.views import nw_infra_links
 from network_automation.sdwan_ops.views import sdwan_ops
@@ -33,6 +34,7 @@ logging.basicConfig(filename=LOG_FILE, level=logging.INFO)
 app.register_blueprint(standards_ops, url_prefix="/standards-ops")
 app.register_blueprint(hostname_changer, url_prefix="/hostname-changer")
 app.register_blueprint(ise_ops, url_prefix="/ise-ops")
+app.register_blueprint(lifecycle, url_prefix="/lifecycle")
 app.register_blueprint(mac_finder, url_prefix="/mac-finder")
 app.register_blueprint(nw_infra_links, url_prefix="/nw-infra-links")
 app.register_blueprint(sdwan_ops, url_prefix="/sdwan-ops")
