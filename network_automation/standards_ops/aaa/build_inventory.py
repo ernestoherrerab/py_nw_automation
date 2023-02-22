@@ -44,7 +44,7 @@ def build_inventory(site_code: str, username: str, password: str):
     for key, value in results.items():
         if "chassis" in value["version"] and ("WS-C2960S" in value["version"]["chassis"] or "WS-C2960" in value["version"]["chassis"] or "WS-C2960S" in value["version"]["chassis"] or "WS-C2960G" in value["version"]["chassis"] or "WS-C2960C" in value["version"]["chassis"]):
             inv_dict[key]["groups"].append("ws_c2960s")
-        elif "chassis" in value["version"] and ("WS-C3560X" in value["version"]["chassis"] or "WS-C3560CG" in value["version"]["chassis"] or "WS-C3560G" in value["version"]["chassis"] ):
+        elif "chassis" in value["version"] and ("WS-C3560X" in value["version"]["chassis"] or "WS-C3560CG" in value["version"]["chassis"] or "WS-C3560G" in value["version"]["chassis"] or "WS-C3560V2" in value["version"]["chassis"] or "WS-C3560E" in value["version"]["chassis"] or "WS-C3560-" in value["version"]["chassis"]):
             inv_dict[key]["groups"].append("ws_c3560x")
         elif "chassis" in value["version"] and "WS-C3560CX" in value["version"]["chassis"]:
             inv_dict[key]["groups"].append("ws_c3560cx")
