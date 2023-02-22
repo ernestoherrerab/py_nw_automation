@@ -66,13 +66,13 @@ def build_lifecycle_report():
     for item in eol_data:
         if item["endSale"] != None:
             end_sale_date = datetime.datetime.fromtimestamp(item["endSale"]/1000)
-            item["endSale"] = end_sale_date.strftime('%m/%d/%Y')
+            item["endSale"] = end_sale_date.strftime('%d/%m/%Y')
         if item["endMaintenance"] != None:
             end_maintenance_date = datetime.datetime.fromtimestamp(item["endMaintenance"]/1000)
-            item["endMaintenance"] = end_maintenance_date.strftime('%m/%d/%Y')
+            item["endMaintenance"] = end_maintenance_date.strftime('%d/%m/%Y')
         if item["endSupport"] != None:
             end_support_date = datetime.datetime.fromtimestamp(item["endSupport"]/1000)
-            item["endSupport"] = end_support_date.strftime('%m/%d/%Y')
+            item["endSupport"] = end_support_date.strftime('%d/%m/%Y')
 
     ### BUILD CSV FILE ###
     build_xlsx(eol_data, 'eol_summary')
