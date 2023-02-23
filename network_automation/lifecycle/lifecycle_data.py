@@ -7,6 +7,7 @@ import datetime
 import logging
 import pandas 
 from pathlib import Path
+import re
 import network_automation.ipfabric_api as ipfabric
 
 ### LOGGING SETUP ###
@@ -73,6 +74,21 @@ def build_lifecycle_report():
         if item["endSupport"] != None:
             end_support_date = datetime.datetime.fromtimestamp(item["endSupport"]/1000)
             item["endSupport"] = end_support_date.strftime('%d/%m/%Y')
+        if re.search(r'\w+-(as|AS|sw|SW)\S+', item["hostname"]) != None:
+            item["type"] = "Access Switch"
+        elif re.search(r'\w+-(ds|cs)\S+', item["hostname"]) != None:
+            item["type"] = "Core Switch"
+        elif re.search(r'\w+-(wc|wlc|WC|WLC)\S+', item["hostname"]) != None:
+            item["type"] = "Wireless Controller"
+        elif re.search(r'\w+-(r0|rtr|ron|rcrtr)\S+', item["hostname"]) != None:
+            item["type"] = "router"
+        elif re.search(r'\w+-(ap|AP)\S+', item["hostname"]) != None or re.search(r'(AP\d+)\S+', item["hostname"]) != None:
+            item["type"] = "access point"
+        elif re.search(r'\w+-(fw)\S+', item["hostname"]) != None:
+            item["type"] = "firewall"
+        else:
+            item["type"] = "unknown"
+
 
     ### BUILD CSV FILE ###
     build_xlsx(eol_data, 'eol_summary')
