@@ -52,18 +52,29 @@ def build_lifecycle_report():
     print("Authenticating to IPFabric...")
     ipf_session = ipfabric.auth()
     logger.info("IPFabric: Authenticated")
-    all_devs = ipfabric.get_inv_data(ipf_session)
+
+    ### GET INVENTORY DATA ###
+    inv_devs = ipfabric.get_inv_data(ipf_session)
     logger.info("IPFabric: Retrieved Inventory")
 
+    ### GET STACK MEMBERS DATA ###
+    stack_filter = {"and": [{"memberSn": ["empty", False]},{"or": [{"role": ["eq","member"]},{"role": ["eq","standby"]}]}]}
+    stack_members = ipfabric.get_stack_members(ipf_session, stack_filter)
+    for stack_member in stack_members:
+        stack_member["snHw"] = stack_member.pop("memberSn")
+    
+    ### ADD STACK MEMBERS AND INVENTORY DEVS ###
+    all_devs = inv_devs + stack_members
+
     ### FORMAT INVENTORY DATA ###
-    device_models = list({serial["snHw"] for serial in all_devs})
-    dev_filter = list(map(lambda x: {"sn": ["like", x]}, device_models))
+    device_serials = list({serial["snHw"] for serial in all_devs})
+    dev_filter = list(map(lambda x: {"sn": ["like", x]}, device_serials))
     logger.info("IPFabric: Built Filter by PID SN")
     
-    ### GET NEEDED DATA ###    
-    eol_data = ipfabric.get_eol_data(ipf_session, {"or": dev_filter})
+    ### GET EOL DATA ###    
+    eol_data = ipfabric.get_eol_data(ipf_session, {"and": [{"dscr": ["notlike","Stack"]},{"or": dev_filter}]})
         
-    ### FORMAT DATES ###
+    ### FORMAT DATES AND GROUP DEVICE TYPES ###
     for item in eol_data:
         if item["endSale"] != None:
             end_sale_date = datetime.datetime.fromtimestamp(item["endSale"]/1000)

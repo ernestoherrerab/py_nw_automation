@@ -29,13 +29,13 @@ def get_eol_data(ipf: IPFClient, filter_dict={}) -> list:
     Returns:
     if_data (list): List of dictionaries of inventory data  
     """  
-    columns_list = ["hostname", "siteName", "pid", "platform","deviceSn", "vendor", "model", "endSale", "endMaintenance", "endSupport", "dscr", "replacement"]
+    columns_list = ["hostname", "siteName", "pid", "platform","sn", "vendor", "model", "endSale", "endMaintenance", "endSupport", "dscr", "replacement"]
 
     eol_data = ipf.inventory.eol_details.all(columns=columns_list, filters=filter_dict)
     
     return eol_data
 
-def get_dhcp_relay_ifs(ipf: IPFClient, filter_dict: dict) -> list:
+def get_dhcp_relay_ifs(ipf: IPFClient, filter_dict={}) -> list:
     """Get device DHCP Relay data
 
     Args:
@@ -51,7 +51,7 @@ def get_dhcp_relay_ifs(ipf: IPFClient, filter_dict: dict) -> list:
     
     return dhcp_relay_ifs
 
-def get_if_data(ipf: IPFClient, filter_dict: dict) -> list:
+def get_if_data(ipf: IPFClient, filter_dict={}) -> list:
     """Get device interfaces data 
 
     Args:
@@ -80,7 +80,7 @@ def get_inv_data(ipf: IPFClient, filter_dict={}) -> list:
     
     return inv_data
 
-def get_mgmt_ips(ipf: IPFClient, filter_dict: dict) -> list:
+def get_mgmt_ips(ipf: IPFClient, filter_dict={}) -> list:
     """Get device management IP
 
     Args:
@@ -93,8 +93,24 @@ def get_mgmt_ips(ipf: IPFClient, filter_dict: dict) -> list:
     mgmt_data = ipf.inventory.devices.all(filters=filter_dict)
 
     return mgmt_data
+
+def get_stack_members(ipf: IPFClient, filter_dict={}) -> list:
+    """Get switch stack members
+
+    Args:
+    ipf (IPFClient obj): From Authentication
+    filter_dict (dict): Dictionary to Filter Data 
+
+    Returns:
+    stack_members (list): List of dictionaries
     
-def get_subnets_data(ipf: IPFClient, filter_dict: dict) -> list:
+    """
+    
+    stack_members_data = ipf.technology.platforms.stacks_members.all(filters=filter_dict)
+    
+    return stack_members_data
+    
+def get_subnets_data(ipf: IPFClient, filter_dict={}) -> list:
     """Get device interfaces data
 
     Args:
