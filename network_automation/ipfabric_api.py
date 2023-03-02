@@ -6,8 +6,11 @@ from decouple import config
 from ipfabric import IPFClient
 
 
-def auth() -> IPFClient:
+def auth(snapshot="$last") -> IPFClient:
     """Authentication Function
+    Args:
+    snapshot (str): snapshot id
+    Options: "$last", "$prev", "$lastLocked" or UUID
 
     Returns: 
     ipf (IPFClient obj): Session object
@@ -15,7 +18,7 @@ def auth() -> IPFClient:
 
     IPFABRIC_URL = config("IPFABRIC_URL")
     IPFABRIC_TOKEN = config("IPFABRIC_TOKEN")
-    ipf = IPFClient(IPFABRIC_URL, token=IPFABRIC_TOKEN, verify=False, timeout=15)
+    ipf = IPFClient(IPFABRIC_URL, snapshot_id=snapshot, token=IPFABRIC_TOKEN, verify=False, timeout=15)
     
     return ipf 
 
@@ -93,6 +96,17 @@ def get_mgmt_ips(ipf: IPFClient, filter_dict={}) -> list:
     mgmt_data = ipf.inventory.devices.all(filters=filter_dict)
 
     return mgmt_data
+
+def get_snapshot_diff(ipf: IPFClient, snapshot: str) -> list:
+    """Get snapshot differential
+
+    Args:
+    ipf (IPFClient obj): From Authentication
+    filter_dict (dict): Dictionary to Filter Data 
+
+    Returns:
+    diff_data (list): List of Dictionaries 
+    """
 
 def get_stack_members(ipf: IPFClient, filter_dict={}) -> list:
     """Get switch stack members

@@ -39,10 +39,19 @@ def get_lifecycle_data():
     if request.method == "POST":
         logger.info(f'Generating report')
         print(f'Generating report')
-        get_lifecycle.build_lifecycle_report()
+        get_lifecycle.build_lifecycle_report(True)
 
         return send_file(f'./lifecycle/archive/eol_summary.xlsx', as_attachment=True)
 
+@lifecycle.route("/get_lifecycle_diff", methods=["POST"])
+def get_lifecycle_diff():
+    if request.method == "POST":
+        logger.info(f'Generating differential report')
+        print(f'Generating differential report')
+        get_lifecycle.build_lifecycle_diff()
+
+    return send_file(f'./lifecycle/archive/differential.xlsx', as_attachment=True)
+        
 
 ### ERROR & SUCCESS VIEWS ###
 
