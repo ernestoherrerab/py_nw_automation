@@ -38,19 +38,33 @@ def build_xlsx(data, filename):
         dict_writer.writeheader()
         dict_writer.writerows(data)
 
-    read_file = pandas.read_csv (csv_location / (filename + ".csv"))
-    read_file.to_excel (csv_location / (filename + ".xlsx"), index = None, header=True)
+    read_file = pandas.read_csv(csv_location / (filename + ".csv"))
+    read_file.to_excel(csv_location / (filename + ".xlsx"), index = None, header=True)
 
-def build_lifecycle_report():
+def compare(latest: list, baseline: list):
+    diff_list = []
+    for i in latest + baseline:
+        if i not in latest:
+            i["status"] = "missing"
+            diff_list.append(i)
+        elif i not in baseline:
+            i["status"] = "new discovery"
+            diff_list.append(i)
+
+    return diff_list
+
+
+def build_lifecycle_report(xlsx, snapshot="$last"):
     """ Get Inventory and EoL Data from IP Fabric and Produce a report
 
     Args:
     file (str): Commands file path
+    build (bool): If an excel needs to be build
     """
 
     ### GENERATE IPFABRIC SESSION ###
     print("Authenticating to IPFabric...")
-    ipf_session = ipfabric.auth()
+    ipf_session = ipfabric.auth(snapshot=snapshot)
     logger.info("IPFabric: Authenticated")
 
     ### GET INVENTORY DATA ###
@@ -85,21 +99,45 @@ def build_lifecycle_report():
         if item["endSupport"] != None:
             end_support_date = datetime.datetime.fromtimestamp(item["endSupport"]/1000)
             item["endSupport"] = end_support_date.strftime('%d/%m/%Y')
-        if re.search(r'\w+-(as|AS|sw|SW)\S+', item["hostname"]) != None:
+        if re.search(r'\w+-(as|AS|sw|SW)\S+', item["hostname"]) != None and "WISM" not in item["pid"]:
             item["type"] = "Access Switch"
+            if "24" in item["pid"]:
+                item["Juniper_Replacement"] = "EX4100-F-24P"
+            elif "48" in item["pid"]:
+                item["Juniper_Replacement"] = "EX4100-F-48P"
         elif re.search(r'\w+-(ds|cs)\S+', item["hostname"]) != None:
             item["type"] = "Core Switch"
+            item["Juniper_Replacement"] = "EX4650-48Y-AFI"
         elif re.search(r'\w+-(wc|wlc|WC|WLC)\S+', item["hostname"]) != None:
             item["type"] = "Wireless Controller"
         elif re.search(r'\w+-(r0|rtr|ron|rcrtr)\S+', item["hostname"]) != None:
             item["type"] = "router"
         elif re.search(r'\w+-(ap|AP)\S+', item["hostname"]) != None or re.search(r'(AP\d+)\S+', item["hostname"]) != None:
             item["type"] = "access point"
+            item["Juniper_Replacement"] = "AP32-WW"
         elif re.search(r'\w+-(fw)\S+', item["hostname"]) != None:
             item["type"] = "firewall"
         else:
             item["type"] = "unknown"
 
 
-    ### BUILD CSV FILE ###
-    build_xlsx(eol_data, 'eol_summary')
+    ### BUILD EXCEL FILE ###
+    if xlsx:
+        build_xlsx(eol_data, 'eol_summary')
+    else:
+        return eol_data
+
+def build_lifecycle_diff():
+    """ Get Inventory and EoL Data from IP Fabric and Produce a report
+
+    Args:
+    file (str): Commands file path
+    """
+
+    ### GET SNAPSHOT DIFFERENTIAL ###
+    baseline = build_lifecycle_report(False, "$lastLocked")
+    latest = build_lifecycle_report(False)
+    difference = compare(latest, baseline)
+    build_xlsx(difference, "differential")
+
+    
