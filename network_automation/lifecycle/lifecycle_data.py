@@ -102,23 +102,29 @@ def build_lifecycle_report(xlsx, snapshot="$last"):
         if re.search(r'\w+-(as|AS|sw|SW)\S+', item["hostname"]) != None and "WISM" not in item["pid"]:
             item["type"] = "Access Switch"
             if "24" in item["pid"]:
-                item["Juniper_Replacement"] = "EX4100-F-24P"
+                item["juniper_replacement"] = "EX4100-F-24P"
             elif "48" in item["pid"]:
-                item["Juniper_Replacement"] = "EX4100-F-48P"
+                item["juniper_replacement"] = "EX4100-F-48P"
+            else:
+                item["juniper_replacement"] = "unknown"
         elif re.search(r'\w+-(ds|cs)\S+', item["hostname"]) != None:
             item["type"] = "Core Switch"
-            item["Juniper_Replacement"] = "EX4650-48Y-AFI"
+            item["juniper_replacement"] = "EX4650-48Y-AFI"
         elif re.search(r'\w+-(wc|wlc|WC|WLC)\S+', item["hostname"]) != None:
             item["type"] = "Wireless Controller"
+            item["juniper_replacement"] = 'not applicable'
         elif re.search(r'\w+-(r0|rtr|ron|rcrtr)\S+', item["hostname"]) != None:
             item["type"] = "router"
+            item["juniper_replacement"] = 'not applicable'
         elif re.search(r'\w+-(ap|AP)\S+', item["hostname"]) != None or re.search(r'(AP\d+)\S+', item["hostname"]) != None:
             item["type"] = "access point"
-            item["Juniper_Replacement"] = "AP32-WW"
+            item["juniper_replacement"] = "AP32-WW"
         elif re.search(r'\w+-(fw)\S+', item["hostname"]) != None:
             item["type"] = "firewall"
+            item["juniper_replacement"] = 'not applicable'
         else:
             item["type"] = "unknown"
+            item["juniper_replacement"] = 'not applicable'
 
 
     ### BUILD EXCEL FILE ###
@@ -138,6 +144,7 @@ def build_lifecycle_diff():
     baseline = build_lifecycle_report(False, "$lastLocked")
     latest = build_lifecycle_report(False)
     difference = compare(latest, baseline)
+    print(difference)
     build_xlsx(difference, "differential")
 
     
