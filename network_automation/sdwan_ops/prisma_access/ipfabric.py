@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 import urllib3
 from netaddr import IPAddress, cidr_merge
-import network_automation.sdwan_ops.ipfabric_api as ipfabric
+import network_automation.ipfabric_api as ipfabric
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/sdwan_ops.log")
@@ -38,7 +38,7 @@ def get_ipfabric_data(site_data: dict) -> tuple:
 
     ### GENERATE IPFABRIC SESSION ###
     print("Authenticating to IPFabric...")
-    ipf_session = ipfabric.auth()
+    ipf_session = ipfabric.auth("$prev")
     logger.info("IPFabric: Authenticated")
 
     ### RETRIEVE INTERFACE DATA FROM DEVICE FROM IPFABRIC ###
@@ -46,7 +46,8 @@ def get_ipfabric_data(site_data: dict) -> tuple:
     print("Getting Public Interface Data of Site Routers...")
     if_filter_input = {"and": [{"hostname": ["reg",f'{site_code.lower()}-r\\d+-sdw']}]}
     dev_data = ipfabric.get_if_data(ipf_session, if_filter_input)
-    logger.info("IPFabric: Retrieved Interface Data from router") 
+    logger.info("IPFabric: Retrieved Interface Data from router")
+
     ### GET PUBLIC IPS FROM INTERFACE RETRIEVED IPFABRIC DATA ###
     ### FILTERS ALL INTERFACES WITH AN IP CONFIGURED AND SEARCHES FOR PUBLIC IPS ###
     print("Getting public IP data...")

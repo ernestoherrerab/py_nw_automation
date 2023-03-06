@@ -54,7 +54,7 @@ def get_dhcp_relay_ifs(ipf: IPFClient, filter_dict={}) -> list:
     
     return dhcp_relay_ifs
 
-def get_if_data(ipf: IPFClient, filter_dict={}) -> list:
+def get_if_data(ipf: IPFClient, filter_dict:dict={}) -> list:
     """Get device interfaces data 
 
     Args:
@@ -124,7 +124,7 @@ def get_stack_members(ipf: IPFClient, filter_dict={}) -> list:
     
     return stack_members_data
     
-def get_subnets_data(ipf: IPFClient, filter_dict={}) -> list:
+def get_subnets_data(ipf: IPFClient, filter_dict:dict={}) -> list:
     """Get device interfaces data
 
     Args:

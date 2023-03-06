@@ -423,7 +423,7 @@ def get_spn_location(session: PanApiSession, region: str) -> dict:
     )
     response = spn_location.read(session)
     if response != None:
-        response_json =dumps(response.payload, indent=4)
+        response_json =dumps(response, indent=4)
         response_dict = loads(response_json)
         return response_dict
     else:

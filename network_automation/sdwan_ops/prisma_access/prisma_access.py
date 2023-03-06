@@ -57,7 +57,7 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
     }
     with open(PANAPI_CONFIG_PATH, "w+") as f:
         dump(auth_input, f)
-
+    
     ### GENERATE PRISMA SESSION ###
     print("Authenticating to Prisma...")
     prisma_session = prisma.auth(PANAPI_CONFIG_PATH)
@@ -84,6 +84,7 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
         return False
     else:
         spn_location = spn_location_dict["spn_name_list"][0]
+        print(spn_location)
         logger.info(f'Prisma: Retrieved SPN Location from {region}: {spn_location}')
 
     ### RETRIEVE REGION NAME BASED ON LOCATION INPUT ###
