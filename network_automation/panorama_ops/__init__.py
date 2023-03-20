@@ -4,4 +4,4 @@ Creates the Blueprint for the secondary app
 """
 from flask import Blueprint
 
-ise_ops = Blueprint("ise_ops", __name__)
+panorama_ops = Blueprint("panorama_ops", __name__)
