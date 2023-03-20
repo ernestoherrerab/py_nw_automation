@@ -101,6 +101,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
     VMANAGE_URL_VAR = config("VMANAGE_URL_VAR")
     VMANAGE_PRISMA_PRIM_TEMPLATE_ID = config("VMANAGE_PRISMA_PRIM_TEMPLATE_ID")
     VMANAGE_PRISMA_SEC_TEMPLATE_ID = config("VMANAGE_PRISMA_SEC_TEMPLATE_ID")
+    VMANAGE_AZURE_LIST_ID = config("VMANAGE_AZURE_LIST_ID")
     site_code = site_data["site_code"].upper()
     new_template_name = ""
     summary_list = []
@@ -146,6 +147,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
         ### GET DEVICE ID FOR VPN10 FEATURE TEMPLATE FROM VEDGE DATA ###
         ### HEAVILY DEPENDANT ON FEATURE VPN TEMPLATE BEING USING "VPN10" ON ITS NAMING ### 
         device_type = vedge["deviceModel"]
+        sdwan_site_id = vedge["site-id"]
         template_name = vedge["template"]
         template_list = sdwan.get_all_templates_config(auth, VMANAGE_URL_VAR, [f'PRISMA_{template_name}'])
         feature_templates = sdwan.get_dev_feature_template(auth, VMANAGE_URL_VAR)
@@ -249,68 +251,10 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             
             #### FORMAT FINAL DATA STRCUTURE ###
             summary_list = format_data_structure(new_template_id, new_dev_input["data"], auth, VMANAGE_URL_VAR)
+            logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
 
             return summary_list              
-#            ### FORMAT FINAL DATA STRUCTURE ###
-#            ### ONLY NEEDED IF ITS A NEW TEMPLATE ###
-#            print("Formatting data to push to vManage...")
-#            feature_template_dict = {}
-#            feature_template_dict["deviceTemplateList"] = []
-#            feature_template_dict["deviceTemplateList"].append(
-#                {"templateId": new_template_id, 
-#                "device": new_dev_input["data"], 
-#                "isEdited": False, 
-#                "isMasterEdited": False})
-#            logger.info(f'vManage: Data ready to be uploaded to vManage')
-#
-#            ### REMOVE PROBLEM DEVICES IF THEY EXIST ###
-#            ### ONLY NEEDED IF ITS A NEW TEMPLATE ###
-#            print("Evaluating if there are problem templates and remove them...")
-#            csv_status = feature_template_dict["deviceTemplateList"][0]["device"][0]["csv-status"]
-#            csv_hostname = feature_template_dict["deviceTemplateList"][0]["device"][0]["csv-host-name"]
-#            if csv_status != "complete":
-#                print(f'Removing {csv_hostname} for payload due to {csv_status}')
-#                print("Device will not be attached...")
-#                logger.info(f'vManage: Removed {{csv_hostname}} for payload due to {csv_status}')
-#                summary_list.append(
-#                    {
-#                        "action_status": csv_status,
-#                        "action_activity": "Not Pushed",
-#                        "action_config": "Not Pushed"
-#                        })
-#            else:
-#                feature_template_dict["deviceTemplateList"][0]["device"][0]["csv-templateId"] = feature_template_dict["deviceTemplateList"][0]["templateId"] 
-#                logger.info(f'vManage: Evaluated templates to push')
-#
-#                ### PUSH TEMPLATES TO DEVICES ###
-#                print("Pushing templates to devices...")
-#                ops_id, summary_obj = sdwan.attach_dev_template(auth, VMANAGE_URL_VAR, feature_template_dict)
-#                summary = dict(summary_obj)
-#                logger.info(f'vManage: {ops_id}') 
-#
-#                ### FORMAT SUMMARY FOR LOGGING ###
-#                summary_status = summary["action_status"]
-#                summary_activity = summary["action_activity"]
-#                summary_config = loads(summary["action_config"])
-#                summary_list.append(                {
-#                        "action_status": summary_status,
-#                        "action_activity": summary_activity,
-#                        "action_config": summary_config
-#                        })
-#                if summary_status == "success":
-#                    logger.info(f'vManage: Provisioning was {summary_status}')
-#                    for activity in summary_activity:
-#                        logger.info(f'vManage:  {activity}')
-#                    for configuration in summary_config:
-#                        logger.info(f'vManage:  {configuration}')
-#                    return summary_list
-#                else:
-#                    logger.error(f'vManage: Provisioning was {summary_status}') 
-#                    for activity in summary_activity:
-#                        logger.error(f'vManage:  {activity}')
-#                    for configuration in summary_config:
-#                        logger.error(f'vManage:  {configuration}')
-#                return summary_list
+
         else:
             ### GET EXISTING PRISMA TEMPLATE ID ###
             prisma_template_id = template_list[0]['templateId'] 
@@ -353,64 +297,8 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
 
             #### FORMAT FINAL DATA STRCUTURE ###
             summary_list = format_data_structure(prisma_template_id, prisma_dev_input["data"], auth, VMANAGE_URL_VAR)
+            update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
+            logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
 
             return summary_list       
              
-#            ### FORMAT FINAL DATA STRUCTURE ###
-#            print("Formatting data to push to vManage...")
-#            feature_template_dict = {}
-#            feature_template_dict["deviceTemplateList"] = []
-#            feature_template_dict["deviceTemplateList"].append(
-#                {"templateId": prisma_template_id, 
-#                "device": prisma_dev_input["data"], 
-#                "isEdited": False, 
-#                "isMasterEdited": False})
-#            logger.info(f'vManage: Data ready to be uploaded to vManage')
-#            
-#            ### REMOVE PROBLEM DEVICES IF THEY EXIST ###
-#            print("Evaluating if there are problem templates and remove them...")
-#            csv_status = feature_template_dict["deviceTemplateList"][0]["device"][0]["csv-status"]
-#            csv_hostname = feature_template_dict["deviceTemplateList"][0]["device"][0]["csv-host-name"]
-#            if csv_status != "complete":
-#                print(f'Removing {csv_hostname} for payload due to {csv_status}')
-#                print("Device will not be attached...")
-#                logger.info(f'vManage: Removed {{csv_hostname}} for payload due to {csv_status}')
-#                summary_list.append(
-#                    {
-#                        "action_status": csv_status,
-#                        "action_activity": "Not Pushed",
-#                        "action_config": "Not Pushed"
-#                        })
-#            else:
-#                feature_template_dict["deviceTemplateList"][0]["device"][0]["csv-templateId"] = feature_template_dict["deviceTemplateList"][0]["templateId"] 
-#                logger.info(f'vManage: Evaluated templates to push')
-#
-#                ### PUSH TEMPLATES TO DEVICES ###
-#                print("Pushing templates to devices...")
-#                ops_id, summary_obj = sdwan.attach_dev_template(auth, VMANAGE_URL_VAR, feature_template_dict)
-#                summary = dict(summary_obj)
-#                logger.info(f'vManage: {ops_id}') 
-#
-#                ### FORMAT SUMMARY FOR LOGGING ###
-#                summary_status = summary["action_status"]
-#                summary_activity = summary["action_activity"]
-#                summary_config = loads(summary["action_config"])
-#                summary_list.append(                {
-#                        "action_status": summary_status,
-#                        "action_activity": summary_activity,
-#                        "action_config": summary_config
-#                        })
-#                if summary_status == "success":
-#                    logger.info(f'vManage: Provisioning was {summary_status}')
-#                    for activity in summary_activity:
-#                        logger.info(f'vManage:  {activity}')
-#                    for configuration in summary_config:
-#                        logger.info(f'vManage:  {configuration}')
-#                    return summary_list
-#                else:
-#                    logger.error(f'vManage: Provisioning was {summary_status}') 
-#                    for activity in summary_activity:
-#                        logger.error(f'vManage:  {activity}')
-#                    for configuration in summary_config:
-#                        logger.error(f'vManage:  {configuration}')
-#                return summary_list
