@@ -16,6 +16,7 @@ from network_automation.nw_infra_links.views import nw_infra_links
 from network_automation.sdwan_ops.views import sdwan_ops
 from network_automation.site_documentation.views import site_documentation
 from network_automation.topology_builder.views import topology_builder
+from network_automation.panorama_ops.views import panorama_ops
 
 sys.dont_write_bytecode = True
 
@@ -40,7 +41,7 @@ app.register_blueprint(nw_infra_links, url_prefix="/nw-infra-links")
 app.register_blueprint(sdwan_ops, url_prefix="/sdwan-ops")
 app.register_blueprint(site_documentation, url_prefix="/site_documentation")
 app.register_blueprint(topology_builder, url_prefix="/topology-builder")
-
+app.register_blueprint(panorama_ops, url_prefix="/panorama_ops")
 ### VIEWS OR ROUTES ###
 @app.route("/home")
 def home():
