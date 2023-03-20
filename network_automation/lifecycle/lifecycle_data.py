@@ -106,7 +106,10 @@ def build_lifecycle_report(xlsx, snapshot="$last"):
             elif "48" in item["pid"]:
                 item["juniper_replacement"] = "EX4100-F-48P"
             else:
-                item["juniper_replacement"] = "unknown"
+                item["juniper_replacement"] = "not applicable"
+        elif re.search(r'\w+-(as|AS|sw|SW)\S+', item["hostname"]) != None and "WISM" in item["pid"]:
+            item["type"] = "WISM Module"
+            item["juniper_replacement"] = "unknown"
         elif re.search(r'\w+-(ds|cs)\S+', item["hostname"]) != None:
             item["type"] = "Core Switch"
             item["juniper_replacement"] = "EX4650-48Y-AFI"
@@ -114,16 +117,16 @@ def build_lifecycle_report(xlsx, snapshot="$last"):
             item["type"] = "Wireless Controller"
             item["juniper_replacement"] = 'not applicable'
         elif re.search(r'\w+-(r0|rtr|ron|rcrtr)\S+', item["hostname"]) != None:
-            item["type"] = "router"
+            item["type"] = "Router"
             item["juniper_replacement"] = 'not applicable'
         elif re.search(r'\w+-(ap|AP)\S+', item["hostname"]) != None or re.search(r'(AP\d+)\S+', item["hostname"]) != None:
-            item["type"] = "access point"
+            item["type"] = "Access point"
             item["juniper_replacement"] = "AP32-WW"
         elif re.search(r'\w+-(fw)\S+', item["hostname"]) != None:
-            item["type"] = "firewall"
+            item["type"] = "Firewall"
             item["juniper_replacement"] = 'not applicable'
         else:
-            item["type"] = "unknown"
+            item["type"] = "Unknown"
             item["juniper_replacement"] = 'not applicable'
 
 
@@ -144,7 +147,6 @@ def build_lifecycle_diff():
     baseline = build_lifecycle_report(False, "$lastLocked")
     latest = build_lifecycle_report(False)
     difference = compare(latest, baseline)
-    print(difference)
     build_xlsx(difference, "differential")
 
     

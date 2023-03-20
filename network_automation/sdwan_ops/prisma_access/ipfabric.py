@@ -38,7 +38,7 @@ def get_ipfabric_data(site_data: dict) -> tuple:
 
     ### GENERATE IPFABRIC SESSION ###
     print("Authenticating to IPFabric...")
-    ipf_session = ipfabric.auth("$prev")
+    ipf_session = ipfabric.auth("6cd129a4-8dff-484b-90b1-218f8a643596")
     logger.info("IPFabric: Authenticated")
 
     ### RETRIEVE INTERFACE DATA FROM DEVICE FROM IPFABRIC ###
