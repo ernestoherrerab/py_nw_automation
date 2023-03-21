@@ -25,7 +25,7 @@ def panorama_address_check(input_address_group):
         output=''
         temp=find_member_names(input_ag,responseAddressGroups_json)
         if str(temp) != 'None' :
-
+# test
             for entry in temp:
                     ret=find_member_names(entry,responseAddressGroups_json)
                     if(str(ret)!='None'):
