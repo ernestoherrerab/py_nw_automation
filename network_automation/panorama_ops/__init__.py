@@ -1,0 +1,7 @@
+#! /usr/bin/env python
+"""
+Creates the Blueprint for the secondary app
+"""
+from flask import Blueprint
+
+panorama_ops = Blueprint("panorama_ops", __name__)
