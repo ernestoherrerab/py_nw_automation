@@ -13,7 +13,7 @@
     <body>
         <div class="alert alert-info" role="alert">
         <h1>Panorama Operations<br><br></h1>
-            <h5>Sranie rzyganie<br><br></h5>
+            <h5>AddresGroup name <br><br></h5>
                 <form name="siteForm" action="{{url_for('panorama_ops.API_calls')}}" role="form" method = "post">
                 <div class="row gy-5">
                     <div class="col-2">
@@ -22,9 +22,11 @@
                             <p><button type="submit"  onClick="runScript();" class="btn btn-primary" >Submit Data</button></p> 
                         </div>
                     </div>
-                    <div class="col-2">
-                        <div class="p-5">
-                            <textarea name="outputtext" rows="3" cols="60"></textarea>
+                
+                    <div class="col-3">
+                        <div class="p-3">
+                            <h5><br>Addres Objects<br></h5>
+                            <textarea name="outputtext" rows="22" cols="60">{{ results }}</textarea>
                         </div>
                     </div>
                 </div>
