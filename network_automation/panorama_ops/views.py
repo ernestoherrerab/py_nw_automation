@@ -7,7 +7,7 @@ from flask import render_template, request, session, current_app, redirect, send
 from pathlib import Path
 from werkzeug.utils import secure_filename
 from network_automation.panorama_ops import panorama_ops
-import network_automation.panorama_ops.address_checker as address_checking_script
+import network_automation.panorama_ops.address_checker.address_checker as address_checking_script
 
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
@@ -41,11 +41,18 @@ def API_calls():
     """
     if request.method == "POST":
         text_data = request.form
+        temp=''
         for text in text_data.items():
             if "outputtext" in text:
                 data_input = text[1]
-                print(data_input)
-                return address_checking_script.panorama_address_check(str(data_input))
+                temp=data_input
+                script_output =  address_checking_script.panorama_address_check(str(data_input))
+    if script_output is None:
+        return render_template(f"{TEMPLATE_DIR}/address_checker.html", results="No AddGroup named "+ temp) 
+    else:
+        return render_template(f"{TEMPLATE_DIR}/address_checker.html", results=script_output)
+
+
     # if request.method == "POST":
     #     username = session.get("username")
     #     password = session.get("password")
