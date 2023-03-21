@@ -24,9 +24,14 @@
   1. SDWAN hostname update hostname (deprecated)
   2. Orchestration of Prisma Access and SDWAN Routers IPSec tunnels provisioning.
 
+- Panorama Ops: Contains different tasks to automate the Panorama operations:
+  1. Address checker to quickly get all the dependencies from Address Group
+
 - Topology Builder: by entering either a YML host file or a specific Core Switch info, topology diagrams are generated automatically which can then be downloaded.
 
 An environment file called ".env" should also exist in the same directory where the script exists. This file contains environmental variables.
+
+Panorama Ops require cert chain to secure communication. It should be included in /network_automation/panorama_ops/address_checker/ directory
 
 You can find an example in a file named "env_example".
 
@@ -114,6 +119,11 @@ You can enter data in two ways:
 1. Enter the vManage credentials
 
 2. Enter input data: Site code, Region and Location as specified in the provided link.
+
+### Panorama Ops 
+
+1. Enter Address Group Name
+2. All dependent addresses will be displayed in text window
 
 ## Documentation
 
