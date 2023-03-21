@@ -1,10 +1,11 @@
 import requests
+from decouple import config
 requests.packages.urllib3.disable_warnings()
 def panorama_address_check(input_address_group):
-    Panorama_API_KEY="LUFRPT1ub1lQNWM2QldiN0RUeUQzWUNQNWhqcmJQV0E9eUlNTldRNG1jQWRpMHVyQWVsRnB5ZldLL3FQdy9SNUh3L2VvV1ZPRjQyN0haOUZnaVM2NTZtTUllNSt1dWtaa2c1U1grT0VFZ01xSnczQ0VLOVFYaHc9PQ=="
+    Panorama_API_KEY=config("Panorama_API_KEY")
     headers = { 'X-PAN-KEY' : Panorama_API_KEY}
-    responseAddressGroups_json = requests.get("https://pa-mgmt.dk.flsmidth.net/restapi/v10.2/Objects/AddressGroups?location=shared",headers=headers,verify='network_automation/panorama_ops/address_checker/pa-mgmt-dk-flsmidth-net-chain.pem').json()
-    responseAddresses_json = requests.get("https://pa-mgmt.dk.flsmidth.net/restapi/v10.2/Objects/Addresses?location=shared",headers=headers,verify='network_automation/panorama_ops/address_checker/pa-mgmt-dk-flsmidth-net-chain.pem').json()
+    responseAddressGroups_json = requests.get(config("PA_URL")+"Objects/AddressGroups?location=shared",headers=headers,verify='network_automation/panorama_ops/address_checker/pa-mgmt-dk-flsmidth-net-chain.pem').json()
+    responseAddresses_json = requests.get(config("PA_URL")+"Objects/Addresses?location=shared",headers=headers,verify='network_automation/panorama_ops/address_checker/pa-mgmt-dk-flsmidth-net-chain.pem').json()
     def find_member_names(address_group_name,responseAG_json):
         for entry in responseAG_json['result']['entry']:
             if entry['@name']==address_group_name.strip() :
