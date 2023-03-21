@@ -7,7 +7,7 @@ from flask import render_template, request, session, current_app, redirect, send
 from pathlib import Path
 from werkzeug.utils import secure_filename
 from network_automation.panorama_ops import panorama_ops
-import network_automation.panorama_ops.address_checker as address_checker
+import network_automation.panorama_ops.address_checker as address_checking_script
 
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
@@ -30,9 +30,43 @@ def home_redirect():
     return redirect(url_for("panorama_ops.home"))
 
 @panorama_ops.route("/address_checker", methods=["POST", "GET"])
-def address_checker():
+def address_checker_flask():
 
     return render_template(f"{TEMPLATE_DIR}/address_checker.html")
+
+@panorama_ops.route("API_calls", methods=["POST"])
+def API_calls():
+    """ 
+    Launch Prisma Access Tunnels Provisioning 
+    """
+    if request.method == "POST":
+        text_data = request.form
+        for text in text_data.items():
+            if "outputtext" in text:
+                data_input = text[1]
+                print(data_input)
+                return address_checking_script.panorama_address_check(str(data_input))
+    # if request.method == "POST":
+    #     username = session.get("username")
+    #     password = session.get("password")
+    #     text_data = request.form
+    #     for text in text_data.items():
+    #         if "outputtext" in text:
+    #             data_input = text[1]
+    #             data_input = data_input.replace("\n", "").split("\r")
+    #             for data in data_input:
+    #                 data = data.split(",")
+    #                 if data != [""]:
+    #                     site_data = {}
+    #                     site_code = data[0]
+    #                     region_id = data[1]
+    #                     location_id = data[2]
+    #                     site_data["site_code"] = site_code
+    #                     site_data["region_id"] = region_id
+    #                     site_data["location_id"] = location_id
+    # else:
+    #     return "Unexpected Error"
+
 
 
 ### LOG FILE DOWNLOAD ###
@@ -43,15 +77,6 @@ def ise_log_file():
     """
     return send_file(f'./../{str(LOG_FILE)}', as_attachment=True)
 
-
-### VIEWS TO DELETE DATA ###
-@panorama_ops.route("/mac_bypass_del_csv_upload")
-def mac_bypass_del_csv_upload():
-    """ CSV Upload Data Input
-    """
-
-    Path("network_automation/panorama_ops/mac_bypass/csv_data/").mkdir(exist_ok=True)
-    return render_template(f"{TEMPLATE_DIR}/mac_bypass_del_csv_upload.html")
 
 
 ### ERROR & SUCCESS VIEWS ###
