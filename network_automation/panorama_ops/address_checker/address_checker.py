@@ -4,8 +4,8 @@ requests.packages.urllib3.disable_warnings()
 def panorama_address_check(input_address_group):
     Panorama_API_KEY=config("Panorama_API_KEY")
     headers = { 'X-PAN-KEY' : Panorama_API_KEY}
-    responseAddressGroups_json = requests.get(config("PA_URL")+"Objects/AddressGroups?location=shared",headers=headers,verify='network_automation/panorama_ops/address_checker/pa-mgmt-dk-flsmidth-net-chain.pem').json()
-    responseAddresses_json = requests.get(config("PA_URL")+"Objects/Addresses?location=shared",headers=headers,verify='network_automation/panorama_ops/address_checker/pa-mgmt-dk-flsmidth-net-chain.pem').json()
+    responseAddressGroups_json = requests.get(config("PA_URL")+"Objects/AddressGroups?location=shared",headers=headers,verify='network_automation/panorama_ops/pa-mgmt-dk-flsmidth-net-chain.pem').json()
+    responseAddresses_json = requests.get(config("PA_URL")+"Objects/Addresses?location=shared",headers=headers,verify='network_automation/panorama_ops/pa-mgmt-dk-flsmidth-net-chain.pem').json()
     def find_member_names(address_group_name,responseAG_json):
         for entry in responseAG_json['result']['entry']:
             if entry['@name']==address_group_name.strip() :

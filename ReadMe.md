@@ -31,7 +31,7 @@
 
 An environment file called ".env" should also exist in the same directory where the script exists. This file contains environmental variables.
 
-Panorama Ops require cert chain to secure communication. It should be included in /network_automation/panorama_ops/address_checker/ directory
+Panorama Ops require cert chain to secure communication. It should be included in /network_automation/panorama_ops/ directory as it is used by api scrpits
 
 You can find an example in a file named "env_example".
 

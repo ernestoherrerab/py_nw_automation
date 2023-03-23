@@ -23,4 +23,4 @@ file_display/*
 file_display/public/documentation/*
 file-display/
 logs/
-/network_automation/panorama_ops/address_checker/pa-mgmt-dk-flsmidth-net-chain.pem
+/network_automation/panorama_ops/pa-mgmt-dk-flsmidth-net-chain.pem
