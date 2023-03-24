@@ -97,7 +97,7 @@ def policy_dissect_API_call():
                 data_input = text[1]
                 temp=data_input
                 script_output =  policy_dissecting_script.policy_dissect(str(data_input))
-                print(script_output)
+
         outputDict =	{
         "name": script_output['name'],
         "source": [] ,
@@ -119,7 +119,6 @@ def policy_dissect_API_call():
             
             for SRV in service_checking_script.panorama_service_check_ports(service):
                 outputDict['service'].append(SRV)                                
-        print(outputDict)
         script_output=outputDict
     if script_output is None:
         return render_template(f"{TEMPLATE_DIR}/policy_dissect.html", results="No ServiceGroup named "+ temp) 
