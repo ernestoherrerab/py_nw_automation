@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from network_automation.panorama_ops import panorama_ops
 import network_automation.panorama_ops.address_checker.address_checker as address_checking_script
 import network_automation.panorama_ops.services_checker.services_checker as service_checking_script
+import network_automation.panorama_ops.policy_dissect.policy_dissect as policy_dissecting_script
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 TEMPLATE_DIR = "panorama_ops"
@@ -36,6 +37,10 @@ def address_checker_flask():
 @panorama_ops.route("/service_checker", methods=["POST", "GET"])
 def service_checker_flask():
     return render_template(f"{TEMPLATE_DIR}/services_checker.html")
+
+@panorama_ops.route("/policy_dissect", methods=["POST", "GET"])
+def policy_dissect_flask():
+    return render_template(f"{TEMPLATE_DIR}/policy_dissect.html")
 
 @panorama_ops.route("address_check_API_call", methods=["POST"])
 def address_check_API_call():
@@ -71,3 +76,60 @@ def service_check_API_call():
         return render_template(f"{TEMPLATE_DIR}/services_checker.html", results="No ServiceGroup named "+ temp) 
     else:
         return render_template(f"{TEMPLATE_DIR}/services_checker.html", results=script_output)
+@panorama_ops.route("policy_dissect_API_call", methods=["POST"])
+def policy_dissect_API_call():
+    def recursion_string(input):
+        string_output=''
+        for source in input:
+            if type(source)!=list:
+                string_output = string_output+ source + '\n'
+            else:
+                string_output = string_output + recursion_string(source) 
+        return string_output
+    """ 
+    Launch service Checking script
+    """
+    if request.method == "POST":
+        text_data = request.form
+        temp=''
+        for text in text_data.items():
+            if "outputtext" in text:
+                data_input = text[1]
+                temp=data_input
+                script_output =  policy_dissecting_script.policy_dissect(str(data_input))
+                print(script_output)
+        outputDict =	{
+        "name": script_output['name'],
+        "source": [] ,
+        "destination": [] ,
+        "application": [] ,
+        "service": []
+        } 
+        for source in script_output['source']:
+            for IP in address_checking_script.panorama_address_check_IP(source):
+                outputDict['source'].append(IP)
+        for destination in script_output['destination']:
+            for IP in address_checking_script.panorama_address_check_IP(destination):
+                outputDict['destination'].append(IP)
+
+        for application in script_output['application']:
+                outputDict['application'].append(application)
+
+        for service in script_output['service']:
+            
+            for SRV in service_checking_script.panorama_service_check_ports(service):
+                outputDict['service'].append(SRV)                                
+        print(outputDict)
+        script_output=outputDict
+    if script_output is None:
+        return render_template(f"{TEMPLATE_DIR}/policy_dissect.html", results="No ServiceGroup named "+ temp) 
+    else:
+        result=['','','','']
+       
+        result[0]=recursion_string(script_output['source'])
+        print(result[0])
+        result[1]=recursion_string(script_output['destination'])
+        result[2]=recursion_string(script_output['application'])
+        result[3]=recursion_string(script_output['service'])
+
+        return render_template(f"{TEMPLATE_DIR}/policy_dissect.html", results=result)
