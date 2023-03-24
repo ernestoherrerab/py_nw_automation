@@ -48,28 +48,32 @@ def panorama_service_check_ports(input_services_group):
         
         for entry in responseSG_json['result']['entry']:
             if entry['@name']==services_group_name.strip() :
-                #print(entry['members']['member'])
                 return entry['members']['member']
 
     def findSrvPortNum(memberName,responseS_json):
-        for entry in responseS_json['result']['entry']:
-            if memberName=='application-default':
-                return 'application-default'
-            else:    
-                if entry['@name']==memberName.strip() :
-                    if 'tcp' in entry['protocol']:
-                        if 'udp' not in entry['protocol']:
-                            return  ('tcp  '+entry['protocol']['tcp']['port'])
-                        else:
-                            return  ('tcp  '+entry['protocol']['tcp']['port'] + 'udp '+entry['protocol']['tcp']['port'])
-                    elif 'udp' in entry['protocol']:
-                        if 'tcp' not in entry['protocol']:
-                            return  ('udp '+entry['protocol']['udp']['port'])
-                        else:
-                            return  ('tcp  '+entry['protocol']['tcp']['port'] + 'udp '+entry['protocol']['tcp']['port'])            
-            
+        for entry in responseS_json['result']['entry']: 
+
+            if entry['@name']==memberName.strip() :
+
+                if 'tcp' in entry['protocol']:
+                    if 'udp' not in entry['protocol']:
+                        return  ('tcp  '+entry['protocol']['tcp']['port'])
+                    else:
+                        return  ('tcp  '+entry['protocol']['tcp']['port'] + 'udp '+entry['protocol']['tcp']['port'])
+                elif 'udp' in entry['protocol']:
+                    if 'tcp' not in entry['protocol']:
+                        return  ('udp '+entry['protocol']['udp']['port'])
+                    else:
+                        return  ('tcp  '+entry['protocol']['tcp']['port'] + 'udp '+entry['protocol']['tcp']['port'])            
+        else:
+            return memberName
+
+                    
     def recursion(input_ag):
         output=[]
+        if input_ag == 'application-default':
+            output.append(input_ag)
+            return output
         temp=find_member_names(input_ag,responseservicesGroups_json)
         if temp is not None:
             for entry in temp:
@@ -80,7 +84,7 @@ def panorama_service_check_ports(input_services_group):
                     output.append(findSrvPortNum(entry,responseserviceses_json))
         
         else:
-            output.append(findSrvPortNum(temp,responseserviceses_json))
+            output.append(findSrvPortNum(input_ag,responseserviceses_json))
         return output
     if input_services_group in responseserviceses_json['result']['entry']:
         return input_services_group['result']['entry']

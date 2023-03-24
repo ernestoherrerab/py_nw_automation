@@ -127,7 +127,6 @@ def policy_dissect_API_call():
         result=['','','','']
        
         result[0]=recursion_string(script_output['source'])
-        print(result[0])
         result[1]=recursion_string(script_output['destination'])
         result[2]=recursion_string(script_output['application'])
         result[3]=recursion_string(script_output['service'])
