@@ -18,7 +18,24 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 def get_operations(ops_type: str, url_var: str, headers: str) -> Response:
-    """API GET operations """
+    """
+    Makes an API GET request to retrieve operations data.
+
+    Args:
+        ops_type (str): The type of operations to retrieve.
+        url_var (str): The base URL for the API endpoint.
+        headers (str): The headers to include in the GET request.
+
+    Returns:
+        Response: A Response object containing the operations data.
+
+    Raises:
+        AuthenticationError: If the API request returns a 401 status code.
+        PermissionError: If the API request returns a 403 status code.
+        ServerError: If the API request returns a 500 status code.
+        RequestError: If the API request fails for an unknown reason.
+
+    """
     url = f"{url_var}/{ops_type}"
     ops_get = get(url, headers=headers,verify=False, timeout=20.0)
     if ops_get.status_code == 200:

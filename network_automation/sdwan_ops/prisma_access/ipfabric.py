@@ -38,7 +38,7 @@ def get_ipfabric_data(site_data: dict) -> tuple:
 
     ### GENERATE IPFABRIC SESSION ###
     print("Authenticating to IPFabric...")
-    ipf_session = ipfabric.auth("6cd129a4-8dff-484b-90b1-218f8a643596")
+    ipf_session = ipfabric.auth("5bbea7ee-13a0-4e1f-af73-ea30660812aa")
     logger.info("IPFabric: Authenticated")
 
     ### RETRIEVE INTERFACE DATA FROM DEVICE FROM IPFABRIC ###
@@ -46,6 +46,7 @@ def get_ipfabric_data(site_data: dict) -> tuple:
     print("Getting Public Interface Data of Site Routers...")
     if_filter_input = {"and": [{"hostname": ["reg",f'{site_code.lower()}-r\\d+-sdw']}]}
     dev_data = ipfabric.get_if_data(ipf_session, if_filter_input)
+    print(dev_data)
     logger.info("IPFabric: Retrieved Interface Data from router")
 
     ### GET PUBLIC IPS FROM INTERFACE RETRIEVED IPFABRIC DATA ###
