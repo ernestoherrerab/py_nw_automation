@@ -8,7 +8,8 @@ from pathlib import Path
 from werkzeug.utils import secure_filename
 from network_automation.panorama_ops import panorama_ops
 import network_automation.panorama_ops.address_checker.address_checker as address_checking_script
-
+import network_automation.panorama_ops.services_checker.services_checker as service_checking_script
+import network_automation.panorama_ops.policy_dissect.policy_dissect as policy_dissecting_script
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 TEMPLATE_DIR = "panorama_ops"
@@ -31,13 +32,20 @@ def home_redirect():
 
 @panorama_ops.route("/address_checker", methods=["POST", "GET"])
 def address_checker_flask():
-
     return render_template(f"{TEMPLATE_DIR}/address_checker.html")
 
-@panorama_ops.route("API_calls", methods=["POST"])
-def API_calls():
+@panorama_ops.route("/service_checker", methods=["POST", "GET"])
+def service_checker_flask():
+    return render_template(f"{TEMPLATE_DIR}/services_checker.html")
+
+@panorama_ops.route("/policy_dissect", methods=["POST", "GET"])
+def policy_dissect_flask():
+    return render_template(f"{TEMPLATE_DIR}/policy_dissect.html")
+
+@panorama_ops.route("address_check_API_call", methods=["POST"])
+def address_check_API_call():
     """ 
-    Launch Prisma Access Tunnels Provisioning 
+    Launch address Checking script
     """
     if request.method == "POST":
         text_data = request.form
@@ -51,51 +59,75 @@ def API_calls():
         return render_template(f"{TEMPLATE_DIR}/address_checker.html", results="No AddGroup named "+ temp) 
     else:
         return render_template(f"{TEMPLATE_DIR}/address_checker.html", results=script_output)
-
-
-    # if request.method == "POST":
-    #     username = session.get("username")
-    #     password = session.get("password")
-    #     text_data = request.form
-    #     for text in text_data.items():
-    #         if "outputtext" in text:
-    #             data_input = text[1]
-    #             data_input = data_input.replace("\n", "").split("\r")
-    #             for data in data_input:
-    #                 data = data.split(",")
-    #                 if data != [""]:
-    #                     site_data = {}
-    #                     site_code = data[0]
-    #                     region_id = data[1]
-    #                     location_id = data[2]
-    #                     site_data["site_code"] = site_code
-    #                     site_data["region_id"] = region_id
-    #                     site_data["location_id"] = location_id
-    # else:
-    #     return "Unexpected Error"
-
-
-
-### LOG FILE DOWNLOAD ###
-@panorama_ops.route("ise_log_file")
-def ise_log_file():
+@panorama_ops.route("service_check_API_call", methods=["POST"])
+def service_check_API_call():
     """ 
-    Download Log File
+    Launch service Checking script
     """
-    return send_file(f'./../{str(LOG_FILE)}', as_attachment=True)
+    if request.method == "POST":
+        text_data = request.form
+        temp=''
+        for text in text_data.items():
+            if "outputtext" in text:
+                data_input = text[1]
+                temp=data_input
+                script_output =  service_checking_script.panorama_services_check(str(data_input))
+    if script_output is None:
+        return render_template(f"{TEMPLATE_DIR}/services_checker.html", results="No ServiceGroup named "+ temp) 
+    else:
+        return render_template(f"{TEMPLATE_DIR}/services_checker.html", results=script_output)
+@panorama_ops.route("policy_dissect_API_call", methods=["POST"])
+def policy_dissect_API_call():
+    def recursion_string(input):
+        string_output=''
+        for source in input:
+            if type(source)!=list:
+                string_output = string_output+ source + '\n'
+            else:
+                string_output = string_output + recursion_string(source) 
+        return string_output
+    """ 
+    Launch service Checking script
+    """
+    if request.method == "POST":
+        text_data = request.form
+        temp=''
+        for text in text_data.items():
+            if "outputtext" in text:
+                data_input = text[1]
+                temp=data_input
+                script_output =  policy_dissecting_script.policy_dissect(str(data_input))
 
+        outputDict =	{
+        "name": script_output['name'],
+        "source": [] ,
+        "destination": [] ,
+        "application": [] ,
+        "service": []
+        } 
+        for source in script_output['source']:
+            for IP in address_checking_script.panorama_address_check_IP(source):
+                outputDict['source'].append(IP)
+        for destination in script_output['destination']:
+            for IP in address_checking_script.panorama_address_check_IP(destination):
+                outputDict['destination'].append(IP)
 
+        for application in script_output['application']:
+                outputDict['application'].append(application)
 
-### ERROR & SUCCESS VIEWS ###
+        for service in script_output['service']:
+            
+            for SRV in service_checking_script.panorama_service_check_ports(service):
+                outputDict['service'].append(SRV)                                
+        script_output=outputDict
+    if script_output is None:
+        return render_template(f"{TEMPLATE_DIR}/policy_dissect.html", results="No ServiceGroup named "+ temp) 
+    else:
+        result=['','','','']
+       
+        result[0]=recursion_string(script_output['source'])
+        result[1]=recursion_string(script_output['destination'])
+        result[2]=recursion_string(script_output['application'])
+        result[3]=recursion_string(script_output['service'])
 
-@panorama_ops.route("/ise_mac_bypass_upload.html")
-def ise_mac_bypass_upload():
-    return render_template(f"{TEMPLATE_DIR}/ise_mac_bypass_upload.html")
-
-@panorama_ops.route("/ise_auth_error")
-def ise_auth_error():
-    return render_template(f"{TEMPLATE_DIR}/ise_auth_error.html")
-
-@panorama_ops.route("/ise_mac_bypass_upload_error")
-def ise_mac_bypass_upload_error():
-    return render_template(f"{TEMPLATE_DIR}/ise_mac_bypass_upload_error.html")
+        return render_template(f"{TEMPLATE_DIR}/policy_dissect.html", results=result)

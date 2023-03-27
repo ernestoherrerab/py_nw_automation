@@ -5,27 +5,27 @@
         <title>CCoE Network Automation</title>
         <script language="javascript" type="text/javascript">
             function runScript() {
-                var addgName = document.siteForm.addgName.value;
-                document.siteForm.outputtext.value = addgName;
+                var srvName = document.siteForm.srvName.value;
+                document.siteForm.outputtext.value = srvName;
             }
             </script>
     </head>
     <body>
         <div class="alert alert-info" role="alert">
         <h1>Panorama Operations<br><br></h1>
-            <h5>AddresGroup name <br><br></h5>
-                <form name="siteForm" action="{{url_for('panorama_ops.address_check_API_call')}}" role="form" method = "post">
+            <h5>ServiceGroup name <br><br></h5>
+                <form name="siteForm" action="{{url_for('panorama_ops.service_check_API_call')}}" role="form" method = "post">
                 <div class="row gy-5">
                     <div class="col-2">
-                        <div class="p-3">AddresGroup name</label></td>
-                            <input type="text" onfocus="this.value=''" class="form-control" id="addgName" name="addgName" placeholder="AddresGroup name">
+                        <div class="p-3">ServiceGroup name</label></td>
+                            <input type="text" onfocus="this.value=''" class="form-control" id="srvName" name="srvName" placeholder="ServiceGroup name">
                             <p><button type="submit"  onClick="runScript();" class="btn btn-primary" >Submit Data</button></p> 
                         </div>
                     </div>
                 
                     <div class="col-3">
                         <div class="p-3">
-                            <h5><br>Addres Objects<br></h5>
+                            <h5><br>Service Objects<br></h5>
                             <textarea name="outputtext" rows="22" cols="60">{{ results }}</textarea>
                         </div>
                     </div>

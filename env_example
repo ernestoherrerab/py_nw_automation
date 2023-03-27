@@ -18,3 +18,5 @@ ATEA_PORTAL_URL = https://a-url.com
 ISE_PORTAL_URL = https://a-url.com
 NEW_PRIME_PORTAL_URL = https://a-url.com
 OLD_PRIME_PORTAL_URL = https://a-url.com
+PA_URL = https:/palo-alto-panorama
+Panorama_API_KEY = TldRNG1jQWRpMHVy
