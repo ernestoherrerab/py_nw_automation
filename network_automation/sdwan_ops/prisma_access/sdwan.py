@@ -251,6 +251,8 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             
             #### FORMAT FINAL DATA STRCUTURE ###
             summary_list = format_data_structure(new_template_id, new_dev_input["data"], auth, VMANAGE_URL_VAR)
+            print(f'The SDWAN Site ID is: {sdwan_site_id}')
+            update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
             logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
 
             return summary_list              
@@ -297,6 +299,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
 
             #### FORMAT FINAL DATA STRCUTURE ###
             summary_list = format_data_structure(prisma_template_id, prisma_dev_input["data"], auth, VMANAGE_URL_VAR)
+            print(f'The SDWAN Site ID is: {sdwan_site_id}')
             update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
             logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
 

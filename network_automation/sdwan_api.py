@@ -8,6 +8,7 @@ from vmanage.api.authentication import Authentication
 from vmanage.api.device import Device
 from vmanage.api.device_templates import DeviceTemplates
 from vmanage.api.feature_templates import FeatureTemplates
+from vmanage.api.policy_lists import  PolicyLists
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/sdwan_ops.log")
@@ -168,3 +169,16 @@ def host_template_mapping(input_dict: dict) -> dict:
         output_dict["isMasterEdited"] = False
             
     return output_dict
+
+def update_site_list(list_id, site_id, vmanage):
+    policy = PolicyLists(auth, vmanage)
+    response =  policy.get_policy_list_by_id(list_id)
+    response["entries"].append({'siteId': site_id})
+    print(f'Azure Policy List {response}')
+    update = policy.update_policy_list(response)
+    print(f'The Azure Site List update with {site_id} is a {update}')
+    
+    return update
+
+
+

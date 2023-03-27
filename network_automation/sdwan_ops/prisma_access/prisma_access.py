@@ -160,7 +160,7 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
         public_ip = []
         while public_ip == []:
             public_ips = prisma.get_public_ip(PRISMA_API_KEY)
-            public_ip = [ip["address"] for item in public_ips for ip in item["address_details"] if ip["addressType"] == "active" and site_code in ip["node_name"] ]
+            public_ip = [ip["address"] for item in public_ips for ip in item["address_details"] if ip["addressType"] == "service_ip" and site_code in ip["node_name"] ]
             sleep(20)
         print(public_ip)
         logger.info(f'Prisma: The public IP is {public_ip}')
