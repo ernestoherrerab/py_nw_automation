@@ -13,6 +13,7 @@ nornir-scrapli==2022.1.30
 openpyxl==3.1.1
 panapi==0.0.1
 pandas==1.5.3
+pan-python==0.17.0
 pyats==22.2
 python-decouple==3.6
 PyYAML==6.0

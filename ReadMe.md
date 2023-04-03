@@ -120,21 +120,29 @@ You can enter data in two ways:
 
 2. Enter input data: Site code, Region and Location as specified in the provided link.
 
-### Panorama Ops 
+### Panorama Ops
+
 1. Address Group check
-2. Services Group check
-3. Policy dissect
+2. Address Object Editor
+3. Services Group check
+4. Policy dissect
 
 ## Address Group check
+
 1. Enter Address Group Name
 2. All dependent addresses will be displayed in text window
 
+## Address Object Editor
+
+1. Upload CSV or manual data as specified
 
 ## Services Group check
+
 1. Enter Services Group Name
 2. All dependent services will be displayed in text window
 
 ## Policy dissect
+
 1. Endet policy name
 2. All source destination addreses, apps and services are going tobe displayed
 
