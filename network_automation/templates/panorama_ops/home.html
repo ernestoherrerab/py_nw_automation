@@ -7,10 +7,11 @@
     <body>
         <div class="alert alert-info" role="alert">
         <h1>Panorama Operations<br><br></h1>
-            <h5>Select Operation<br><br></h5>
-            <a class="btn btn-primary" href="{{url_for('panorama_ops.address_checker_flask')}}" role="button">Address Group Check</a>
-            <a class="btn btn-primary" href="{{url_for('panorama_ops.service_checker_flask')}}" role="button">Service Group Check</a>
-            <a class="btn btn-primary" href="{{url_for('panorama_ops.policy_dissect_flask')}}" role="button">Policy dissect</a>
+            <h5>Select Operation:<br><br></h5>
+            <a class="btn btn-primary" href="{{url_for('panorama_ops.address_checker')}}" role="button">Address Group Check</a>
+            <a class="btn btn-primary" href="{{url_for('panorama_ops.panorama_login')}}" role="button">Address Objects Editor</a>
+            <a class="btn btn-primary" href="{{url_for('panorama_ops.service_checker')}}" role="button">Service Group Check</a>
+            <a class="btn btn-primary" href="{{url_for('panorama_ops.policy_dissect')}}" role="button">Policy dissect</a>
             <a class="btn btn-primary" href="{{url_for('home')}}" role="button">Main Index</a>      
         </div>
         <br><h4>*Do not refresh or press the "back" button, this might take some time to process.</h4>

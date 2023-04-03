@@ -6,16 +6,15 @@
     </head>
     <body>
         <div class="alert alert-info" role="alert">
-        <h1>ISE MAC Bypass<br><br></h1>
-        <h4>{{success}}<br><br></h4>
-        <h5>Enter ISE Credentials:<br><br></h5>
-        <form action="{{url_for('ise_ops.ise_auth')}}" method = "POST" role="form">
+        <h1>Panorama Ops<br><br></h1>
+        <h5>Enter Panorama Credentials:<br><br></h5>
+        <form action="{{url_for('panorama_ops.panorama_auth')}}" method = "POST" role="form">
             <div class="row g-3 align-items-center">
 				<div class="col-auto">
-					<label for="username">Username:</label>
-					<input type="text" class="form-control" id="username" name="username" placeholder="ISE Username">
-					<label for="password">Password:</label>
-					<input type="password" class="form-control" id="password" name="password" placeholder="ISE Password"><br>
+					<label for="panorama_username">Username:</label>
+					<input type="text" class="form-control" id="panorama_username" name="panorama_username" placeholder="Panorama Username">
+					<label for="panorama_password">Password:</label>
+					<input type="password" class="form-control" id="panorama_password" name="panorama_password" placeholder="Panorama Password"><br>
 				</div>
 			</div>
             <button type="submit" class="btn btn-success">Log In</button>
