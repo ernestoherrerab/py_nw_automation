@@ -7,7 +7,7 @@ import logging
 from json import dumps, loads
 from pathlib import Path, PosixPath
 from requests import post
-from netaddr import IPAddress
+from netaddr import IPAddress, IPNetwork
 from panapi import PanApiSession
 from panapi.config.management import ConfigVersion
 from panapi.config.network import BandwidthAllocation, IKEGateway, IPSecTunnel, Location, RemoteNetwork
@@ -141,7 +141,7 @@ def create_ike_gw(session: PanApiSession, router_data: set) -> tuple:
 					}
 				}
 			}
-    protocol_common_var = {"passive_mode": True} 
+    protocol_common_var = {"passive_mode": False} 
 
     for index, router in enumerate(router_data):    
         peer_addr = {"ip": router[1]}
@@ -206,7 +206,7 @@ def create_ipsec_tunnel(session: PanApiSession, ike_gws: list) -> tuple:
 
     return response_code, ipsec_tunnel_names
 
-def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tunnel_names: list, region_id: str, networks: list) -> int:
+def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tunnel_names: list, region_id: str, tunnel_ips: list) -> int:
     """ Create remote network & Tunnels 
     
     Args:
@@ -220,7 +220,8 @@ def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tu
     Returns:
     response (int): Status code of API Call 
     """
-    if len(tunnel_names) > 1:
+    
+    if len(tunnel_names) > 1 and "R02" in '\t'.join(tunnel_names):
         primary_tunnel = tunnel_names[0]
         secondary_tunnel = tunnel_names[1]
         remote_network = RemoteNetwork(
@@ -231,15 +232,63 @@ def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tu
         region = region_id,
         spn_name = spn_location,
         ipsec_tunnel = primary_tunnel,
-        secondary_ipsec_tunnel = secondary_tunnel,
-        subnets = networks    
+        secondary_ipsec_tunnel = secondary_tunnel   
         )
         remote_network.create(session)
         print(f'Remote Network Creation for {site_id} resulted in {session.response.status_code}')
         logger.info(f'Prisma: Remote Network Creation for {site_id} resulted in {session.response.status_code}')
         response_code = session.response.status_code
-        
+
         return response_code
+    
+    elif len(tunnel_names) > 1 and "R02" not in '\t'.join(tunnel_names):
+        PRISMA_BGP_KEY = config("PRISMA_BGP_KEY")
+        primary_tunnel = tunnel_names[0]
+        secondary_tunnel = tunnel_names[1]
+        bgp_peers = list(map(lambda x: str(list(IPNetwork(f'{x}/30'))[2]), tunnel_ips))
+        remote_nws = get_remote_nws(session)
+        bgp_asn_list = [item.protocol["bgp"]["peer_as"] for item in remote_nws if hasattr(item, "protocol")]
+        logger.info(f'Prisma: BGP ASN List resulted in {bgp_asn_list}')
+        peer_asn = int(sorted(bgp_asn_list)[-1])+1
+        logger.info(f'Prisma: BGP ASN to use is {peer_asn}')
+        bgp_peer_dict = {
+                "peer_ip_address": tunnel_ips[0],
+                "local_ip_address": bgp_peers[0]
+            }
+        bgp_protocol_dict = {
+                "bgp": {
+                    "enable": True,
+                    "do_not_export_routes": True,
+                    "peer_ip_address": tunnel_ips[0],
+                    "local_ip_address": bgp_peers[0],
+                    "peer_as": str(peer_asn),
+                    "secret": PRISMA_BGP_KEY
+                },
+                "bgp_peer": {
+                    "peer_ip_address": tunnel_ips[1],
+                    "local_ip_address": bgp_peers[1],
+                    "secret": PRISMA_BGP_KEY
+                }
+            } 
+        remote_network = RemoteNetwork(
+        folder = "Remote Networks",
+        license_type = "FWAAS-AGGREGATE",
+        ecmp_load_balancing = "disable",
+        name = site_id,
+        region = region_id,
+        spn_name = spn_location,
+        ipsec_tunnel = primary_tunnel,
+        secondary_ipsec_tunnel = secondary_tunnel,
+        bgp_peer = bgp_peer_dict,
+        protocol = bgp_protocol_dict    
+        )
+        remote_network.create(session)
+        print(f'Remote Network Creation for {site_id} resulted in {session.response.status_code}')
+        logger.info(f'Prisma: Remote Network Creation for {site_id} resulted in {session.response.status_code}')
+        response_code = session.response.status_code
+
+        return response_code
+    
     else:
         primary_tunnel = tunnel_names[0]
         remote_network = RemoteNetwork(
@@ -249,8 +298,7 @@ def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tu
         name = site_id,
         region = region_id,
         spn_name = spn_location,
-        ipsec_tunnel = primary_tunnel,
-        subnets = networks    
+        ipsec_tunnel = primary_tunnel   
         )
         remote_network.create(session)
         print(f'Remote Network Creation for {site_id} resulted in {session.response.status_code}')
@@ -388,7 +436,7 @@ def get_region(session: PanApiSession) -> dict:
 
     return response
 
-def get_remote_nws(session: PanApiSession, site_id: str) -> RemoteNetwork:
+def get_remote_nws(session: PanApiSession, site_id: str = "") -> RemoteNetwork:
     """Get existing remote networks
 
     Args:
@@ -398,14 +446,21 @@ def get_remote_nws(session: PanApiSession, site_id: str) -> RemoteNetwork:
     Returns:
     response (RemoteNetwork Obj): Searched Remote Network
     """
-    remote_networks = RemoteNetwork(
-    folder = "Remote Networks",
-    name = site_id
+    if site_id != "":
+        remote_networks = RemoteNetwork(
+        folder = "Remote Networks",
+        name = site_id
 
-    )
-    response = remote_networks.read(session)
+        )
+        response = remote_networks.read(session)
+        return response
+    else:
+        remote_networks = RemoteNetwork(
+        folder = "Remote Networks"
+        )
+        response = remote_networks.list(session)
     
-    return response
+        return response
 
 def get_spn_location(session: PanApiSession, region: str) -> dict:
     """Get SPN based on Location 
