@@ -55,4 +55,3 @@ def add_address_object(username, password, manual_data=None):
             add_obj_dict["obj_desc"])
         panorama.add(address_object)
         address_object.create()
-        
