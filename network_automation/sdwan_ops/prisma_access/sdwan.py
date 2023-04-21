@@ -58,6 +58,7 @@ def format_data_structure(template_id: str, dev_input: dict, auth_session: objec
 
         ### PUSH TEMPLATES TO DEVICES ###
         print("Pushing templates to devices...")
+        print(feature_template_dict)
         ops_id, summary_obj = sdwan.attach_dev_template(auth_session, vmanage_url, feature_template_dict)
         summary = dict(summary_obj)
         logger.info(f'vManage: {ops_id}') 
@@ -107,6 +108,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
     VMANAGE_PRISMA_PRIM_TEMPLATE_ID = config("VMANAGE_PRISMA_PRIM_TEMPLATE_ID")
     VMANAGE_PRISMA_SEC_TEMPLATE_ID = config("VMANAGE_PRISMA_SEC_TEMPLATE_ID")
     VMANAGE_AZURE_LIST_ID = config("VMANAGE_AZURE_LIST_ID")
+    VMANAGE_VSMART_TEMPLATE_ID = config("VMANAGE_VSMART_TEMPLATE_ID")
     VMANAGE_PRISMA_BGP = config("VMANAGE_PRISMA_BGP")
     site_code = site_data["site_code"].upper()
     new_template_name = ""
@@ -146,7 +148,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
     ### FILTER DEVICES BY SITE CODE AND REACHABILITY ###  
     site_code = site_code.lower()
     vedge_list = [online_dev for online_dev in vedge_data if "reachability" in online_dev and online_dev["reachability"] == "reachable" and re.match(rf'{site_code}-r\d+-sdw', online_dev["host-name"]) ]
-    logger.info(f'vManage: Filter vEdge Data...by site code')
+    logger.info(f'vManage: Filter vEdge Data by site code: {site_code}')
         
     
     ### FOR LOOP USED TO FORMAT NEW TEMPLATE DATA FOR DEVICE ATTACHMENT ####
@@ -154,7 +156,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
         ### GET DEVICE ID FOR VPN10 FEATURE TEMPLATE FROM VEDGE DATA ###
         sdwan_site_id = vedge["site-id"]
         template_name = vedge["template"]
-        template_list = sdwan.get_all_templates_config(auth, VMANAGE_URL_VAR, [f'DT-PRISMA_{template_name}'])
+        template_list = sdwan.get_all_templates_config(auth, VMANAGE_URL_VAR, [f'DT-PRISMA-{template_name}'])
         feature_templates = sdwan.get_dev_feature_template(auth, VMANAGE_URL_VAR)
 
         ### MAP HOST TO TEMPLATE ###
@@ -184,8 +186,8 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
 
             ### CLONE NEW DEVICE TEMPLATE DATA WITH CURRENT NEW TEMPLATE + NEW PRISMA FEATURE TEMPLATE ###
             ### ONLY NEEDED IF ITS A NEW TEMPLATE ###
-            create_template_payload["templateName"] = f'DT-PRISMA_{current_template["templateName"]}'
-            create_template_payload["templateDescription"] = f'DT-PRISMA_{current_template["templateDescription"]}'
+            create_template_payload["templateName"] = f'DT-PRISMA-{current_template["templateName"]}'
+            create_template_payload["templateDescription"] = f'DT-PRISMA-{current_template["templateDescription"]}'
             create_template_payload["deviceType"] = current_template["deviceType"]
             create_template_payload["factoryDefault"] = current_template["factoryDefault"]
             create_template_payload["configType"] = current_template["configType"]
@@ -246,6 +248,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
                     new_dev_input["data"][0]["/10/ipsec10/interface/ip/address"] =  (f'{host_tunnel_if[3]}/30') 
                     new_dev_input["data"][0]["/10//router/bgp/as-num"] = bgp_asn
                     new_dev_input["data"][0]["/10//router/bgp/neighbor/bgp_neighbor_address_pri/address"] = bgp_peers[0]
+                    new_dev_input["data"][0]["/10//router/bgp/neighbor/bgp_neighbor_address_sec/address"] = "TEMPLATE_IGNORE"
                     logger.info(f'vManage: Added new template feature input for primary ipsec tunnel: {new_dev_input["data"][0]["csv-host-name"]}')
                 elif sec_tunnel and index == 0:
                     new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-source-interface"] = host_tunnel_if[2]
@@ -260,21 +263,13 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
                     new_dev_input["data"][0]["/10/ipsec20/interface/ip/address"] =  (f'{host_tunnel_if[3]}/30')
                     new_dev_input["data"][0]["/10//router/bgp/neighbor/bgp_neighbor_address_sec/address"] = bgp_peers[1]
                     logger.info(f'vManage: Added new template feature input for secondary ipsec tunnel: {new_dev_input["data"][0]["csv-host-name"]}')
-            
+            print(f'The Template Input is: {new_dev_input}')
             #### FORMAT FINAL DATA STRCUTURE ###
-            #if sdwan_site_id not in red_nw_list:
-            #    print(f'The SDWAN Site ID is: {sdwan_site_id}')
-            #    policy = PolicyLists(auth, VMANAGE_URL_VAR)
-            #    response =  policy.get_policy_list_by_id(VMANAGE_AZURE_LIST_ID)
-            #    response["entries"].append({'siteId': sdwan_site_id})
-            #    print(f'Azure Policy List {response}')
-            #    update = policy.update_policy_list(response)
-            #    print(f'The Azure Site List update with {sdwan_site_id} is a {update}')
-            #    #update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
-            #    #logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
-            #    #print(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
-            #    sleep(340)
-            summary_list = format_data_structure(new_template_id, new_dev_input["data"], auth, VMANAGE_URL_VAR)           
+            summary_list = format_data_structure(new_template_id, new_dev_input["data"], auth, VMANAGE_URL_VAR)  
+            sleep(300)
+            if sdwan_site_id not in red_nw_list:
+                list_update = sdwan.update_site_list(auth, VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR, VMANAGE_VSMART_TEMPLATE_ID)
+                logger.info(f'vManage: The vSmart controllers were updated: {list_update}')         
 
             return summary_list              
 
@@ -290,6 +285,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             ##### GET PRISMA TEMPLATE INPUT INFORMATION ###
             print("Getting new template input information...")
             prisma_dev_input = sdwan.get_template_input(auth, VMANAGE_URL_VAR, prisma_template_id)
+            print(f'The input information for the prisma template is: {prisma_dev_input}')
             logger.info(f'vManage: Retrieved new template input info for {prisma_template_id}')
 
             ### COPY CURRENT DEV DATA TO NEW DEV DATA IN INPUT ###
@@ -306,32 +302,30 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
                     prisma_dev_input["data"][0]["/10/ipsec10/interface/tunnel-source-interface"] = host_tunnel_if[2]
                     prisma_dev_input["data"][0]["/10/ipsec10/interface/tunnel-destination"] = public_ip[0]
                     prisma_dev_input["data"][0]["/10/ipsec10/interface/ip/address"] =  (f'{host_tunnel_if[3]}/30') 
+                    prisma_dev_input["data"][0]["/10//router/bgp/as-num"] = bgp_asn
+                    prisma_dev_input["data"][0]["/10//router/bgp/neighbor/bgp_neighbor_address_pri/address"] = bgp_peers[0]
+                    prisma_dev_input["data"][0]["/10//router/bgp/neighbor/bgp_neighbor_address_sec/address"] = "TEMPLATE_IGNORE"
                     logger.info(f'vManage: Added new template feature input for primary ipsec tunnel: {prisma_dev_input["data"][0]["csv-host-name"]}')
                 elif sec_tunnel and index == 0:
                     prisma_dev_input["data"][0]["/10/ipsec10/interface/tunnel-source-interface"] = host_tunnel_if[2]
                     prisma_dev_input["data"][0]["/10/ipsec10/interface/tunnel-destination"] = public_ip[0]
                     prisma_dev_input["data"][0]["/10/ipsec10/interface/ip/address"] =  (f'{host_tunnel_if[3]}/30') 
+                    prisma_dev_input["data"][0]["/10//router/bgp/as-num"] = bgp_asn
+                    prisma_dev_input["data"][0]["/10//router/bgp/neighbor/bgp_neighbor_address_pri/address"] = bgp_peers[0]
                     logger.info(f'vManage: Added new template feature input for primary ipsec tunnel: {prisma_dev_input["data"][0]["csv-host-name"]}')
                 elif sec_tunnel and index == 1:
                     prisma_dev_input["data"][0]["/10/ipsec20/interface/tunnel-source-interface"] = host_tunnel_if[2]
                     prisma_dev_input["data"][0]["/10/ipsec20/interface/tunnel-destination"] = public_ip[0]
                     prisma_dev_input["data"][0]["/10/ipsec20/interface/ip/address"] =  (f'{host_tunnel_if[3]}/30')
+                    prisma_dev_input["data"][0]["/10//router/bgp/neighbor/bgp_neighbor_address_pri/address"] = bgp_peers[1]
                     logger.info(f'vManage: Added new template feature input for secondary ipsec tunnel: {prisma_dev_input["data"][0]["csv-host-name"]}')
-
+            print(f'The Template Input is: {prisma_dev_input}')
             #### FORMAT FINAL DATA STRCUTURE ###
-            #if sdwan_site_id not in red_nw_list:
-            #    print(f'The SDWAN Site ID is: {sdwan_site_id}')
-            #    policy = PolicyLists(auth, VMANAGE_URL_VAR)
-            #    response =  policy.get_policy_list_by_id(VMANAGE_AZURE_LIST_ID)
-            #    response["entries"].append({'siteId': sdwan_site_id})
-            #    print(f'Azure Policy List {response}')
-            #    update = policy.update_policy_list(response)
-            #    print(f'The Azure Site List update with {sdwan_site_id} is a {update}')
-            #    #update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
-            #    #print(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
-            #    #logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
-            #    sleep(340)
             summary_list = format_data_structure(prisma_template_id, prisma_dev_input["data"], auth, VMANAGE_URL_VAR)
-
+            sleep(300)
+            if sdwan_site_id not in red_nw_list:
+                list_update = sdwan.update_site_list(auth, VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR, VMANAGE_VSMART_TEMPLATE_ID)
+                logger.info(f'vManage: The vSmart controllers were updated: {list_update}')
+                print(list_update)
             return summary_list       
              

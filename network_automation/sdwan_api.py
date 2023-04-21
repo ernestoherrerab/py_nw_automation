@@ -170,14 +170,16 @@ def host_template_mapping(input_dict: dict) -> dict:
             
     return output_dict
 
-def update_site_list(list_id, sdwan_site_id, vmanage):
+def update_site_list(auth, list_id, sdwan_site_id, vmanage, template_id):
     """
     Updates the Azure Site List with the provided SDWAN site ID.
 
     Args:
+        auth (Authentication.login): Session object
         list_id (str): The ID of the list to update.
         sdwan_site_id (str): The ID of the SDWAN site to add to the Azure Site List.
         vmanage (str): The URL of the vManage appliance
+        template_id (str): Template ID of vSmart Controllers
         
 
     Returns:
@@ -191,6 +193,8 @@ def update_site_list(list_id, sdwan_site_id, vmanage):
     print(f'Azure Policy List {response}')
     update = policy.update_policy_list(response)
     print(f'The Azure Site List update with {sdwan_site_id} resulted in {update["status_code"]}')
+    device_template = DeviceTemplates(auth, vmanage)
+    print("Reattaching Device Template")
+    summary_obj = device_template.reattach_device_template(template_id, "template", True, False)
     
-    return update["status_code"]
-
+    return summary_obj

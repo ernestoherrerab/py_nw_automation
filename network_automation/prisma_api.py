@@ -251,6 +251,13 @@ def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tu
                     "secret": PRISMA_BGP_KEY
                 }
             } 
+        bgp_peer = {
+                "bgp_peer": {
+                    "peer_ip_address": tunnel_ips[1],
+                    "local_ip_address": bgp_peers[1],
+                    "secret": PRISMA_BGP_KEY
+                }
+            }
         remote_network = RemoteNetwork(
         folder = "Remote Networks",
         license_type = "FWAAS-AGGREGATE",
@@ -260,7 +267,8 @@ def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tu
         spn_name = spn_location,
         ipsec_tunnel = primary_tunnel,
         secondary_ipsec_tunnel = secondary_tunnel,
-        protocol = bgp_protocol_dict    
+        protocol = bgp_protocol_dict,
+        bgp_peer=bgp_peer    
         )
         remote_network.create(session)
         print(f'Remote Network Creation for {site_id} resulted in {session.response.status_code}')
