@@ -5,8 +5,8 @@ requests.packages.urllib3.disable_warnings()
 def policy_dissect(input_policy_name):
     Panorama_API_KEY=config("Panorama_API_KEY")
     headers = { 'X-PAN-KEY' : Panorama_API_KEY}
-    responseservicesGroups_json = requests.get(config("PA_URL")+"Policies/SecurityPreRules?location=device-group&device-group=Global",headers=headers,verify='network_automation/panorama_ops/pa-mgmt-dk-flsmidth-net-chain.pem').json()
-    result=responseservicesGroups_json['result']['entry']
+    responsePolicy_json = requests.get(config("PA_URL")+"Policies/SecurityPreRules?location=device-group&device-group=Global",headers=headers,verify='network_automation/panorama_ops/pa-mgmt-dk-flsmidth-net-chain.pem').json()
+    result=responsePolicy_json['result']['entry']
     outputDict =	{
                 "name": input_policy_name,
                 "source": [] ,
