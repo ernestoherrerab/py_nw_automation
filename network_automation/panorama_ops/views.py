@@ -11,6 +11,7 @@ import network_automation.panorama_ops.address_checker.address_checker as addres
 import network_automation.panorama_ops.address_objects_editor.address_objects_editor as panorama_address
 import network_automation.panorama_ops.services_checker.services_checker as service_checking_script
 import network_automation.panorama_ops.policy_dissect.policy_dissect as policy_dissecting_script
+import network_automation.panorama_ops.app_group_checker.app_group_checker as app_group_checking_script
 
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
@@ -43,7 +44,7 @@ def service_checker():
 
 @panorama_ops.route("/policy_dissect", methods=["POST", "GET"])
 def policy_dissect():
-    return render_template(f"{TEMPLATE_DIR}/policy_dissect.html")
+    return render_template(f"{TEMPLATE_DIR}/policy_dissect.html",results="")
 
 @panorama_ops.route("/panorama_login")
 def panorama_login():
@@ -132,17 +133,16 @@ def policy_dissect_API_call():
         for destination in script_output['destination']:
             for IP in address_checking_script.panorama_address_check_IP(destination):
                 outputDict['destination'].append(IP)
-
         for application in script_output['application']:
-                outputDict['application'].append(application)
+            for app in app_group_checking_script.panorama_app_group_check(application):
 
-        for service in script_output['service']:
-            
+                outputDict['application'].append(app)
+        for service in script_output['service']:            
             for SRV in service_checking_script.panorama_service_check_ports(service):
                 outputDict['service'].append(SRV)                                
         script_output=outputDict
     if script_output is None:
-        return render_template(f"{TEMPLATE_DIR}/policy_dissect.html", results="No ServiceGroup named "+ temp) 
+        return render_template(f"{TEMPLATE_DIR}/policy_dissect.html", results="No Policy named "+ temp) 
     else:
         result=['','','','']
        
