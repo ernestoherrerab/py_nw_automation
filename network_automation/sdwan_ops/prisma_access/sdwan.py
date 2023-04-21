@@ -8,6 +8,8 @@ from json import loads
 import logging
 from pathlib import Path
 import re
+from time import sleep
+from vmanage.api.policy_lists import  PolicyLists
 import network_automation.sdwan_api as sdwan
 
 
@@ -24,6 +26,7 @@ def format_data_structure(template_id: str, dev_input: dict, auth_session: objec
 
     ### VARS ###
     summary_list = []
+    
     ### FORMAT FINAL DATA STRUCTURE ###
     print("Formatting data to push to vManage...")
     feature_template_dict = {}
@@ -83,7 +86,7 @@ def format_data_structure(template_id: str, dev_input: dict, auth_session: objec
                 logger.error(f'vManage:  {configuration}')
         return summary_list
     
-def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname_ip_set: set, public_ip: list, tunnel_ips: list) -> list:
+def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname_ip_set: set, public_ip: list, bgp_asn: str, bgp_peers: list, tunnel_ips: list) -> list:
     """ Create SDWAN IPSec Tunnels
     Args:
     site_data (dict): From frontend input
@@ -91,6 +94,8 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
     password (str): From frontend input
     hostname_ip_set (set): Contains IPFabric parameters to create IPSec Tunnels
     public_ip (list): Contains the Public IP of the Prisma Access node 
+    bgp_asn (str): BGP ASN Required for SDWAN 
+    bgp_peers (list): BGP Peer IPs
     tunnel_ips (list): List of IP addresses to use for the SDWAN tunnels
 
     Return:
@@ -102,9 +107,11 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
     VMANAGE_PRISMA_PRIM_TEMPLATE_ID = config("VMANAGE_PRISMA_PRIM_TEMPLATE_ID")
     VMANAGE_PRISMA_SEC_TEMPLATE_ID = config("VMANAGE_PRISMA_SEC_TEMPLATE_ID")
     VMANAGE_AZURE_LIST_ID = config("VMANAGE_AZURE_LIST_ID")
+    VMANAGE_PRISMA_BGP = config("VMANAGE_PRISMA_BGP")
     site_code = site_data["site_code"].upper()
     new_template_name = ""
     summary_list = []
+    red_nw_list = ["10105","10121","30117","30040","10123","10040"]
 
     ### CONVERT TUPLES TO LISTS ###
     device_parameters = list(map(list, hostname_ip_set ))
@@ -145,8 +152,6 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
     ### FOR LOOP USED TO FORMAT NEW TEMPLATE DATA FOR DEVICE ATTACHMENT ####
     for vedge in vedge_list:
         ### GET DEVICE ID FOR VPN10 FEATURE TEMPLATE FROM VEDGE DATA ###
-        ### HEAVILY DEPENDANT ON FEATURE VPN TEMPLATE BEING USING "VPN10" ON ITS NAMING ### 
-        device_type = vedge["deviceModel"]
         sdwan_site_id = vedge["site-id"]
         template_name = vedge["template"]
         template_list = sdwan.get_all_templates_config(auth, VMANAGE_URL_VAR, [f'DT-PRISMA_{template_name}'])
@@ -160,7 +165,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
         
         if not template_list:
             ### FILTER DATA TO GET ID OF DEVICE VPN10 FEATURETEMPLATE ###
-            cisco_vpn_template_id_list = [cisco_vpn_templates["templateId"] for cisco_vpn_templates in feature_templates if cisco_vpn_templates["templateType"] == "cisco_vpn" and "vpn10" in cisco_vpn_templates["templateName"].lower() and device_type in cisco_vpn_templates["deviceType"]]  
+            cisco_vpn_template_id_list = [cisco_vpn_templates["templateId"] for cisco_vpn_templates in feature_templates if cisco_vpn_templates["templateType"] == "cisco_vpn" and cisco_vpn_templates["templateName"] == "FT-PRISMA-VPN10-INSIDE"]  
 
             ### GET SDWAN CURRENT TEMPLATE AND APPEND NEW IPSEC SUB TEMPLATE ###
             ### ONLY NEEDED IF ITS A NEW TEMPLATE ###
@@ -170,9 +175,11 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             for index, sub_templates in enumerate(current_template["generalTemplates"]):
                 if sub_templates["templateId"] in cisco_vpn_template_id_list and not sec_tunnel:
                     current_template["generalTemplates"][index]["subTemplates"].append({"templateId": VMANAGE_PRISMA_PRIM_TEMPLATE_ID, "templateType": "cisco_vpn_interface_ipsec"})
+                    current_template["generalTemplates"][index]["subTemplates"].append({"templateId":  VMANAGE_PRISMA_BGP, "templateType": "cisco_bgp"})    
                 elif sub_templates["templateId"] in cisco_vpn_template_id_list and sec_tunnel:
                     current_template["generalTemplates"][index]["subTemplates"].append({"templateId": VMANAGE_PRISMA_PRIM_TEMPLATE_ID, "templateType": "cisco_vpn_interface_ipsec"})
                     current_template["generalTemplates"][index]["subTemplates"].append({"templateId": VMANAGE_PRISMA_SEC_TEMPLATE_ID, "templateType": "cisco_vpn_interface_ipsec"})
+                    current_template["generalTemplates"][index]["subTemplates"].append({"templateId":  VMANAGE_PRISMA_BGP, "templateType": "cisco_bgp"})
             logger.info(f'vManage: Format Payload to create New Template for template {current_template["templateName"]}')
 
             ### CLONE NEW DEVICE TEMPLATE DATA WITH CURRENT NEW TEMPLATE + NEW PRISMA FEATURE TEMPLATE ###
@@ -187,7 +194,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             if 'securityPolicyId' in current_template:
                 create_template_payload['securityPolicyId'] = current_template['securityPolicyId']
             logger.info(f'vManage: Format Payload created for template {current_template["templateName"]}')  
-
+            print(create_template_payload)
             if new_template_name == "" or new_template_name != create_template_payload["templateName"]:
                 #### CREATE NEW TEMPLATE(S) ###
                 print("Creating new cloned Templates...")
@@ -237,23 +244,37 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
                     new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-source-interface"] = host_tunnel_if[2]
                     new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-destination"] = public_ip[0]
                     new_dev_input["data"][0]["/10/ipsec10/interface/ip/address"] =  (f'{host_tunnel_if[3]}/30') 
+                    new_dev_input["data"][0]["/10//router/bgp/as-num"] = bgp_asn
+                    new_dev_input["data"][0]["/10//router/bgp/neighbor/bgp_neighbor_address_pri/address"] = bgp_peers[0]
                     logger.info(f'vManage: Added new template feature input for primary ipsec tunnel: {new_dev_input["data"][0]["csv-host-name"]}')
                 elif sec_tunnel and index == 0:
                     new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-source-interface"] = host_tunnel_if[2]
                     new_dev_input["data"][0]["/10/ipsec10/interface/tunnel-destination"] = public_ip[0]
                     new_dev_input["data"][0]["/10/ipsec10/interface/ip/address"] =  (f'{host_tunnel_if[3]}/30') 
+                    new_dev_input["data"][0]["/10//router/bgp/as-num"] = bgp_asn
+                    new_dev_input["data"][0]["/10//router/bgp/neighbor/bgp_neighbor_address_pri/address"] = bgp_peers[0]
                     logger.info(f'vManage: Added new template feature input for primary ipsec tunnel: {new_dev_input["data"][0]["csv-host-name"]}')
                 elif sec_tunnel and index == 1:
                     new_dev_input["data"][0]["/10/ipsec20/interface/tunnel-source-interface"] = host_tunnel_if[2]
                     new_dev_input["data"][0]["/10/ipsec20/interface/tunnel-destination"] = public_ip[0]
                     new_dev_input["data"][0]["/10/ipsec20/interface/ip/address"] =  (f'{host_tunnel_if[3]}/30')
+                    new_dev_input["data"][0]["/10//router/bgp/neighbor/bgp_neighbor_address_sec/address"] = bgp_peers[1]
                     logger.info(f'vManage: Added new template feature input for secondary ipsec tunnel: {new_dev_input["data"][0]["csv-host-name"]}')
             
             #### FORMAT FINAL DATA STRCUTURE ###
-            summary_list = format_data_structure(new_template_id, new_dev_input["data"], auth, VMANAGE_URL_VAR)
-            print(f'The SDWAN Site ID is: {sdwan_site_id}')
-            update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
-            logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
+            #if sdwan_site_id not in red_nw_list:
+            #    print(f'The SDWAN Site ID is: {sdwan_site_id}')
+            #    policy = PolicyLists(auth, VMANAGE_URL_VAR)
+            #    response =  policy.get_policy_list_by_id(VMANAGE_AZURE_LIST_ID)
+            #    response["entries"].append({'siteId': sdwan_site_id})
+            #    print(f'Azure Policy List {response}')
+            #    update = policy.update_policy_list(response)
+            #    print(f'The Azure Site List update with {sdwan_site_id} is a {update}')
+            #    #update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
+            #    #logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
+            #    #print(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
+            #    sleep(340)
+            summary_list = format_data_structure(new_template_id, new_dev_input["data"], auth, VMANAGE_URL_VAR)           
 
             return summary_list              
 
@@ -298,10 +319,19 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
                     logger.info(f'vManage: Added new template feature input for secondary ipsec tunnel: {prisma_dev_input["data"][0]["csv-host-name"]}')
 
             #### FORMAT FINAL DATA STRCUTURE ###
+            #if sdwan_site_id not in red_nw_list:
+            #    print(f'The SDWAN Site ID is: {sdwan_site_id}')
+            #    policy = PolicyLists(auth, VMANAGE_URL_VAR)
+            #    response =  policy.get_policy_list_by_id(VMANAGE_AZURE_LIST_ID)
+            #    response["entries"].append({'siteId': sdwan_site_id})
+            #    print(f'Azure Policy List {response}')
+            #    update = policy.update_policy_list(response)
+            #    print(f'The Azure Site List update with {sdwan_site_id} is a {update}')
+            #    #update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
+            #    #print(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
+            #    #logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
+            #    sleep(340)
             summary_list = format_data_structure(prisma_template_id, prisma_dev_input["data"], auth, VMANAGE_URL_VAR)
-            print(f'The SDWAN Site ID is: {sdwan_site_id}')
-            update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
-            logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
 
             return summary_list       
              

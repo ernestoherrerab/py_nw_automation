@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 from time import sleep
 import urllib3
-import network_automation.sdwan_ops.prisma_api as prisma
+import network_automation.prisma_api as prisma
 
 
 ### LOGGING SETUP ###
@@ -140,28 +140,30 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
 
     ##### CREATE REMOTE NETWORK ###
     print("Creating remote network...")
-    remote_network_result = prisma.create_remote_nw(prisma_session, site_code, spn_location, ipsec_tun_names, region_id, tunnel_ips)
-    print(remote_network_result)
-#    ### ROLL BACK IF PROCESS FAILS ###
-#    if remote_network_result != 201:
-#        print("Remote Network could not be created...")
-#        logger.error(f'Prisma: Remote Network {site_code} could not be created')
-#        rollback_response = prisma.rollback(prisma_session)
-#        logger.error(f'Prisma: Rollback activated response: {rollback_response["message"]}')
-#        return False
-#    else:
-#        print("Remote Network Successfully Created!")
-#        logger.info(f'Prisma: Remote Network {site_code} Successfully Created!')
-#        
-#        ### PUSH CONFIG ###
-#        prisma.push_config(prisma_session)
-#        
-#        ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
-#        public_ip = []
-#        while public_ip == []:
-#            public_ips = prisma.get_public_ip(PRISMA_API_KEY)
-#            public_ip = [ip["address"] for item in public_ips for ip in item["address_details"] if ip["addressType"] == "service_ip" and site_code in ip["node_name"] ]
-#            sleep(20)
-#        print(public_ip)
-#        logger.info(f'Prisma: The public IP is {public_ip}')
-#        return public_ip
+    remote_network_result, peer_asn, bgp_peers = prisma.create_remote_nw(prisma_session, site_code, spn_location, ipsec_tun_names, region_id, tunnel_ips)
+    
+    
+    ### ROLL BACK IF PROCESS FAILS ###
+    if remote_network_result != 201:
+        print("Remote Network could not be created...")
+        logger.error(f'Prisma: Remote Network {site_code} could not be created')
+        rollback_response = prisma.rollback(prisma_session)
+        logger.error(f'Prisma: Rollback activated response: {rollback_response["message"]}')
+        return False
+    else:
+        print("Remote Network Successfully Created!")
+        logger.info(f'Prisma: Remote Network {site_code} Successfully Created!')
+        
+        ### PUSH CONFIG ###
+        prisma.push_config(prisma_session)
+        
+        ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
+        public_ip = []
+        while public_ip == []:
+            public_ips = prisma.get_public_ip(PRISMA_API_KEY)
+            public_ip = [ip["address"] for item in public_ips for ip in item["address_details"] if ip["addressType"] == "service_ip" and site_code in ip["node_name"] ]
+            sleep(20)
+        print(public_ip)
+        logger.info(f'Prisma: The public IP is {public_ip}')
+        
+        return public_ip, peer_asn, bgp_peers

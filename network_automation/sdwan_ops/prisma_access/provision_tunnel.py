@@ -35,9 +35,9 @@ def provision_tunnel(site_data, username, password):
     
     ### CREATE REMOTE NETWORKS IN PRISMA ACCESS ###
     ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
-    public_ip = prisma.create_remote_networks(site_data, hostname_ip_set, remote_nw_subnets, infoblox_response)
+    public_ip, bgp_asn, bgp_peers = prisma.create_remote_networks(site_data, hostname_ip_set, remote_nw_subnets, infoblox_response)
 
     ### CREATE IPSEC TUNNELS ON SDWAN VMANAGE ###
-    #summary_list = sdwan.create_ipsec_tunnels(site_data, username, password, hostname_ip_set, public_ip, infoblox_response)
+    summary_list = sdwan.create_ipsec_tunnels(site_data, username, password, hostname_ip_set, public_ip, bgp_asn, bgp_peers, infoblox_response)
 
-    #return summary_list
+    return summary_list
