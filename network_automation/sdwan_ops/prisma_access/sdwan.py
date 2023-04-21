@@ -149,7 +149,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
         device_type = vedge["deviceModel"]
         sdwan_site_id = vedge["site-id"]
         template_name = vedge["template"]
-        template_list = sdwan.get_all_templates_config(auth, VMANAGE_URL_VAR, [f'PRISMA_{template_name}'])
+        template_list = sdwan.get_all_templates_config(auth, VMANAGE_URL_VAR, [f'DT-PRISMA_{template_name}'])
         feature_templates = sdwan.get_dev_feature_template(auth, VMANAGE_URL_VAR)
 
         ### MAP HOST TO TEMPLATE ###
@@ -177,8 +177,8 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
 
             ### CLONE NEW DEVICE TEMPLATE DATA WITH CURRENT NEW TEMPLATE + NEW PRISMA FEATURE TEMPLATE ###
             ### ONLY NEEDED IF ITS A NEW TEMPLATE ###
-            create_template_payload["templateName"] = f'PRISMA_{current_template["templateName"]}'
-            create_template_payload["templateDescription"] = f'PRISMA_{current_template["templateDescription"]}'
+            create_template_payload["templateName"] = f'DT-PRISMA_{current_template["templateName"]}'
+            create_template_payload["templateDescription"] = f'DT-PRISMA_{current_template["templateDescription"]}'
             create_template_payload["deviceType"] = current_template["deviceType"]
             create_template_payload["factoryDefault"] = current_template["factoryDefault"]
             create_template_payload["configType"] = current_template["configType"]
