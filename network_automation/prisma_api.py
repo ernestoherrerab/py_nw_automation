@@ -206,7 +206,7 @@ def create_ipsec_tunnel(session: PanApiSession, ike_gws: list) -> tuple:
 
     return response_code, ipsec_tunnel_names
 
-def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tunnel_names: list, region_id: str, networks: list) -> int:
+def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tunnel_names: list, region_id: str, tunnel_ips: list) -> int:
     """ Create remote network & Tunnels 
     
     Args:
