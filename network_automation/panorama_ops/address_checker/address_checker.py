@@ -64,7 +64,7 @@ def panorama_address_check_IP(input_address_group):
         if input_ag=='any':
             output.append(input_ag)
         elif (bool(re.match(r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", input_ag))):
-            print(input_ag)
+            
             output.append(input_ag)
         else:    
             temp=find_member_names(input_ag,responseAddressGroups_json)
