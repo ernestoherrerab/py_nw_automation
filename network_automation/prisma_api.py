@@ -220,45 +220,26 @@ def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tu
     Returns:
     response (int): Status code of API Call 
     """
-    
-    if len(tunnel_names) > 1 and "R02" in '\t'.join(tunnel_names):
-        primary_tunnel = tunnel_names[0]
-        secondary_tunnel = tunnel_names[1]
-        remote_network = RemoteNetwork(
-        folder = "Remote Networks",
-        license_type = "FWAAS-AGGREGATE",
-        ecmp_load_balancing = "disable",
-        name = site_id,
-        region = region_id,
-        spn_name = spn_location,
-        ipsec_tunnel = primary_tunnel,
-        secondary_ipsec_tunnel = secondary_tunnel   
-        )
-        remote_network.create(session)
-        print(f'Remote Network Creation for {site_id} resulted in {session.response.status_code}')
-        logger.info(f'Prisma: Remote Network Creation for {site_id} resulted in {session.response.status_code}')
-        response_code = session.response.status_code
+    ### VARS ###
+    PRISMA_BGP_KEY = config("PRISMA_BGP_KEY")
 
-        return response_code
+    ### CALCULATE BGP DATA ###
+    remote_nws = get_remote_nws(session)
+    bgp_asn_list = [item.protocol["bgp"]["peer_as"] for item in remote_nws if hasattr(item, "protocol")]
+    logger.info(f'Prisma: BGP ASN List resulted in {bgp_asn_list}')
+    bgp_peers = list(map(lambda x: str(list(IPNetwork(f'{x}/30'))[2]), tunnel_ips))
+    logger.info(f'Prisma: The BGP Peers are {bgp_peers}')
+    peer_asn = int(sorted(bgp_asn_list)[-1])+1
+    logger.info(f'Prisma: BGP ASN to use is {peer_asn}')
     
-    elif len(tunnel_names) > 1 and "R02" not in '\t'.join(tunnel_names):
-        PRISMA_BGP_KEY = config("PRISMA_BGP_KEY")
+    if len(tunnel_names) > 1: 
         primary_tunnel = tunnel_names[0]
         secondary_tunnel = tunnel_names[1]
-        bgp_peers = list(map(lambda x: str(list(IPNetwork(f'{x}/30'))[2]), tunnel_ips))
-        remote_nws = get_remote_nws(session)
-        bgp_asn_list = [item.protocol["bgp"]["peer_as"] for item in remote_nws if hasattr(item, "protocol")]
-        logger.info(f'Prisma: BGP ASN List resulted in {bgp_asn_list}')
-        peer_asn = int(sorted(bgp_asn_list)[-1])+1
-        logger.info(f'Prisma: BGP ASN to use is {peer_asn}')
-        bgp_peer_dict = {
-                "peer_ip_address": tunnel_ips[0],
-                "local_ip_address": bgp_peers[0]
-            }
         bgp_protocol_dict = {
                 "bgp": {
                     "enable": True,
                     "do_not_export_routes": True,
+                    "originate_default_route": True,
                     "peer_ip_address": tunnel_ips[0],
                     "local_ip_address": bgp_peers[0],
                     "peer_as": str(peer_asn),
@@ -279,18 +260,29 @@ def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tu
         spn_name = spn_location,
         ipsec_tunnel = primary_tunnel,
         secondary_ipsec_tunnel = secondary_tunnel,
-        bgp_peer = bgp_peer_dict,
         protocol = bgp_protocol_dict    
         )
         remote_network.create(session)
         print(f'Remote Network Creation for {site_id} resulted in {session.response.status_code}')
         logger.info(f'Prisma: Remote Network Creation for {site_id} resulted in {session.response.status_code}')
         response_code = session.response.status_code
-
-        return response_code
+        print(response_code, str(peer_asn), bgp_peers)
+        
+        return response_code, str(peer_asn), bgp_peers
     
     else:
         primary_tunnel = tunnel_names[0]
+        bgp_protocol_dict = {
+                "bgp": {
+        			"enable": True,
+        			"originate_default_route": True,
+        			"do_not_export_routes": True,
+        			"peer_ip_address": tunnel_ips[0],
+        			"local_ip_address": bgp_peers[0],
+        			"secret": PRISMA_BGP_KEY,
+        			"peer_as": str(peer_asn)
+            }
+        }
         remote_network = RemoteNetwork(
         folder = "Remote Networks",
         license_type = "FWAAS-AGGREGATE",
@@ -298,14 +290,15 @@ def create_remote_nw(session: PanApiSession, site_id: str, spn_location: str, tu
         name = site_id,
         region = region_id,
         spn_name = spn_location,
-        ipsec_tunnel = primary_tunnel   
+        ipsec_tunnel = primary_tunnel,
+        protocol = bgp_protocol_dict    
         )
         remote_network.create(session)
         print(f'Remote Network Creation for {site_id} resulted in {session.response.status_code}')
         logger.info(f'Prisma: Remote Network Creation for {site_id} resulted in {session.response.status_code}')
         response_code = session.response.status_code
-
-        return response_code
+        print(response_code, str(peer_asn), bgp_peers)
+        return response_code, str(peer_asn), bgp_peers
 
 def del_ike_gateways(session: PanApiSession, ike_gw_ids: list) -> set:
     """Delete IKE Gateways

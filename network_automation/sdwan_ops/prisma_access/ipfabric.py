@@ -38,8 +38,8 @@ def get_ipfabric_data(site_data: dict) -> tuple:
 
     ### GENERATE IPFABRIC SESSION ###
     print("Authenticating to IPFabric...")
-    #ipf_session = ipfabric.auth("5bbea7ee-13a0-4e1f-af73-ea30660812aa")
-    ipf_session = ipfabric.auth()
+    ipf_session = ipfabric.auth("32f632fd-7fde-4ffd-aa9f-4f5f932df7ab")
+    #ipf_session = ipfabric.auth()
     logger.info("IPFabric: Authenticated")
 
     ### RETRIEVE INTERFACE DATA FROM DEVICE FROM IPFABRIC ###
@@ -58,7 +58,7 @@ def get_ipfabric_data(site_data: dict) -> tuple:
     for interface in dev_data:
         if interface["primaryIp"] != None:
             ip =  IPAddress(interface["primaryIp"])
-            if ip.is_unicast() and not ip.is_private() and "Tunnel" not in interface["nameOriginal"]:
+            if ip.is_unicast() and not ip.is_private() and "Tunnel" not in interface["nameOriginal"] and interface["l1"] == "up":
                 hostname_ip_set.add((interface["hostname"], interface["primaryIp"], interface["nameOriginal"]))
             elif interface["intName"] == "Tunnel0":
                 tunnel_ip = [interface["hostname"], interface["primaryIp"], True]
