@@ -120,10 +120,12 @@ You can enter data in two ways:
 
 2. Enter input data: Site code, Region and Location as specified in the provided link.
 
-### Panorama Ops 
+### Panorama Ops
+
 1. Address Group check
-2. Services Group check
-3. Policy dissect
+2. Address Object Editor
+3. Services Group check
+4. Policy dissect
 
 ## Address Group check
 1. Enter Address Group Name
