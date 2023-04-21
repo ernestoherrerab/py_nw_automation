@@ -170,15 +170,27 @@ def host_template_mapping(input_dict: dict) -> dict:
             
     return output_dict
 
-def update_site_list(list_id, site_id, vmanage):
+def update_site_list(list_id, sdwan_site_id, vmanage):
+    """
+    Updates the Azure Site List with the provided SDWAN site ID.
+
+    Args:
+        list_id (str): The ID of the list to update.
+        sdwan_site_id (str): The ID of the SDWAN site to add to the Azure Site List.
+        vmanage (str): The URL of the vManage appliance
+        
+
+    Returns:
+        str: A message indicating the success of the update.
+    """
+
+    print(f'The SDWAN Site ID is: {sdwan_site_id}')
     policy = PolicyLists(auth, vmanage)
     response =  policy.get_policy_list_by_id(list_id)
-    response["entries"].append({'siteId': site_id})
+    response["entries"].append({'siteId': sdwan_site_id})
     print(f'Azure Policy List {response}')
     update = policy.update_policy_list(response)
-    print(f'The Azure Site List update with {site_id} is a {update}')
+    print(f'The Azure Site List update with {sdwan_site_id} resulted in {update["status_code"]}')
     
-    return update
-
-
+    return update["status_code"]
 
