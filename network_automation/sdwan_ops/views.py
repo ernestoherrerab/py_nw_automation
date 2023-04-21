@@ -96,8 +96,7 @@ def provision_prisma_access():
 
     ### PROVISION TUNNELS (REMOTE NETWORK) ###
     results = prisma_tunnels.provision_tunnel(site_data, username, password) 
-    #return str(results)
-
+    
     ### FORMAT SUMMARY FOR HTML PRESENTATION ###
     if results != False:
         return render_template(f"{TEMPLATE_DIR}/tunnel_summary.html", results=results)
