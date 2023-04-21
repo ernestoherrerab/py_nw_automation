@@ -96,16 +96,16 @@ def service_check_API_call():
         return render_template(f"{TEMPLATE_DIR}/services_checker.html", results="No ServiceGroup named "+ temp) 
     else:
         return render_template(f"{TEMPLATE_DIR}/services_checker.html", results=script_output)
-    
 @panorama_ops.route("policy_dissect_API_call", methods=["POST"])
 def policy_dissect_API_call():
     def recursion_string(input):
         string_output=''
         for source in input:
-            if type(source)!=list:
-                string_output = string_output+ source + '\n'
-            else:
-                string_output = string_output + recursion_string(source) 
+            if source is not None:
+                if type(source)!=list:
+                    string_output = string_output+ source + '\n'
+                else:
+                    string_output = string_output + recursion_string(source) 
         return string_output
     """ 
     Launch service Checking script
