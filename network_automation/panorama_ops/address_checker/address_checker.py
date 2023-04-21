@@ -1,4 +1,5 @@
 import requests
+import re
 from decouple import config
 requests.packages.urllib3.disable_warnings()
 def panorama_address_check(input_address_group):
@@ -33,6 +34,7 @@ def panorama_address_check(input_address_group):
                     else:
                         output=output+' '+findObjIPNetmask(entry,responseAddresses_json)+'\n'
             return output
+
     
     return recursion(input_address_group)
 def panorama_address_check_IP(input_address_group):
@@ -58,10 +60,15 @@ def panorama_address_check_IP(input_address_group):
                     return (entry['ip-fqdn'])                
     def recursion(input_ag):
         output=[]
+        
         if input_ag=='any':
+            output.append(input_ag)
+        elif (bool(re.match(r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", input_ag))):
+            
             output.append(input_ag)
         else:    
             temp=find_member_names(input_ag,responseAddressGroups_json)
+            
             if str(temp) != 'None' :
                 for entry in temp:
                         ret=find_member_names(entry,responseAddressGroups_json)
