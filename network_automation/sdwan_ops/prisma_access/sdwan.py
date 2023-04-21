@@ -262,18 +262,18 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
                     logger.info(f'vManage: Added new template feature input for secondary ipsec tunnel: {new_dev_input["data"][0]["csv-host-name"]}')
             
             #### FORMAT FINAL DATA STRCUTURE ###
-            if sdwan_site_id not in red_nw_list:
-                print(f'The SDWAN Site ID is: {sdwan_site_id}')
-                policy = PolicyLists(auth, VMANAGE_URL_VAR)
-                response =  policy.get_policy_list_by_id(VMANAGE_AZURE_LIST_ID)
-                response["entries"].append({'siteId': sdwan_site_id})
-                print(f'Azure Policy List {response}')
-                update = policy.update_policy_list(response)
-                print(f'The Azure Site List update with {sdwan_site_id} is a {update}')
-                #update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
-                #logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
-                #print(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
-                sleep(340)
+            #if sdwan_site_id not in red_nw_list:
+            #    print(f'The SDWAN Site ID is: {sdwan_site_id}')
+            #    policy = PolicyLists(auth, VMANAGE_URL_VAR)
+            #    response =  policy.get_policy_list_by_id(VMANAGE_AZURE_LIST_ID)
+            #    response["entries"].append({'siteId': sdwan_site_id})
+            #    print(f'Azure Policy List {response}')
+            #    update = policy.update_policy_list(response)
+            #    print(f'The Azure Site List update with {sdwan_site_id} is a {update}')
+            #    #update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
+            #    #logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
+            #    #print(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
+            #    sleep(340)
             summary_list = format_data_structure(new_template_id, new_dev_input["data"], auth, VMANAGE_URL_VAR)           
 
             return summary_list              
@@ -319,18 +319,18 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
                     logger.info(f'vManage: Added new template feature input for secondary ipsec tunnel: {prisma_dev_input["data"][0]["csv-host-name"]}')
 
             #### FORMAT FINAL DATA STRCUTURE ###
-            if sdwan_site_id not in red_nw_list:
-                print(f'The SDWAN Site ID is: {sdwan_site_id}')
-                policy = PolicyLists(auth, VMANAGE_URL_VAR)
-                response =  policy.get_policy_list_by_id(VMANAGE_AZURE_LIST_ID)
-                response["entries"].append({'siteId': sdwan_site_id})
-                print(f'Azure Policy List {response}')
-                update = policy.update_policy_list(response)
-                print(f'The Azure Site List update with {sdwan_site_id} is a {update}')
-                #update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
-                #print(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
-                #logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
-                sleep(340)
+            #if sdwan_site_id not in red_nw_list:
+            #    print(f'The SDWAN Site ID is: {sdwan_site_id}')
+            #    policy = PolicyLists(auth, VMANAGE_URL_VAR)
+            #    response =  policy.get_policy_list_by_id(VMANAGE_AZURE_LIST_ID)
+            #    response["entries"].append({'siteId': sdwan_site_id})
+            #    print(f'Azure Policy List {response}')
+            #    update = policy.update_policy_list(response)
+            #    print(f'The Azure Site List update with {sdwan_site_id} is a {update}')
+            #    #update_azure_list = sdwan.update_site_list(VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR)
+            #    #print(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
+            #    #logger.info(f'vManage: Update to Azure Site List: {sdwan_site_id}, Response Code: {update_azure_list}')
+            #    sleep(340)
             summary_list = format_data_structure(prisma_template_id, prisma_dev_input["data"], auth, VMANAGE_URL_VAR)
 
             return summary_list       
