@@ -266,7 +266,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             print(f'The Template Input is: {new_dev_input}')
             #### FORMAT FINAL DATA STRCUTURE ###
             summary_list = format_data_structure(new_template_id, new_dev_input["data"], auth, VMANAGE_URL_VAR)  
-            sleep(300)
+            sleep(240)
             if sdwan_site_id not in red_nw_list:
                 list_update = sdwan.update_site_list(auth, VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR, VMANAGE_VSMART_TEMPLATE_ID)
                 logger.info(f'vManage: The vSmart controllers were updated: {list_update}')         
@@ -322,7 +322,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             print(f'The Template Input is: {prisma_dev_input}')
             #### FORMAT FINAL DATA STRCUTURE ###
             summary_list = format_data_structure(prisma_template_id, prisma_dev_input["data"], auth, VMANAGE_URL_VAR)
-            sleep(300)
+            sleep(240)
             if sdwan_site_id not in red_nw_list:
                 list_update = sdwan.update_site_list(auth, VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR, VMANAGE_VSMART_TEMPLATE_ID)
                 logger.info(f'vManage: The vSmart controllers were updated: {list_update}')
