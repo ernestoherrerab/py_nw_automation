@@ -7,8 +7,7 @@ import logging
 from pathlib import Path
 import re
 from netaddr import IPNetwork
-import network_automation.sdwan_ops.api_calls as infoblox
-
+from network_automation.InfobloxApi import Infoblox
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/sdwan_ops.log")
@@ -47,20 +46,19 @@ def create_tunnel_ips(num_nws: list, site_data: dict) -> list:
                     }
                   }
                 }
-
-    headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f'Basic {INFOBLOX_AUTHENTICATION}'
-            }
     iterations = len(num_nws)
+    print(iterations)
     
     
     ### POST API CALL TO CREATE NEXT AVAILABLE /30 NETWORK ###
     print("Creating networks in Infoblox...")
     response_list = []
     counter = 1
+    infoblox_network = Infoblox(INFOBLOX_AUTHENTICATION)
+  
     while counter <= iterations:
-      response = infoblox.post_operations("network", INFOBLOX_URL, payload=payload, headers=headers)
+      response = infoblox_network.post_operations("network", INFOBLOX_URL, payload=payload)
+      print(response)
       response_list.append(response)
       logger.info(f'Infoblox: Subnet Created {response}')
       counter += counter
@@ -69,7 +67,7 @@ def create_tunnel_ips(num_nws: list, site_data: dict) -> list:
     print("Documenting Site Code in Infoblox...")
     for network in response_list:
       payload = {"comment": site_code.upper()}
-      response = infoblox.put_operations(network, INFOBLOX_URL, payload=payload, headers=headers)
+      response = infoblox_network.put_operations(network, INFOBLOX_URL, payload=payload)
       logger.info(f'Infoblox: Subnet Edited {response}')
     
     ### GET SUBNETS FOR TUNNELS ###
