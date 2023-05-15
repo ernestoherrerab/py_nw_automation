@@ -2,16 +2,14 @@
 """
 Script to add DHCP Scopes To Infoblox
 """
-import sys
 import csv
 from decouple import config
 import logging
-from math import ceil
+from netaddr import IPNetwork
 from pathlib import Path
 import urllib3
-import network_automation.sdwan_ops.api_calls as api
-
-sys.dont_write_bytecode = True
+from network_automation.InfobloxApi import Infoblox
+from network_automation.infoblox_ops import containers as container
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/infoblox_ops.log")
@@ -22,7 +20,17 @@ formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(messag
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
-def add_dhcp(num_nws: list, site_data: dict) -> list:
+
+def csv_to_dict(filename: str) -> dict:
+    """
+    Function to Convert CSV Data to YAML
+    """
+    with open(filename) as f:
+        csv_data = csv.DictReader(f)
+        data = [row for row in csv_data]
+    return data
+
+def add_scope(filename) -> list:
     """Provision SDWAN Tunnels IPs
 
     Args:
@@ -32,63 +40,59 @@ def add_dhcp(num_nws: list, site_data: dict) -> list:
     Returns 
     tunnel_ips_list (list): List of IP addresses to use for the SDWAN tunnels
     """
+    ### DISABLE WARNINGS ###
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
     ### VARS ###
     INFOBLOX_URL = config("INFOBLOX_URL")
     INFOBLOX_AUTHENTICATION = config("INFOBLOX_AUTHENTICATION")
-    TUNNEL_NETWORK = config("INFOBLOX_TUNNEL_NETWORK")
-    site_code = site_data["site_code"].lower()
-    payload = {
-                  "network": {
-                    "_object_function": "next_available_network",
-                    "_parameters": {
-                      "cidr": 30
-                    },
-                    "_result_field": "networks",
-                    "_object": "networkcontainer",
-                    "_object_parameters": {
-                      "network": TUNNEL_NETWORK
-                    }
-                  }
-                }
-
-    headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f'Basic {INFOBLOX_AUTHENTICATION}'
-            }
-    iterations = len(num_nws)
+    INFOBLOX_CPH_DHCP = config("INFOBLOX_CPH_DHCP")
+    INFOBLOX_MAA_DHCP = config("INFOBLOX_MAA_DHCP")
+    INFOBLOX_SLC_DHCP = config("INFOBLOX_SLC_DHCP")
+    post_results = set()
     
+    ### TRANSFORM CSV DATA TO DICT ###
+    scope_data = csv_to_dict(filename)
     
-    ### POST API CALL TO CREATE NEXT AVAILABLE /30 NETWORK ###
-    print("Creating networks in Infoblox...")
-    response_list = []
-    counter = 1
-    while counter <= iterations:
-      response = api.post_operations("network", INFOBLOX_URL, payload=payload, headers=headers)
-      response_list.append(response)
-      logger.info(f'Infoblox: Subnet Created {response}')
-      counter += counter
+    ### INITIALIZE API OBJECT ###
+    ib = Infoblox(INFOBLOX_AUTHENTICATION)
 
-    ### ADD SITE ID TO COMMENTS ###
-    print("Documenting Site Code in Infoblox...")
-    for network in response_list:
-      payload = {"comment": site_code.upper()}
-      response = api.put_operations(network, INFOBLOX_URL, payload=payload, headers=headers)
-      logger.info(f'Infoblox: Subnet Edited {response}')
+    ### CHECK FOR PARENT NETWORKS IN CONTAINERS ###
+    main_container_params = {"network_container": "10.0.0.0/8", "_return_as_object": "1"}
+    containers = ib.get_operations("networkcontainer", INFOBLOX_URL, main_container_params) 
+    container_parent_nws = [IPNetwork(nw["network"]) for nw in containers["result"]]
+    nws = [IPNetwork(nw["Network"]) for nw in scope_data]
+    print(scope_data)
+
+    container_check = container.container_check(nws, container_parent_nws)
+
+    if container_check is None:
+        ### CREATE NETWORK WITH MEMBERS ###
+        new_nw_params = {"_return_fields": "network,members", "_return_as_object": "1"}
+        nw_payload_list = list(map(lambda x: {"network": x["Network"], "comment": x["Comment"], "options": [{"name": "routers", "num": 3, "use_option": True, "value": x["Default_Gateway"], "vendor_class": "DHCP"}], "members": [{"_struct": "dhcpmember","ipv4addr": INFOBLOX_CPH_DHCP}, {"_struct": "dhcpmember","ipv4addr": INFOBLOX_MAA_DHCP}, {"_struct": "dhcpmember","ipv4addr":INFOBLOX_SLC_DHCP}]}, scope_data))
+
+        print("Adding Networks to IPAM")
+        for nw_payload in nw_payload_list:
+            new_nw = ib.post_operations("network", INFOBLOX_URL, nw_payload, params=new_nw_params)
+            post_results.add(new_nw)
+            logger.info(f'Infoblox: The result of adding a new network was {new_nw}')
+            print(f'Infoblox: The result of adding a new network was {new_nw}')
+
+        ### CREATE DHCP SCOPES ###
+        new_dhcp_params = {"_return_fields": "start_addr,end_addr", "_return_as_object": "1"}
+        range_payload_list = list(map(lambda x: {"start_addr": x["Range"].split('-')[0], "end_addr": x["Range"].split('-')[1]}, scope_data))
+        
+        print("Adding Ranges to IPAM")
+        for range_payload in range_payload_list:
+            new_range = ib.post_operations("range", INFOBLOX_URL, range_payload, params=new_dhcp_params)
+            post_results.add(new_range)
+            logger.info(f'Infoblox: The result of adding a new dhcp range was {new_range}')
+            print(f'Infoblox: The result of adding a new dhcp range was {new_range}')
+        
+        if post_results == {201}:
+            return True, post_results
+        else:
+            return False, post_results
     
-    ### GET SUBNETS FOR TUNNELS ###
-    print("Getting Tunnel IP...")
-    tunnel_subnet_list = []
-    for subnet in response_list:
-      tunnel_subnet = re.findall(r'network\/\w+:(\S+)\/default', subnet)
-      tunnel_subnet_list.append(tunnel_subnet[0])
-      logger.info(f'Infoblox: Tunnel subnets {tunnel_subnet[0]}')
-
-    ### GET TUNNEL IPS FOR TUNNELS ###
-    tunnel_ips_list = []
-    for tunnel_ip in tunnel_subnet_list:
-      network = IPNetwork(tunnel_ip)
-      tunnel_ip_list = list(network)
-      tunnel_ips_list.append(str(tunnel_ip_list[1]))
-      logger.info(f'Infoblox: Tunnel IP {tunnel_ip_list[1]}')
-      
-    return tunnel_ips_list
+    elif False in container_check and container_check is not None:
+        return False, container_check[1]    

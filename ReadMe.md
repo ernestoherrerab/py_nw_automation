@@ -15,7 +15,12 @@
 
 - Hostname Changer - Used to update hostnames for network devices (switches and APs) (Dephased).
 
-- ISE MAC Bypass: adds MAC addresses to a bypass list for guest users in ISE.
+- Infoblox Ops: Contains different tasks to automate Infoblox Tasks.
+  1. DHCP Scopes: Add DHCP scopes and ranges, a container network must exist.
+
+- ISE Ops: Contains different tasks to automate ISE
+
+  1. ISE MAC Bypass: adds MAC addresses to a bypass list for guest users in ISE.
 
 - MAC Finder: Helps you find a MAC address at a site.
 
@@ -128,15 +133,17 @@ You can enter data in two ways:
 4. Policy dissect
 
 ## Address Group check
+
 1. Enter Address Group Name
 2. All dependent addresses will be displayed in text window
 
-
 ## Services Group check
+
 1. Enter Services Group Name
 2. All dependent services will be displayed in text window
 
 ## Policy dissect
+
 1. Endet policy name
 2. All source destination addreses, apps and services are going tobe displayed
 

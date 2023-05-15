@@ -6,13 +6,14 @@
     </head>
     <body>
         <div class="alert alert-info" role="alert">
-            <h1>Infoblox Operations</h1><br>
-            <h5>Select Operation<br><br></h5>
-            <a class="btn btn-primary" href="{{url_for('infoblox_ops.dhcp_csv_upload')}}" role="button">Add DHCP Scopes</a>
-            <a class="btn btn-primary" href="{{url_for('home')}}" role="button">Main Index</a>      
-        </div>
-        <br><h4>*Do not refresh or press the "back" button, this might take some time to process.</h4>
-        <br><h4>**An authentication failure will result in a "Internal Server Error", navigate back to the homepage.</h4>
+        <h1>Infoblox Ops <br><br></h1>
+        <h4>Failed...<br><br></h4> 
+        </p><br><br>
+        <p>{{error_string}}</p>
+        <br>
+        <a class="btn btn-primary" href="{{url_for('infoblox_ops.infoblox_log_file')}}" role="button">Download Log File</a>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <a class="btn btn-primary" href="{{url_for('home')}}" role="button">Back To Home</a>
+        </div>
     </body>
 </html>
