@@ -269,12 +269,10 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             sleep(240)
             if sdwan_site_id not in red_nw_list:
                 list_update = sdwan.update_site_list(auth, VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR, VMANAGE_VSMART_TEMPLATE_ID)
-                logger.info(f'vManage: The vSmart controllers were updated: {list_update}')
+                logger.info(f'vManage: The vSmart controllers were updated: {list_update}')         
             else:
-                print("Site ID does not need to be added to the azure site list")
-                logger.info(f'vManage: The vSmart controllers were NOT updated: {list_update}')
-
-
+                logger.info(f'vManage: The site ID belongs to the red_green site list: {list_update}') 
+                print(f'vManage: The site ID belongs to the red_green site list: {list_update}')
             return summary_list              
 
         else:
@@ -332,7 +330,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
                 logger.info(f'vManage: The vSmart controllers were updated: {list_update}')
                 print(list_update)
             else:
-                print("Site ID does not need to be added to the azure site list")
-                logger.info(f'vManage: The vSmart controllers were NOT updated: {list_update}')
+                logger.info(f'vManage: The site ID belongs to the red_green site list: {list_update}') 
+                print(f'vManage: The site ID belongs to the red_green site list: {list_update}')
             return summary_list       
              
