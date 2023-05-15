@@ -7,6 +7,7 @@ import logging
 from pathlib import Path 
 import requests
 from requests import Response, RequestException, Session
+from urllib.parse import urlencode
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/sdwan_ops.log")
@@ -25,7 +26,7 @@ class Infoblox(object):
         self.session.headers.update({'Authorization': f'Basic {self.basic_auth}'})
         self.session.verify = False
 
-    def get_operations(self, ops_type: str, url_var: str) -> Response:
+    def get_operations(self, ops_type: str, url_var: str, params={}) -> Response:
         """
         Makes an API GET request to retrieve operations data.
 
@@ -46,9 +47,11 @@ class Infoblox(object):
         ### VARS ###
         self.ops_type = ops_type
         self.url_var = url_var
+        self.params = params
         url = f"{self.url_var}/{self.ops_type}"
-        ops_get = self.session.get(url, timeout=20.0)
-        
+
+        ops_get = self.session.get(url, params=self.params, timeout=20.0)
+            
         if ops_get.status_code == 200:
             ops_data = loads(ops_get.text)
             logger.info(f'API Call: {ops_get.status_code} {ops_data}')
@@ -79,26 +82,27 @@ class Infoblox(object):
             logger.info(f'API Call: {ops_get.status_code} Request Failed...Unknown why')
             return ops_get.status_code
 
-    def post_operations(self, ops_type: str, url_var: str, payload: dict, json=True) -> Response:
+    def post_operations(self, ops_type: str, url_var: str, payload: dict, params={}, json=True) -> Response:
         """ API POST operations """
 
         ### VARS ###
         self.ops_type = ops_type
         self.url_var = url_var
         self.payload = payload
+        self.params = params
+        encoded_params = urlencode(self.params)
         self.json = json
         url = f"{self.url_var}/{self.ops_type}"
         
         if self.json:
             try:
-                ops_post = self.session.post(url, json=self.payload)
-                
+                ops_post = self.session.post(url, params=encoded_params, json=self.payload)
                 if ops_post.status_code == 201:
                     print("POST Request Successful!")
                     ops_data = loads(ops_post.text)
                     ops_post.close()
                     logger.info(f'API Call: {ops_post.status_code} POST Request Successful! {ops_data}')
-                    return ops_data       
+                    return ops_post.status_code    
                 elif ops_post.status_code == 400:
                     print("JSON error. Check the JSON format.")
                     ops_post.close()
@@ -129,7 +133,7 @@ class Infoblox(object):
                     ops_data = loads(ops_post.text)
                     ops_post.close()
                     logger.error(f'API Call: {ops_post.status_code} Unexpected server side error.')
-                    return ops_data, ops_post.status_code
+                    return ops_post.status_code
                 else:
                     print("POST Request Failed")
                     ops_post.close()
@@ -137,16 +141,17 @@ class Infoblox(object):
                     return ops_post.status_code
             except RequestException as exc:
                 print(f"An error occurred while requesting {exc.request.url!r}.")
-
+        
         else:
             try:
-                ops_post = self.session.post(url, json=self.payload)
+                ops_post = self.session.post(url, params=encoded_params, json=self.payload)
 
                 if ops_post.status_code == 201:
                     print("POST Request Successful!")
                     ops_data = ops_post.text
+                    logger.info(f'API Call: {ops_post.status_code} POST Request Successful! {ops_data}')
                     ops_post.close()
-                    return ops_data       
+                    return ops_post.status_code       
                 elif ops_post.status_code == 400:
                     print("JSON error. Check the JSON format.")
                     ops_post.close()
@@ -177,7 +182,7 @@ class Infoblox(object):
                     ops_data = loads(ops_post.text)
                     ops_post.close()
                     logger.error(f'API Call: {ops_post.status_code} Unexpected server side error.')
-                    return ops_data, ops_post.status_code
+                    return ops_post.status_code
                 else:
                     print("POST Request Failed")
                     ops_post.close()
@@ -186,26 +191,28 @@ class Infoblox(object):
             except RequestException as exc:
                 print(f"An error occurred while requesting {exc.request.url!r}.")
 
-    def put_operations(self, ops_type: str, url_var: str, payload: dict, json=True) -> Response:
+    def put_operations(self, ops_type: str, url_var: str, payload: dict, params = {}, json=True) -> Response:
         """ API PUT operations """
 
         ### VARS ###
         self.ops_type = ops_type
         self.url_var = url_var
         self.payload = payload
+        self.params = params
+        encoded_params = urlencode(self.params)
         self.json = json
         url = f"{self.url_var}/{self.ops_type}"
 
         if self.json:
             try:
-                ops_put = self.session.put(url, json=self.payload)
+                ops_put = self.session.put(url, params=encoded_params, json=self.payload)
                 
                 if ops_put.status_code == 200:
                     print("PUT Request Successful!")
                     ops_data = loads(ops_put.text)
                     ops_put.close()
                     logger.info(f'API Call: {ops_put.status_code} PUT Request Successful! {ops_data}')
-                    return ops_data       
+                    return ops_put.status_code      
                 elif ops_put.status_code == 400:
                     print("JSON error. Check the JSON format.")
                     ops_put.close()
@@ -247,13 +254,14 @@ class Infoblox(object):
 
         else:
             try:
-                ops_put = self.session.put(url,json=payload)
+                ops_put = self.session.put(url,params=encoded_params, json=payload)
                 
                 if ops_put.status_code == 201:
                     print("PUT Request Successful!")
                     ops_data = ops_put.text
+                    logger.info(f'API Call: {ops_put.status_code} POST Request Successful! {ops_data}')
                     ops_put.close()
-                    return ops_data       
+                    return ops_put.status_code     
                 elif ops_put.status_code == 400:
                     print("JSON error. Check the JSON format.")
                     ops_put.close()
