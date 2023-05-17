@@ -79,8 +79,8 @@ def add_scope(filename) -> list:
             print(f'Infoblox: The result of adding a new network was {new_nw}')
 
         ### CREATE DHCP SCOPES ###
-        new_dhcp_params = {"_return_fields": "start_addr,end_addr", "_return_as_object": "1"}
-        range_payload_list = list(map(lambda x: {"start_addr": x["Range"].split('-')[0], "end_addr": x["Range"].split('-')[1]}, scope_data))
+        new_dhcp_params = {"_return_fields": "start_addr,end_addr,failover_association", "_return_as_object": "1"}
+        range_payload_list = list(map(lambda x: {"start_addr": x["Range"].split('-')[0], "end_addr": x["Range"].split('-')[1], "failover_association": x["Failover_Association"]}, scope_data))
         
         print("Adding Ranges to IPAM")
         for range_payload in range_payload_list:
