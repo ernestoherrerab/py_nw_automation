@@ -73,7 +73,7 @@ def add_scope(filename) -> list:
 
         print("Adding Networks to IPAM")
         for nw_payload in nw_payload_list:
-            new_nw = ib.post_operations("network", INFOBLOX_URL, nw_payload, params=new_nw_params)
+            _, new_nw = ib.post_operations("network", INFOBLOX_URL, nw_payload, params=new_nw_params)
             post_results.add(new_nw)
             logger.info(f'Infoblox: The result of adding a new network was {new_nw}')
             print(f'Infoblox: The result of adding a new network was {new_nw}')
@@ -84,7 +84,7 @@ def add_scope(filename) -> list:
         
         print("Adding Ranges to IPAM")
         for range_payload in range_payload_list:
-            new_range = ib.post_operations("range", INFOBLOX_URL, range_payload, params=new_dhcp_params)
+            _, new_range = ib.post_operations("range", INFOBLOX_URL, range_payload, params=new_dhcp_params)
             post_results.add(new_range)
             logger.info(f'Infoblox: The result of adding a new dhcp range was {new_range}')
             print(f'Infoblox: The result of adding a new dhcp range was {new_range}')

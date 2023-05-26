@@ -102,7 +102,7 @@ class Infoblox(object):
                     ops_data = loads(ops_post.text)
                     ops_post.close()
                     logger.info(f'API Call: {ops_post.status_code} POST Request Successful! {ops_data}')
-                    return ops_post.status_code    
+                    return ops_data, ops_post.status_code    
                 elif ops_post.status_code == 400:
                     print("JSON error. Check the JSON format.")
                     ops_post.close()

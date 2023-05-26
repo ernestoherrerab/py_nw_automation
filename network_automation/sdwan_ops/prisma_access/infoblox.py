@@ -57,7 +57,7 @@ def create_tunnel_ips(num_nws: list, site_data: dict) -> list:
     infoblox_network = Infoblox(INFOBLOX_AUTHENTICATION)
   
     while counter <= iterations:
-      response = infoblox_network.post_operations("network", INFOBLOX_URL, payload=payload)
+      response, _ = infoblox_network.post_operations("network", INFOBLOX_URL, payload=payload)
       print(response)
       response_list.append(response)
       logger.info(f'Infoblox: Subnet Created {response}')
@@ -65,6 +65,7 @@ def create_tunnel_ips(num_nws: list, site_data: dict) -> list:
 
     ### ADD SITE ID TO COMMENTS ###
     print("Documenting Site Code in Infoblox...")
+    print(response_list)
     for network in response_list:
       payload = {"comment": site_code.upper()}
       response = infoblox_network.put_operations(network, INFOBLOX_URL, payload=payload)
