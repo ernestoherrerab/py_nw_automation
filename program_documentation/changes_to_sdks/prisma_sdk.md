@@ -65,3 +65,23 @@ class Tag(PanObject):
     _endpoint = '/sse/config/v1/tags'
 
 ~~~
+
+***
+Modify the read function on /panapi/config/__init__.py
+
+~~~python
+
+        else:
+            if session.response.status_code == 200:
+                result = session.response.json()
+                if has_id:
+                    return type(self)(**result)
+                elif has_name:
+                    if "data" in result:
+                        config = result["data"][0]
+                        return type(self)(**config)
+                    else:
+                        return result
+~~~
+
+***
