@@ -52,6 +52,7 @@ def format_data_structure(template_id: str, dev_input: dict, auth_session: objec
                 "action_activity": "Not Pushed",
                 "action_config": "Not Pushed"
                 })
+        return summary_list
     else:
         feature_template_dict["deviceTemplateList"][0]["device"][0]["csv-templateId"] = feature_template_dict["deviceTemplateList"][0]["templateId"] 
         logger.info(f'vManage: Evaluated templates to push')
@@ -271,9 +272,8 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
                 list_update = sdwan.update_site_list(auth, VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR, VMANAGE_VSMART_TEMPLATE_ID)
                 logger.info(f'vManage: The vSmart controllers were updated: {list_update}')         
             else:
-                logger.info(f'vManage: The site ID belongs to the red_green site list: {list_update}') 
-                print(f'vManage: The site ID belongs to the red_green site list: {list_update}')
-            return summary_list              
+                logger.info(f'vManage: The site ID belongs to the red_green site list') 
+                print(f'vManage: The site ID belongs to the red_green site list')            
 
         else:
             ### GET EXISTING PRISMA TEMPLATE ID ###
@@ -327,10 +327,10 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             sleep(240)
             if sdwan_site_id not in red_nw_list:
                 list_update = sdwan.update_site_list(auth, VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR, VMANAGE_VSMART_TEMPLATE_ID)
-                logger.info(f'vManage: The vSmart controllers were updated: {list_update}')
+                logger.info(f'vManage: The vSmart controllers were updated')
                 print(list_update)
             else:
-                logger.info(f'vManage: The site ID belongs to the red_green site list: {list_update}') 
-                print(f'vManage: The site ID belongs to the red_green site list: {list_update}')
-            return summary_list       
+                logger.info(f'vManage: The site ID belongs to the red_green site list') 
+                print(f'vManage: The site ID belongs to the red_green site list')
+    return summary_list       
              

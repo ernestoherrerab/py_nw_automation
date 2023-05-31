@@ -11,12 +11,20 @@
         <p>
             <b>Actions Taken:</b><br>
             {% for activity in results %}
-            - {{ activity["action_activity"] }} <br>
+            {{ activity["action_activity"] }} <br>
             {% endfor %}
             <br>
             <b>Results:</b><br>
             {% for result in results %}
-            - {{ result["action_config"] }}<br>
+            - Hostname: {{ result["action_config"]["csv-host-name"] }}<br>
+            - IPSec Tunnel Interface: {{ result["action_config"]["/10/ipsec10/interface/tunnel-source-interface"]}}<br>
+            - IPSec Tunnel Destination: {{ result["action_config"]["/10/ipsec10/interface/tunnel-destination"]}}<br>
+            - IPSec Tunnel IP Address: {{ result["action_config"]["/10/ipsec10/interface/ip/address"]}}<br>
+            - BGP ASN: {{ result["action_config"]["/10//router/bgp/as-num"]}}<br>
+            - BGP Neighbor IP Address: {{ result["action_config"]["/10//router/bgp/neighbor/bgp_neighbor_address_pri/address"]}}<br>
+            {% if result["action_config"]["/10//router/bgp/neighbor/bgp_neighbor_address_sec/address"] != "TEMPLATE_IGNORE" %}
+            - BGP Secondary Neighbor IP Address: {{ result["action_config"]["/10//router/bgp/neighbor/bgp_neighbor_address_sec/address"] }}<br>
+            {% endif %}
             {% endfor %}
         </p><br><br>
         <p>Download the log file for details:</p>
