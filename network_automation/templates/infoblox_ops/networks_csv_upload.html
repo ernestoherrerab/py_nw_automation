@@ -9,14 +9,14 @@
         <h1>Infoblox Add DHCP Scopes</h1><br>
         <h4>Import your CSV File</h4><br>
         <h4>A CONTAINER FOR THESE NETWORKS MUST EXIST!!!</h4><br>
-        <form action = "{{url_for('infoblox_ops.add_dhcp_scope')}}" method = "POST" 
+        <form action = "{{url_for('infoblox_ops.add_networks')}}" method = "POST" 
             enctype = "multipart/form-data">
         <input type = "file" name = "file" />
         <input type = "submit"/>
         </form>
         </div>
         <div class="alert alert-success" role="alert">
-        <h4><center>If using Excel follow the below format as is:</center><br></h4>
+        <h4><center>If using Excel follow the below format as is, the first row includes a DHCP Scope, the second one is just a network:</center><br></h4>
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -34,6 +34,13 @@
                 <td>10.0.0.1</td>
                 <td>10.0.0.10-10.0.0.252</td>
                 <td>CPH-SLC</td>
+              </tr>
+              <tr>
+                <td>10.1.0.0/24</td>
+                <td>JNB</td>
+                <td>10.1.0.1</td>
+                <td></td>
+                <td></td>
               </tr>
             </tbody>
         </table><br>
