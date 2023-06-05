@@ -16,7 +16,7 @@
 - Hostname Changer - Used to update hostnames for network devices (switches and APs) (Dephased).
 
 - Infoblox Ops: Contains different tasks to automate Infoblox Tasks.
-  1. DHCP Scopes: Add DHCP scopes and ranges, a container network must exist.
+  1. Add Network/DHCP Scopes: Add Networks, DHCP scopes and ranges, a container network must exist.
 
 - ISE Ops: Contains different tasks to automate ISE
 
@@ -150,15 +150,3 @@ You can enter data in two ways:
 ## Documentation
 
 You can find the documentation for the devbox, web server, and changes to the sdks, and execution under the "documentation/" directory.
-
-## Future upgrades
-
-- Tacacs Authentication Error Handling (bug).
-
-- MAC Finder:
-  - If MAC does not exists (error handling bug).
-  - If MAC is behind an AP (error handling bug).
-
-- Topology Builder:
-  - YAML File upload: Does not have much benefit since we lack an inventory SoT (feature upgrade).
-  - Resulting Diagrams: They do not look very pretty (feature upgrade).

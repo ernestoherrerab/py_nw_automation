@@ -30,7 +30,7 @@ def csv_to_dict(filename: str) -> dict:
         data = [row for row in csv_data]
     return data
 
-def add_scope(filename) -> list:
+def add_network(filename) -> list:
     """Provision SDWAN Tunnels IPs
 
     Args:
@@ -80,14 +80,15 @@ def add_scope(filename) -> list:
 
         ### CREATE DHCP SCOPES ###
         new_dhcp_params = {"_return_fields": "start_addr,end_addr,failover_association", "_return_as_object": "1"}
-        range_payload_list = list(map(lambda x: {"start_addr": x["Range"].split('-')[0], "end_addr": x["Range"].split('-')[1], "failover_association": x["Failover_Association"]}, scope_data))
+        range_payload_list = list(map(lambda x: {"start_addr": x["Range"].split('-')[0], "end_addr": x["Range"].split('-')[1], "failover_association": x["Failover_Association"]} if x["Range"] != "" else None, scope_data))
         
         print("Adding Ranges to IPAM")
         for range_payload in range_payload_list:
-            _, new_range = ib.post_operations("range", INFOBLOX_URL, range_payload, params=new_dhcp_params)
-            post_results.add(new_range)
-            logger.info(f'Infoblox: The result of adding a new dhcp range was {new_range}')
-            print(f'Infoblox: The result of adding a new dhcp range was {new_range}')
+            if range_payload is not None:
+                _, new_range = ib.post_operations("range", INFOBLOX_URL, range_payload, params=new_dhcp_params)
+                post_results.add(new_range)
+                logger.info(f'Infoblox: The result of adding a new dhcp range was {new_range}')
+                print(f'Infoblox: The result of adding a new dhcp range was {new_range}')
         
         if post_results == {201}:
             return True, post_results

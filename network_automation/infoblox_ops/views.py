@@ -7,18 +7,15 @@ from flask import render_template, request, current_app, redirect, send_file, ur
 from pathlib import Path
 from werkzeug.utils import secure_filename
 from network_automation.infoblox_ops import infoblox_ops
-import logging
-import network_automation.infoblox_ops.dhcp.dhcp as dhcp_add
+import network_automation.infoblox_ops.networks.networks as network_add
 
 ### VARIABLES ###
 FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
-INFOBLOX_UPLOAD_DIR = Path("network_automation/infoblox_ops/dhcp/csv_data/")
+INFOBLOX_UPLOAD_DIR = Path("network_automation/infoblox_ops/networks/csv_data/")
 TEMPLATE_DIR = "infoblox_ops"
-
-### LOGGING SETUP ###
 LOG_FILE = Path("logs/infoblox_ops.log")
 
-### ISE OPS HOME ###
+### INFOBLOX OPS HOME ###
 @infoblox_ops.route("/home")
 def home():
     """ 
@@ -34,17 +31,17 @@ def home_redirect():
     return redirect(url_for("infoblox_ops.home"))
 
 
-@infoblox_ops.route("/dhcp_csv_upload")
-def dhcp_csv_upload():
+@infoblox_ops.route("/networks_csv_upload")
+def networks_csv_upload():
     """ 
-    DHCP Scopes Home Data input
+    Networks Home Data input
     """
     INFOBLOX_UPLOAD_DIR.mkdir(exist_ok=True)
-    return render_template(f"{TEMPLATE_DIR}/dhcp_csv_upload.html")
+    return render_template(f"{TEMPLATE_DIR}/networks_csv_upload.html")
 
 
-@infoblox_ops.route("/add_dhcp_scope", methods=["POST"])
-def add_dhcp_scope():
+@infoblox_ops.route("/add_networks", methods=["POST"])
+def add_networks():
     if request.method == "POST":
         if "file" in request.files:
             print(f'CSV File Successfully Uploaded')
@@ -52,7 +49,7 @@ def add_dhcp_scope():
             current_app.config["UPLOAD_FOLDER"] = INFOBLOX_UPLOAD_DIR
             f.save(current_app.config["UPLOAD_FOLDER"] / secure_filename(f.filename))
             file_name = INFOBLOX_UPLOAD_DIR / f.filename
-            results = dhcp_add.add_scope(file_name)
+            results = network_add.add_network(file_name)
 
             if False in results:
                 error_string = results[1]
