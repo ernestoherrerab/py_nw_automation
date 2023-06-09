@@ -10,6 +10,12 @@
         <h4>Import your TXT File</h4><br>
         <form action = "{{url_for('standards_ops.send_cli')}}" method = "POST" 
             enctype = "multipart/form-data">
+            <div class="row g-3 align-items-center">
+				<div class="col-auto">
+					<label for="site_code">Site Code:</label>
+					<input type="text" class="form-control" id="site_code" name="site_code" placeholder="Site Code"><br>
+				</div>
+			</div>
         <input type = "file" name = "file" />
         <input type = "submit"/>
         </form>

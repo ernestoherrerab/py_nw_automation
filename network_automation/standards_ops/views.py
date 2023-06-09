@@ -102,14 +102,16 @@ def send_cli():
     if request.method == "POST":
         if "file" in request.files:
             print(f'TXT File Successfully Uploaded')
+            session["site_code"] = request.form["site_code"]
             f = request.files["file"]
             current_app.config["UPLOAD_FOLDER"] = CLI_UPLOAD_DIR
             f.save(current_app.config["UPLOAD_FOLDER"] / secure_filename(f.filename))
             file_name = CLI_UPLOAD_DIR / f.filename
             username = session.get("cli_username")
             password = session.get("cli_password")
+            site_code = session["site_code"]
             print("Building Inventory...")
-            build_inventory.build_inventory("GRZ", username, password)
+            build_inventory.build_inventory(site_code, username, password)
             results, failed_hosts = send_cli_configs.send_cli(username, password, file_name)
         if results == {True}:
             return render_template(f"{TEMPLATE_DIR}/results_success.html")
