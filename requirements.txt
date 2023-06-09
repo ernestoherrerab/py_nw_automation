@@ -1,6 +1,7 @@
 ### THE BELOW VERSIONS ARE CURRENTLY WORKING IN THE PRODUCTION ENVIRONMENT ###
 
 ciscoconfparse==1.6.40
+colorama==0.4.6
 Flask==2.0.3
 genie==22.2
 graphviz==0.19.1

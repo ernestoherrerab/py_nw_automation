@@ -68,7 +68,7 @@ def build_inventory(site_code: str, username: str, password: str):
 
     ### GENERATE IPFABRIC SESSION ###
     print("Authenticating to IPFabric...")
-    ipf_session = ipfabric.auth("$lastLocked")
+    ipf_session = ipfabric.auth()
     logger.info("IPFabric: Authenticated")
     
     ### GET DHCP RELAY INTERFACES ###
