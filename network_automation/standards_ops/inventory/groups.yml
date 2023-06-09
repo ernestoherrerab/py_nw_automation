@@ -32,9 +32,12 @@ routers:
 unmanaged_devices:
   {}
 
-ap_devices:
+access_points:
   {}
 
+firewalls:
+  {}
+  
 sdw_routers:
   {}
 
@@ -68,5 +71,5 @@ ws_c6509:
 sdwan_routers:
   {}
 
-wlcs:
+wireless_controllers:
   {}

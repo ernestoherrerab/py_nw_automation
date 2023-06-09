@@ -12,6 +12,7 @@
   2. Apply AAA - Used to standardize AAA configs.
   3. Apply NTP - Used to standardize NTP configs.
   4. Add Infoblox Relay - Used to add the Infoblox Helper Address
+  5. Send CLI Configs - Used to send CLI commands to IOS Devices from a file.
 
 - Hostname Changer - Used to update hostnames for network devices (switches and APs) (Dephased).
 

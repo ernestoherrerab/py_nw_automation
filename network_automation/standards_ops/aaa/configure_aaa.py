@@ -4,7 +4,6 @@ Delete and Configure AAA standard configurations
 """
 import logging
 from pathlib import Path
-import re
 from nornir_scrapli.tasks import send_configs
 from yaml import load
 from yaml.loader import FullLoader

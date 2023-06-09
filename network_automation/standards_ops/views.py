@@ -3,15 +3,18 @@
 Creates the views (routes) for the secondary app
 """
 from decouple import config
-from flask import render_template, request, redirect, send_file, session, url_for
+from flask import current_app, render_template, request, redirect, send_file, session, url_for
 import logging
 from pathlib import Path
 from yaml import dump
+from werkzeug.utils import secure_filename
 from network_automation.standards_ops import standards_ops
 import network_automation.standards_ops.audit_manager.audit as audit
 import network_automation.standards_ops.aaa.build_inventory as do_aaa
 import network_automation.standards_ops.ntp.build_inventory as do_ntp
 import network_automation.standards_ops.infoblox_helper.build_inventory as add_ib_helper
+import network_automation.standards_ops.cli_configs.send_cli as send_cli_configs
+import network_automation.standards_ops.build_inventory as build_inventory
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/standards_ops.log")
@@ -27,6 +30,7 @@ FLASK_SECRET_KEY = config("FLASK_SECRET_KEY")
 AUDIT_MANAGER_INV_DIR = Path("network_automation/standards_ops/inventory/")
 TEMPLATE_DIR = "standards_ops"
 LOG_FILE = Path("logs/standards_ops.log")
+CLI_UPLOAD_DIR = Path("network_automation/standards_ops/cli_configs/configs/")
 
 ### VIEW TO CREATE DATA ###
 @standards_ops.route("/home")
@@ -81,6 +85,40 @@ def infoblox_dhcp():
     Add Infoblox IP Helper Address Home Data input
     """
     return render_template(f"{TEMPLATE_DIR}/infoblox_dhcp_manager.html")
+
+@standards_ops.route("/configs_upload")
+def configs_upload():
+    """ 
+    Upload TXT File
+    """
+    CLI_UPLOAD_DIR.mkdir(exist_ok=True)
+    return render_template(f"{TEMPLATE_DIR}/configs_upload.html")
+
+@standards_ops.route("/send_cli", methods=["POST"])
+def send_cli():
+    """ 
+    Send Configuration Commmands from a Text File
+    """
+    if request.method == "POST":
+        if "file" in request.files:
+            print(f'TXT File Successfully Uploaded')
+            session["site_code"] = request.form["site_code"]
+            f = request.files["file"]
+            current_app.config["UPLOAD_FOLDER"] = CLI_UPLOAD_DIR
+            f.save(current_app.config["UPLOAD_FOLDER"] / secure_filename(f.filename))
+            file_name = CLI_UPLOAD_DIR / f.filename
+            username = session.get("cli_username")
+            password = session.get("cli_password")
+            site_code = session["site_code"]
+            print("Building Inventory...")
+            build_inventory.build_inventory(site_code, username, password)
+            results, failed_hosts = send_cli_configs.send_cli(username, password, file_name)
+        if results == {True}:
+            return render_template(f"{TEMPLATE_DIR}/results_success.html")
+        else:
+            return render_template(f"{TEMPLATE_DIR}/results_failure.html", failed_hosts=failed_hosts)
+
+    return "Hello World"
 
 @standards_ops.route("/do_audit", methods=["POST"])
 def do_audit():
