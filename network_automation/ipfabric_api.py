@@ -78,7 +78,7 @@ def get_inv_data(ipf: IPFClient, filter_dict={}) -> list:
     Returns:
     if_data (list): List of dictionaries of inventory data  
     """  
-    columns_list = ["hostname", "siteName", "snHw", "loginIp", "vendor", "model", "image", "devType",]
+    columns_list = ["hostname", "siteName", "snHw", "loginIp", "vendor", "model", "image", "devType", "family"]
     inv_data = ipf.inventory.devices.all(columns=columns_list, filters=filter_dict)
     
     return inv_data

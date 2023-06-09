@@ -50,6 +50,8 @@ def build_inventory(site_code: str, username: str, password: str):
             nornir_inv_dict[data["hostname"]] = {"groups": ["access_points"], "hostname": data["loginIp"]}
         elif data["devType"] == "fw":
             nornir_inv_dict[data["hostname"]] = {"groups": ["firewalls"], "hostname": data["loginIp"]}
+        elif data["family"] == "nx-os":
+            nornir_inv_dict[data["hostname"]] = {"groups": ["nxos_devices"], "hostname": data["loginIp"]}
         else:
             nornir_inv_dict[data["hostname"]] = {"groups": ["ios_devices"], "hostname": data["loginIp"]}
     
