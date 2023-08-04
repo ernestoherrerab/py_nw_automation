@@ -85,7 +85,7 @@ def create_address_group(session: PanApiSession, site_id: str, address_object_li
     response (tuple): Response code set, and list of address group objects 
     """   
     response_code = set()
-    address_group_name = f'AG-{site_id}'
+    address_group_name = f'ADDG-{site_id}'
     PRISMA_AG_FLS_INTERNAL_ID = config("PRISMA_AG_FLS_INTERNAL_ID")
 
     ### CREATE ADDRESS GROUP ###
@@ -351,7 +351,7 @@ def del_ipsec_tunnels(session: PanApiSession, ipsec_tun_ids: list) -> set:
         response_code.add(session.response.status_code)
     
     return response_code
-
+    
 def get_ike_gateways(session: PanApiSession, ike_gws: list) -> list:
     """Get IKE Gateways 
     
@@ -486,6 +486,27 @@ def get_spn_location(session: PanApiSession, region: str) -> dict:
         print("The location does not exist or no bandwidth has not been allocated to this region...")
         logger.error(f'Prisma: The location does not exist or no bandwidth has not been allocated to this region')
         return None
+
+def put_address_groups(session: PanApiSession, addg_id: str, addg_body) -> list:
+    """Get Address Groups
+    
+    Args:
+    session (PanApiSession): Session Object
+    addg_id: Address Group ID
+
+    Returns:
+    response (list): List of Address Groups  
+    """   
+    address_groups = AddressGroup(
+        folder = "Shared",
+        id = addg_id,
+        name = addg_body["name"],
+        static = addg_body["static"],
+        tag = addg_body["tag"]
+    )
+    response = address_groups.update(session)
+
+    return response
 
 def push_config(session: PanApiSession) -> dict:
     """
