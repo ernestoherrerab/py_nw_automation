@@ -26,3 +26,4 @@ file_display/public/documentation/*
 file-display/
 logs/
 /network_automation/panorama_ops/pa-mgmt-dk-flsmidth-net-chain.pem
+tests/

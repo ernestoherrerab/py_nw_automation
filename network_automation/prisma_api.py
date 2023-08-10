@@ -485,10 +485,31 @@ def get_spn_location(session: PanApiSession, region: str) -> dict:
     else:
         print("The location does not exist or no bandwidth has not been allocated to this region...")
         logger.error(f'Prisma: The location does not exist or no bandwidth has not been allocated to this region')
+  
         return None
+def put_address(session: PanApiSession, add_id: str, add_body) -> list:
+    """Edit Address Objects
+    
+    Args:
+    session (PanApiSession): Session Object
+    addg_id: Address ID
+
+    Returns:
+    response (list): List of Addresses  
+    """   
+    address = Address(
+        folder = "Shared",
+        id = add_id,
+        name = add_body["name"],
+        ip_netmask = add_body["ip_netmask"],
+        tag = add_body["tag"]
+    )
+    response = address.update(session)
+
+    return response
 
 def put_address_groups(session: PanApiSession, addg_id: str, addg_body) -> list:
-    """Get Address Groups
+    """Edit Address Group Objects
     
     Args:
     session (PanApiSession): Session Object
