@@ -63,14 +63,14 @@ def create_address(session: PanApiSession, site_id: str, address_list: list) -> 
     for index, address in enumerate(address_list):
         address_obj = Address(
             folder = "Shared",
-            name = f'ADD-{site_id}_{index}',
+            name = f'ADD-{site_id}-{index}',
             ip_netmask = address,
             tag = [site_id]
         )
         address_obj.create(session)
         logger.info(f'Prisma: Address Object for {address} resulted in {session.response.status_code}')
         response_code.add(session.response.status_code)
-        address_objects.append(f'ADD-{site_id}_{index}')
+        address_objects.append(f'ADD-{site_id}-{index}')
     
     return response_code, address_objects
 
