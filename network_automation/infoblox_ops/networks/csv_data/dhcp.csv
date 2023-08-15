@@ -1,4 +1,0 @@
-Network,Comment,Default_Gateway,Range,Failover_Association
-10.4.36.0/24,PEK2 - Users,10.4.36.1,10.4.36.100-10.4.36.240,MAA-CPH
-10.4.37.0/24,PEK2 - Wireless Users,10.4.37.1,10.4.37.100-10.4.37.240,MAA-CPH
-10.4.38.0/24,PEK2 - Test,10.4.38.1,,
