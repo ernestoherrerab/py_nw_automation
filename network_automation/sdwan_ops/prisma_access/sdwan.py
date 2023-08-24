@@ -8,6 +8,7 @@ from json import loads
 import logging
 from pathlib import Path
 import re
+from rich import print as pprint
 from time import sleep
 from vmanage.api.policy_lists import  PolicyLists
 import network_automation.sdwan_api as sdwan
@@ -168,7 +169,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
         
         if not template_list:
             ### FILTER DATA TO GET ID OF DEVICE VPN10 FEATURETEMPLATE ###
-            cisco_vpn_template_id_list = [cisco_vpn_templates["templateId"] for cisco_vpn_templates in feature_templates if cisco_vpn_templates["templateType"] == "cisco_vpn" and cisco_vpn_templates["templateName"] == "FT-PRISMA-VPN10-INSIDE"]  
+            cisco_vpn_template_id_list = [cisco_vpn_templates["templateId"] for cisco_vpn_templates in feature_templates if cisco_vpn_templates["templateType"] == "cisco_vpn" and cisco_vpn_templates["templateName"] == "FT-VPN10-CEDGE"]  
 
             ### GET SDWAN CURRENT TEMPLATE AND APPEND NEW IPSEC SUB TEMPLATE ###
             ### ONLY NEEDED IF ITS A NEW TEMPLATE ###
@@ -264,7 +265,9 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
                     new_dev_input["data"][0]["/10/ipsec20/interface/ip/address"] =  (f'{host_tunnel_if[3]}/30')
                     new_dev_input["data"][0]["/10//router/bgp/neighbor/bgp_neighbor_address_sec/address"] = bgp_peers[1]
                     logger.info(f'vManage: Added new template feature input for secondary ipsec tunnel: {new_dev_input["data"][0]["csv-host-name"]}')
-            print(f'The Template Input is: {new_dev_input}')
+            print("The Template Input is:")
+            pprint(new_dev_input)
+
             #### FORMAT FINAL DATA STRCUTURE ###
             summary_list = format_data_structure(new_template_id, new_dev_input["data"], auth, VMANAGE_URL_VAR)  
             sleep(240)
@@ -287,7 +290,8 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             ##### GET PRISMA TEMPLATE INPUT INFORMATION ###
             print("Getting new template input information...")
             prisma_dev_input = sdwan.get_template_input(auth, VMANAGE_URL_VAR, prisma_template_id)
-            print(f'The input information for the prisma template is: {prisma_dev_input}')
+            print("The input information for the prisma template is:")
+            pprint(prisma_dev_input)
             logger.info(f'vManage: Retrieved new template input info for {prisma_template_id}')
 
             ### COPY CURRENT DEV DATA TO NEW DEV DATA IN INPUT ###
@@ -321,7 +325,8 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
                     prisma_dev_input["data"][0]["/10/ipsec20/interface/ip/address"] =  (f'{host_tunnel_if[3]}/30')
                     prisma_dev_input["data"][0]["/10//router/bgp/neighbor/bgp_neighbor_address_pri/address"] = bgp_peers[1]
                     logger.info(f'vManage: Added new template feature input for secondary ipsec tunnel: {prisma_dev_input["data"][0]["csv-host-name"]}')
-            print(f'The Template Input is: {prisma_dev_input}')
+            print("The Template Input is:")
+            pprint(prisma_dev_input)
             #### FORMAT FINAL DATA STRCUTURE ###
             summary_list = format_data_structure(prisma_template_id, prisma_dev_input["data"], auth, VMANAGE_URL_VAR)
             sleep(240)
