@@ -6,7 +6,6 @@ from json import loads, dumps
 import logging
 from pathlib import Path 
 from requests import Response, RequestException, Session
-import xml.etree.ElementTree as ET
 import xmltodict 
 from urllib.parse import urlencode
 

@@ -97,6 +97,7 @@ def main():
         else:
             logger.error(f'Updating FLS-Guest-Endpoint-PoC with {mac} FAILED!')            
     
+    ### TIME SCRIPT RUN ###
     end_time = time()
     execution_time = start_time - end_time
     print(f'The script took {execution_time} seconds to run')
