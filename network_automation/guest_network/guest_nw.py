@@ -5,12 +5,13 @@ Script to add MAC addres to correct identity group
 from decouple import config
 import logging
 from pathlib import Path
-import urllib3
-import sys
 import os
+import sys
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
+from time import time, strftime, gmtime
+import urllib3
 from netaddr import EUI
 from IseApi import Ise
 
@@ -62,6 +63,7 @@ def main():
     
 
     ### INITIALIZE API OBJECT AND GET THE ACTIVE SESSIONS LIST ###
+    start_time = time()
     ise_xml = Ise(ISE_AUTHENTICATION, "xml")
     logger.info(f'ISE Session Established.')
     active_list = ise_xml.get_operations("admin/API/mnt/Session/ActiveList", ISE_URL_MONITORING)
@@ -94,6 +96,13 @@ def main():
             logger.info(f'Updated FLS-Guest-Endpoint-PoC with {mac}')
         else:
             logger.error(f'Updating FLS-Guest-Endpoint-PoC with {mac} FAILED!')            
+    
+    end_time = time()
+    execution_time = start_time - end_time
+    print(f'The script took {execution_time} seconds to run')
+    print(f'The script took {strftime("%H:%M:%S", gmtime(execution_time))} seconds to run')
+    logger.info(f'The script took {execution_time} seconds to run')
+    logger.info(f'The script took {strftime("%H:%M:%S", gmtime(execution_time))} seconds to run')
 
 if __name__ == '__main__' :
     """
