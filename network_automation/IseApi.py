@@ -27,7 +27,7 @@ class Ise(object):
         self.session.headers.update({'Authorization': f'Basic {self.basic_auth}', 'Content-Type': f'application/json','Accept': f'application/{self.accept}'})
         self.session.verify = False
 
-    def get_operations(self, ops_type: str, url_var: str, params={}) -> Response:
+    def get_operations(self, ops_type: str, url_var: str, params={}, data={}) -> Response:
         """
         Makes an API GET request to retrieve operations data.
 
@@ -49,9 +49,10 @@ class Ise(object):
         self.ops_type = ops_type
         self.url_var = url_var
         self.params = params
+        self.data = data
         url = f"{self.url_var}/{self.ops_type}"
 
-        ops_get = self.session.get(url, params=self.params, timeout=20.0)
+        ops_get = self.session.get(url, params=self.params, data=self.data, timeout=20.0)
  
         if ops_get.status_code == 200 and self.accept=="json":
             ops_data = loads(ops_get.text)

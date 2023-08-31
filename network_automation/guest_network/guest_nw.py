@@ -66,11 +66,11 @@ def main():
     start_time = time()
     ise_xml = Ise(ISE_AUTHENTICATION, "xml")
     logger.info(f'ISE Session Established.')
-    active_list = ise_xml.get_operations("admin/API/mnt/Session/ActiveList", ISE_URL_MONITORING)
+    active_list = ise_xml.get_operations("admin/API/mnt/Session/ActiveList", ISE_URL_MONITORING, data={"timePeriod":"10","autoRefreshInterval":"60000","pageSize":"100"})
     logger.info(f'Active Sessions Retrieved.')
 
     ### FILTER GUEST MACS ### 
-    guest_endpoint_list = [session["user_name"] for session in active_list["activeList"]["activeSession"] if "framed_ip_address" in session and "192.168" in session["framed_ip_address"] and is_valid_mac_address(session["user_name"])]
+    guest_endpoint_list = [session["calling_station_id"] for session in active_list["activeList"]["activeSession"] if "framed_ip_address" in session and "192.168" in session["framed_ip_address"] and is_valid_mac_address(session["calling_station_id"])]
     logger.info(f'Active sessions filtered by guest networks')
 
     ### GET MAC ADDRESS INFORMATION FROM FILTERED MACS ###
@@ -79,8 +79,20 @@ def main():
         mac_data.append(result["sessionParameters"])
     logger.info(f'Retrieved MAC address information for filtered active sessions.')
 
-    macs_unknown = [mac["user_name"] for mac in mac_data if "endpoint_policy" in mac and "user_name" in mac and mac["endpoint_policy"] == "Unknown"]
-    logger.info(f'MAC addresses filtered that belong to the "Unknown" Endpoint Group')
+    macs_unknown = [
+    mac["calling_station_id"]
+    for mac in mac_data
+    if all(
+        key in mac
+        for key in ["identity_group", "other_attr_string", "calling_station_id"]
+    )
+    and "AuthenticationStatus=AuthenticationPassed" in mac["other_attr_string"]
+    and "cisco-wlan-ssid=FLS-Guest" in mac["other_attr_string"]
+    and mac["identity_group"] in {"Profiled", "Unknown"}
+    ]
+    logger.info(f'There are {len(macs_unknown)} MAC addresses filtered that belong to the "Unknown" Endpoint Group: {macs_unknown}')
+    print(macs_unknown)
+    print(len(macs_unknown))
 
     ### INITIALIZE API OBJECT AND GET THE ACTIVE SESSIONS LIST ###
     ise_json = Ise(ISE_AUTHENTICATION)
@@ -90,20 +102,20 @@ def main():
     for mac in macs_unknown:
         user_id = ise_json.get_operations(f'ers/config/endpoint/name/{mac}', ISE_URL)
         logger.info(f'Retrieved endpoint id for {mac}')
-        payload = {"ERSEndPoint": {"name": mac, "mac": mac, "staticGroupAssignment": "true", "groupId": ISE_GUEST_ENDPOINT_GROUP_ID}}
+        payload = {"ERSEndPoint": {"name": mac, "mac": mac, "staticGroupAssignment": "true", "groupId": ISE_GUEST_ENDPOINT_GROUP_ID }}
         result = ise_json.put_operations(f'ers/config/endpoint/{user_id["ERSEndPoint"]["id"]}', ISE_URL, payload)
         if result == 200:
             logger.info(f'Updated FLS-Guest-Endpoint-PoC with {mac}')
         else:
             logger.error(f'Updating FLS-Guest-Endpoint-PoC with {mac} FAILED!')            
     
-    ### TIME SCRIPT RUN ###
+#    ### TIME SCRIPT RUN ###
     end_time = time()
-    execution_time = start_time - end_time
+    execution_time =  end_time - start_time 
     print(f'The script took {execution_time} seconds to run')
-    print(f'The script took {strftime("%H:%M:%S", gmtime(execution_time))} seconds to run')
+    print(f'The script took {strftime("%H:%M:%S", gmtime(execution_time))} to run')
     logger.info(f'The script took {execution_time} seconds to run')
-    logger.info(f'The script took {strftime("%H:%M:%S", gmtime(execution_time))} seconds to run')
+    logger.info(f'The script took {strftime("%H:%M:%S", gmtime(execution_time))} to run')
 
 if __name__ == '__main__' :
     """
