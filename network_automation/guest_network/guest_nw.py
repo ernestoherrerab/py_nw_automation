@@ -101,13 +101,17 @@ def main():
     ### ADD MAC ADDRESSES TO GUEST ENDPOINT GROUP ###
     for mac in macs_unknown:
         user_id = ise_json.get_operations(f'ers/config/endpoint/name/{mac}', ISE_URL)
-        logger.info(f'Retrieved endpoint id for {mac}')
-        payload = {"ERSEndPoint": {"name": mac, "mac": mac, "staticGroupAssignment": "true", "groupId": ISE_GUEST_ENDPOINT_GROUP_ID }}
-        result = ise_json.put_operations(f'ers/config/endpoint/{user_id["ERSEndPoint"]["id"]}', ISE_URL, payload)
-        if result == 200:
-            logger.info(f'Updated FLS-Guest-Endpoint-PoC with {mac}')
+        if user_id == 200:
+            logger.info(f'Retrieved endpoint id for {mac}')
+            payload = {"ERSEndPoint": {"name": mac, "mac": mac, "staticGroupAssignment": "true", "groupId": ISE_GUEST_ENDPOINT_GROUP_ID }}
+            result = ise_json.put_operations(f'ers/config/endpoint/{user_id["ERSEndPoint"]["id"]}', ISE_URL, payload)
+            if result == 200:
+                logger.info(f'Updated FLS-Guest-Endpoint-PoC with {mac}')
+            else:
+                logger.error(f'Updating FLS-Guest-Endpoint-PoC with {mac} FAILED!')     
         else:
-            logger.error(f'Updating FLS-Guest-Endpoint-PoC with {mac} FAILED!')            
+            logger.error(f'MAC address information not found for {mac}')
+            print(f'MAC address information not found for {mac}')         
     
 #    ### TIME SCRIPT RUN ###
     end_time = time()
