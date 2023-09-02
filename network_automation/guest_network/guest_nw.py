@@ -101,7 +101,7 @@ def main():
     ### ADD MAC ADDRESSES TO GUEST ENDPOINT GROUP ###
     for mac in macs_unknown:
         user_id = ise_json.get_operations(f'ers/config/endpoint/name/{mac}', ISE_URL)
-        if user_id == 200:
+        if isinstance(user_id, dict):
             logger.info(f'Retrieved endpoint id for {mac}')
             payload = {"ERSEndPoint": {"name": mac, "mac": mac, "staticGroupAssignment": "true", "groupId": ISE_GUEST_ENDPOINT_GROUP_ID }}
             result = ise_json.put_operations(f'ers/config/endpoint/{user_id["ERSEndPoint"]["id"]}', ISE_URL, payload)
