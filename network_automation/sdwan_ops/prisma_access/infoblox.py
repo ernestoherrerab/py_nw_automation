@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 import re
 from netaddr import IPNetwork
-from network_automation.InfobloxApi import Infoblox
+from network_automation.libs.InfobloxApi import Infoblox
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/sdwan_ops.log")

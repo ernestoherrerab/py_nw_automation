@@ -4,7 +4,7 @@ Define Child Access Device Class For NXOS Devices
 """
 from scrapli.driver.core import NXOSDriver
 from scrapli.exceptions import ScrapliConnectionError
-from network_automation.hostname_changer.hostname_changer.Device import Device
+from network_automation.libs.Device import Device
 
 
 class DeviceNxos(Device):

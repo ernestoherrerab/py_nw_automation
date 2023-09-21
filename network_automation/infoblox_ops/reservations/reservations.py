@@ -7,7 +7,7 @@ from decouple import config
 import logging
 from pathlib import Path
 import urllib3
-from network_automation.InfobloxApi import Infoblox
+from network_automation.libs.InfobloxApi import Infoblox
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/infoblox_ops.log")

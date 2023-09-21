@@ -15,8 +15,8 @@ from yaml import dump, load, SafeDumper
 from yaml.loader import FullLoader
 from tqdm import tqdm
 import network_automation.hostname_changer.hostname_changer.api_calls as api
-from network_automation.hostname_changer.hostname_changer.DeviceIos import DeviceIos
-from network_automation.hostname_changer.hostname_changer.DeviceNxos import DeviceNxos
+from network_automation.libs.DeviceIos import DeviceIos
+from network_automation.libs.DeviceNxos import DeviceNxos
 from network_automation.hostname_changer.hostname_changer.DeviceWlc import DeviceWlc
 
 sys.dont_write_bytecode = True

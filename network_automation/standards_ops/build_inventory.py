@@ -6,7 +6,7 @@ import logging
 from json import dumps
 from pathlib import Path
 from yaml import dump
-import network_automation.ipfabric_api as ipfabric
+import network_automation.libs.ipfabric_api as ipfabric
 import network_automation.standards_ops.infoblox_helper.add_ib_helper as ib_helper
 
 ### LOGGING SETUP ###

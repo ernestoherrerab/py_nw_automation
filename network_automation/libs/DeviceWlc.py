@@ -6,7 +6,7 @@ Define Child WLC Device Class
 from decouple import config
 from scrapli.driver import GenericDriver
 from scrapli.exceptions import ScrapliTimeout
-from network_automation.hostname_changer.hostname_changer.Device import Device
+from network_automation.libs.Device import Device
 
 ### VARIABLES FOR NON-AAA WLCS ###
 WLC_LOCAL_USERNAME = config("WLC_LOCAL_USERNAME")

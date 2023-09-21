@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 import urllib3
 from netaddr import IPAddress, cidr_merge
-import network_automation.ipfabric_api as ipfabric
+import network_automation.libs.ipfabric_api as ipfabric
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/sdwan_ops.log")

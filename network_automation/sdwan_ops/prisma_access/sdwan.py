@@ -10,8 +10,7 @@ from pathlib import Path
 import re
 from rich import print as pprint
 from time import sleep
-from vmanage.api.policy_lists import  PolicyLists
-import network_automation.sdwan_api as sdwan
+import network_automation.libs.sdwan_api as sdwan
 
 
 ### LOGGING SETUP ###
@@ -115,7 +114,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
     site_code = site_data["site_code"].upper()
     new_template_name = ""
     summary_list = []
-    red_nw_list = ["10105","10121","30117","30040","10123","10040"]
+    red_nw_list = ["10105","30117","30040","10123","10040"]
 
     ### CONVERT TUPLES TO LISTS ###
     device_parameters = list(map(list, hostname_ip_set ))
