@@ -5,7 +5,7 @@ Define Child Core Device Class For IOS Devices
 from scrapli.driver.core import IOSXEDriver
 from scrapli.exceptions import ScrapliConnectionError
 from scrapli.exceptions import ScrapliAuthenticationFailed
-from network_automation.hostname_changer.hostname_changer.Device import Device
+from network_automation.libs.Device import Device
 
 
 class DeviceIos(Device):

@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 from time import sleep
 import urllib3
-import network_automation.prisma_api as prisma
+import network_automation.libs.prisma_api as prisma
 
 
 ### LOGGING SETUP ###

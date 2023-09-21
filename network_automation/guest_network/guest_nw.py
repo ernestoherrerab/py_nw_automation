@@ -13,7 +13,7 @@ sys.path.append(parent)
 from time import time, strftime, gmtime
 import urllib3
 from netaddr import EUI
-from IseApi import Ise
+from network_automation.libs.IseApi import Ise
 
 def is_valid_mac_address(mac_address: str) -> str:
     """

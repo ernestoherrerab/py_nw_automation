@@ -8,7 +8,7 @@ import logging
 import pandas 
 from pathlib import Path
 import re
-import network_automation.ipfabric_api as ipfabric
+import network_automation.libs.ipfabric_api as ipfabric
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/standards_ops.log")

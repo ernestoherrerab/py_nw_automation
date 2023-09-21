@@ -8,7 +8,7 @@ import logging
 from netaddr import IPNetwork
 from pathlib import Path
 import urllib3
-from network_automation.InfobloxApi import Infoblox
+from network_automation.libs.InfobloxApi import Infoblox
 from network_automation.infoblox_ops import containers as container
 
 ### LOGGING SETUP ###
