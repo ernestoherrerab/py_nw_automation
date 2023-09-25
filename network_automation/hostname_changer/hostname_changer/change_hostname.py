@@ -17,7 +17,7 @@ from tqdm import tqdm
 import network_automation.hostname_changer.hostname_changer.api_calls as api
 from network_automation.libs.DeviceIos import DeviceIos
 from network_automation.libs.DeviceNxos import DeviceNxos
-from network_automation.hostname_changer.hostname_changer.DeviceWlc import DeviceWlc
+from network_automation.libs.DeviceWlc import DeviceWlc
 
 sys.dont_write_bytecode = True
 dev_auth_fail_list = set()
