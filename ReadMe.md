@@ -18,6 +18,7 @@
 
 - Infoblox Ops: Contains different tasks to automate Infoblox Tasks.
   1. Add Network/DHCP Scopes: Add Networks, DHCP scopes and ranges, a container network must exist.
+  2. Add DHCP Reservations for existing DHCP scopes.
 
 - ISE Ops: Contains different tasks to automate ISE
 
