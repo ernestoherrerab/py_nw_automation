@@ -1,0 +1,401 @@
+{'hostname': 'grz-cs01-a2', 'siteName': 'grz', 'sources': {'data': []}}
+{'hostname': 'cph3-as01', 'siteName': 'cph3', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'del3-as18-seccam08', 'siteName': 'del3', 'sources': {'data': []}}
+{'hostname': 'aal2-as03-ha', 'siteName': 'aal2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as06-sa16', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as03-c004', 'siteName': 'cph', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'cph-as55-c11', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '10.45.255.2', '172.17.255.2', '10.45.255.1']}}
+{'hostname': 'cph-as46-a4', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as56-c11', 'siteName': 'cph', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'del3-as10-p3', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'gdn-as11-a10ip', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'cph-as75-e23', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as45-a4', 'siteName': 'cph', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'cph-as54-c11', 'siteName': 'cph', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'pia-cs01', 'siteName': 'pia', 'sources': {'data': ['10.45.255.3', '10.45.255.2']}}
+{'hostname': 'fra3-cs1', 'siteName': 'fra3', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'cph-as53-c11', 'siteName': 'cph', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'dsm-as01', 'siteName': 'dsm', 'sources': {'data': ['172.16.193.116']}}
+{'hostname': 'tri-as02-l5', 'siteName': 'tri', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'dmm-cs01', 'siteName': 'dmm', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tus-as07-c', 'siteName': 'tus', 'sources': {'data': ['10.45.0.1', '10.31.0.132']}}
+{'hostname': 'abe2-as01', 'siteName': 'abe2', 'sources': {'data': []}}
+{'hostname': 'bkk-cs01', 'siteName': 'bkk', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'bkk-as01', 'siteName': 'bkk', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'cdg-as01-srvroom', 'siteName': 'cdg', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'cdg-cs01', 'siteName': 'cdg', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'gdn-cs02', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'gdn-as03-a10ip', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'acc-as01', 'siteName': 'acc', 'sources': {'data': []}}
+{'hostname': 'acc-as03', 'siteName': 'acc', 'sources': {'data': []}}
+{'hostname': 'jnb6-as01', 'siteName': 'jnb6', 'sources': {'data': ['10.45.255.3', '10.45.255.2']}}
+{'hostname': 'ftin1-as1', 'siteName': 'ftin1', 'sources': {'data': ['10.31.0.132']}}
+{'hostname': 'fteu1-as1', 'siteName': 'fteu1', 'sources': {'data': ['10.31.0.132']}}
+{'hostname': 'tao3-as01', 'siteName': 'tao3', 'sources': {'data': []}}
+{'hostname': 'han-cs01', 'siteName': 'han', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'ist-as01', 'siteName': 'ist', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'ist-as02', 'siteName': 'ist', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'sux-cs01', 'siteName': 'sux', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'sux-as01', 'siteName': 'sux', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'sux-as02', 'siteName': 'sux', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'kgf-cs01', 'siteName': 'kgf', 'sources': {'data': []}}
+{'hostname': 'yeg2-cs01', 'siteName': 'yeg2', 'sources': {'data': ['10.45.255.1', '172.17.255.2', '10.45.255.2', '172.17.255.1']}}
+{'hostname': 'mnl-as01-f6', 'siteName': 'mnl', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'mnl-as02-f6', 'siteName': 'mnl', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bvl-as01', 'siteName': 'bvl', 'sources': {'data': []}}
+{'hostname': 'shj-cs01', 'siteName': 'shj', 'sources': {'data': []}}
+{'hostname': 'shj-as01', 'siteName': 'shj', 'sources': {'data': []}}
+{'hostname': 'cmn-as01', 'siteName': 'cmn', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'zcl-cs01', 'siteName': 'zcl', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'zcl-as01', 'siteName': 'zcl', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'tao2-as03-dc', 'siteName': 'tao2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tao2-as06-qc', 'siteName': 'tao2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tao2-as15-pl2', 'siteName': 'tao2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tao2-as13-p1', 'siteName': 'tao2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'tao2-as16-pl', 'siteName': 'tao2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tao2-as14-pl1', 'siteName': 'tao2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tao2-as02-p1', 'siteName': 'tao2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'tao2-as08-p1', 'siteName': 'tao2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'tao2-as11-dc', 'siteName': 'tao2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tao2-as05-dc', 'siteName': 'tao2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tao2-as09-dc', 'siteName': 'tao2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tao2-as07-dc', 'siteName': 'tao2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tao2-as01-dc', 'siteName': 'tao2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tao2-cs02', 'siteName': 'tao2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tao2-cs01', 'siteName': 'tao2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tus-as05-g', 'siteName': 'tus', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'tus-as06-d', 'siteName': 'tus', 'sources': {'data': ['10.45.0.1', '10.31.0.132']}}
+{'hostname': 'jnb9-as03', 'siteName': 'jnb9', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'jnb9-as08-wh', 'siteName': 'jnb9', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'jnb9-as07-wh', 'siteName': 'jnb9', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'jnb9-as06', 'siteName': 'jnb9', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'jnb9-as05', 'siteName': 'jnb9', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'jnb9-as09-rd', 'siteName': 'jnb9', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'jnb9-as01', 'siteName': 'jnb9', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'jnb9-as04', 'siteName': 'jnb9', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'jnb9-as02', 'siteName': 'jnb9', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'mty-as04', 'siteName': 'mty', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'mty-as03', 'siteName': 'mty', 'sources': {'data': []}}
+{'hostname': 'mty-as05', 'siteName': 'mty', 'sources': {'data': []}}
+{'hostname': 'mty-cs01', 'siteName': 'mty', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'tus-as13', 'siteName': 'tus', 'sources': {'data': ['10.45.0.1', '10.31.0.132']}}
+{'hostname': 'tus-as02-a', 'siteName': 'tus', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'tus-as03-a', 'siteName': 'tus', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'tus-as01-a', 'siteName': 'tus', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'tus-as20-itp', 'siteName': 'tus', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'tus-as15-nwh', 'siteName': 'tus', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'tus-cs02', 'siteName': 'tus', 'sources': {'data': ['10.45.0.1', '10.31.0.132']}}
+{'hostname': 'tus-as14', 'siteName': 'tus', 'sources': {'data': ['10.45.0.1', '10.31.0.132']}}
+{'hostname': 'tus-cs01', 'siteName': 'tus', 'sources': {'data': ['10.45.0.1', '10.31.0.132']}}
+{'hostname': 'crw3-as07', 'siteName': 'crw3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'crw3-as01-cnc', 'siteName': 'crw3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'crw3-as03', 'siteName': 'crw3', 'sources': {'data': []}}
+{'hostname': 'crw3-as02-prod', 'siteName': 'crw3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'crw3-as04', 'siteName': 'crw3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'crw3-cs01', 'siteName': 'crw3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb8-as01-bsw', 'siteName': 'jnb8', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb8-as03-mpw', 'siteName': 'jnb8', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb8-as06-srv', 'siteName': 'jnb8', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb8-as05-srv', 'siteName': 'jnb8', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb8-as04-phase2', 'siteName': 'jnb8', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb8-as02-bsw', 'siteName': 'jnb8', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb8-as08-sts', 'siteName': 'jnb8', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb8-cs01', 'siteName': 'jnb8', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'lin2-as03-ws', 'siteName': 'lin2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'lin2-as01-of5', 'siteName': 'lin2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'lin2-as02-of6', 'siteName': 'lin2', 'sources': {'data': []}}
+{'hostname': 'lin2-cs02', 'siteName': 'lin2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'lin2-as05-ws', 'siteName': 'lin2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'lin2-as04-ws', 'siteName': 'lin2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'lin2-cs01', 'siteName': 'lin2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'maa-as21-d1', 'siteName': 'maa', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as26-rednw', 'siteName': 'maa', 'sources': {'data': []}}
+{'hostname': 'maa-as23-f2', 'siteName': 'maa', 'sources': {'data': ['10.91.255.1', '10.45.255.1']}}
+{'hostname': 'maa-as25-rednw', 'siteName': 'maa', 'sources': {'data': []}}
+{'hostname': 'maa-as27-d1', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as24-d0', 'siteName': 'maa', 'sources': {'data': []}}
+{'hostname': 'maa-as03-b0', 'siteName': 'maa', 'sources': {'data': []}}
+{'hostname': 'maa-as20-a1', 'siteName': 'maa', 'sources': {'data': []}}
+{'hostname': 'maa-as03-Security', 'siteName': 'maa', 'sources': {'data': ['10.45.255.1', '10.91.255.2', '10.45.255.2', '10.91.255.1']}}
+{'hostname': 'maa-as04-b1', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as16-f1', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as17-f2', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as18-f3', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as12-e0', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as10-d2', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as15-f0', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as19-rd', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.91.255.1']}}
+{'hostname': 'maa-as09-d1', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as13-e1', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as11-d3', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as08-d0', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as07-c2', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as06-c1', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as28-c0', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as05-b2', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as02-b0', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as01-a1', 'siteName': 'maa', 'sources': {'data': ['10.91.255.2', '10.45.255.1', '10.91.255.1', '10.45.255.2']}}
+{'hostname': 'maa-as22-d1', 'siteName': 'maa', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'maa-cs02', 'siteName': 'maa', 'sources': {'data': ['10.45.255.1', '10.91.0.4', '10.45.255.2']}}
+{'hostname': 'maa-cs01', 'siteName': 'maa', 'sources': {'data': ['10.45.255.1', '10.91.0.4', '10.45.255.2']}}
+{'hostname': 'uln-cs01', 'siteName': 'uln', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'uln-as02', 'siteName': 'uln', 'sources': {'data': ['10.45.255.2', '10.45.255.1']}}
+{'hostname': 'uln-as01', 'siteName': 'uln', 'sources': {'data': ['10.45.255.2', '10.45.255.1']}}
+{'hostname': 'cgk-as03-dc', 'siteName': 'cgk', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cgk-as02-dc', 'siteName': 'cgk', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cgk-as01-dc', 'siteName': 'cgk', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cgk-cs01', 'siteName': 'cgk', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cgk-cs02', 'siteName': 'cgk', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb2-as02', 'siteName': 'jnb2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb2-as05', 'siteName': 'jnb2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb2-as01', 'siteName': 'jnb2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb2-as03', 'siteName': 'jnb2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb2-as04', 'siteName': 'jnb2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb2-cs01', 'siteName': 'jnb2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'pnq-as02', 'siteName': 'pnq', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'pnq-as01', 'siteName': 'pnq', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'pnq-cs01', 'siteName': 'pnq', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'pnq-cs02', 'siteName': 'pnq', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'cai-as01-srv', 'siteName': 'cai', 'sources': {'data': ['10.45.255.2', '10.45.255.1']}}
+{'hostname': 'cai-as03-fl7', 'siteName': 'cai', 'sources': {'data': []}}
+{'hostname': 'cai-as05-fl8', 'siteName': 'cai', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cai-as04-fl8', 'siteName': 'cai', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cai-cs02', 'siteName': 'cai', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'cai-cs01', 'siteName': 'cai', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'pia-as03', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as20', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '132.163.4.107', '10.91.0.1']}}
+{'hostname': 'pia-as14', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as22', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as13', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as17', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as19', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as18', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as16', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as21', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '132.163.4.22', '10.91.0.1']}}
+{'hostname': 'pia-as10', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '132.163.4.107', '10.91.0.1']}}
+{'hostname': 'pia-as12', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '132.163.4.22', '10.91.0.1']}}
+{'hostname': 'pia-as11', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as15', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as06', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as07', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as05', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as02', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as08', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as09', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'pia-as01', 'siteName': 'pia', 'sources': {'data': ['10.45.0.1', '10.91.0.1']}}
+{'hostname': 'bgy-as08-a0', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy-as12-c0q2', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy-as10-b0', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy-as05-iscsi', 'siteName': 'bgy', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'bgy-as04-iscsi', 'siteName': 'bgy', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'bgy-as15-b0', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy-as11-c0q1', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy-as01-a', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy-as03-a0', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy-as02-a0', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy-as14-a0', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy-as09-a1ric', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy-as07-srv', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy-as06-srv', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy-cs02', 'siteName': 'bgy', 'sources': {'data': ['10.31.0.132']}}
+{'hostname': 'bgy-cs01', 'siteName': 'bgy', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bne2-as08-adm', 'siteName': 'bne2', 'sources': {'data': ['172.17.255.1', '10.31.0.196', '10.31.0.132', '172.17.255.2']}}
+{'hostname': 'bne2-as03-po1', 'siteName': 'bne2', 'sources': {'data': ['172.17.255.1', '10.31.0.196', '10.31.0.132', '172.17.255.2']}}
+{'hostname': 'bne2-as11-adm', 'siteName': 'bne2', 'sources': {'data': ['172.17.255.1', '10.31.0.196', '10.31.0.132', '172.17.255.2']}}
+{'hostname': 'bne2-as13-adm', 'siteName': 'bne2', 'sources': {'data': ['172.17.255.1', '10.31.0.196', '10.31.0.132', '172.17.255.2']}}
+{'hostname': 'bne2-as12-adm', 'siteName': 'bne2', 'sources': {'data': ['172.17.255.1', '10.31.0.196', '10.31.0.132', '172.17.255.2']}}
+{'hostname': 'bne2-as04-po2', 'siteName': 'bne2', 'sources': {'data': ['172.17.255.1', '10.31.0.196', '10.31.0.132', '172.17.255.2']}}
+{'hostname': 'bne2-as10-adm', 'siteName': 'bne2', 'sources': {'data': ['172.17.255.1', '10.31.0.196', '10.31.0.132', '172.17.255.2']}}
+{'hostname': 'bne2-as05-adm', 'siteName': 'bne2', 'sources': {'data': ['172.17.255.1', '10.31.0.196', '10.31.0.132', '172.17.255.2']}}
+{'hostname': 'bne2-as01-adm', 'siteName': 'bne2', 'sources': {'data': ['172.17.255.1', '10.31.0.196', '10.31.0.132', '172.17.255.2']}}
+{'hostname': 'agb2-as04', 'siteName': 'agb2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'agb2-as03', 'siteName': 'agb2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'agb2-as02', 'siteName': 'agb2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'agb2-as01', 'siteName': 'agb2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'agb2-cs02', 'siteName': 'agb2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'agb2-cs01', 'siteName': 'agb2', 'sources': {'data': []}}
+{'hostname': 'bgy2-as03-c0', 'siteName': 'bgy2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy2-as05-e0', 'siteName': 'bgy2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'bgy2-as04-d0', 'siteName': 'bgy2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy2-as09-b0', 'siteName': 'bgy2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'bgy2-as07-c0', 'siteName': 'bgy2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy2-as10-c0', 'siteName': 'bgy2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy2-as02-b0', 'siteName': 'bgy2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy2-as01', 'siteName': 'bgy2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy2-as08-f0', 'siteName': 'bgy2', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'bgy2-as06-f0', 'siteName': 'bgy2', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'bgy2-cs02', 'siteName': 'bgy2', 'sources': {'data': ['10.31.0.132']}}
+{'hostname': 'bgy2-cs01', 'siteName': 'bgy2', 'sources': {'data': ['10.45.255.2', '10.31.0.132']}}
+{'hostname': 'cph-as18-sa007', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as23-b1', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as24-b0', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as26-b3', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as25-b3', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as27-b2', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as65-e140', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as64-e140', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as66-e140', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as17-sa007', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as16-sa007', 'siteName': 'cph', 'sources': {'data': ['10.91.0.1', '10.45.0.1']}}
+{'hostname': 'cph-as51-a0', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as19-b1', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as20-b0', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as21-b3', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as22-b2', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as76-a7-red', 'siteName': 'cph', 'sources': {'data': []}}
+{'hostname': 'cph-as14', 'siteName': 'cph', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'cph-as74-e1040', 'siteName': 'cph', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'cph-as28-sa41', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '10.45.255.2', '172.17.255.2', '10.45.255.1']}}
+{'hostname': 'cph-as1-sc0', 'siteName': 'cph', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'cph-as58-e140', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as62-e1140', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as11', 'siteName': 'cph', 'sources': {'data': ['193.162.145.130', '193.162.159.194', '10.45.255.2']}}
+{'hostname': 'cph-as15-sa007', 'siteName': 'cph', 'sources': {'data': []}}
+{'hostname': 'cph-as12', 'siteName': 'cph', 'sources': {'data': ['10.45.255.1', '193.162.159.194', '193.162.145.130']}}
+{'hostname': 'cph-as41-a0', 'siteName': 'cph', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'cph-as40-a0', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as43-a2', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '10.45.255.2', '172.17.255.2', '10.45.255.1']}}
+{'hostname': 'cph-as47-a5', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as42-a1', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as13-thod', 'siteName': 'cph', 'sources': {'data': ['10.45.255.2', '10.45.255.1']}}
+{'hostname': 'cph-as48-a6', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as49-sa3', 'siteName': 'cph', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'cph-as50-a7', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as09-l133', 'siteName': 'cph', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'cph-as04-l29', 'siteName': 'cph', 'sources': {'data': []}}
+{'hostname': 'cph-as02-e019', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as01-e019', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-cs01', 'siteName': 'cph', 'sources': {'data': ['10.31.0.132']}}
+{'hostname': 'cph-as32-a0', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as35-a3', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as34-a2', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as37-a5', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as33-a1', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as38-a6', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'cph-as39-a7', 'siteName': 'cph', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'fra-as04-b1f3', 'siteName': 'fra', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'fra-as07-b1f4', 'siteName': 'fra', 'sources': {'data': ['10.45.255.2', '10.45.255.1']}}
+{'hostname': 'fra-as06-b1f3', 'siteName': 'fra', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'fra-as01-b1b0', 'siteName': 'fra', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'fra-as08-b1f2', 'siteName': 'fra', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'fra-as05-b1f2', 'siteName': 'fra', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'fra-as03-b1f2', 'siteName': 'fra', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'fra-as02-b1f1', 'siteName': 'fra', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'fra-cs01', 'siteName': 'fra', 'sources': {'data': []}}
+{'hostname': 'maa3-as01-w1', 'siteName': 'maa3', 'sources': {'data': ['10.91.255.1', '10.45.255.1']}}
+{'hostname': 'maa3-as02-w2', 'siteName': 'maa3', 'sources': {'data': ['10.91.255.1', '10.45.255.1']}}
+{'hostname': 'maa3-as03-w3', 'siteName': 'maa3', 'sources': {'data': ['10.91.255.1', '10.45.255.1']}}
+{'hostname': 'maa3-as03-w4', 'siteName': 'maa3', 'sources': {'data': ['10.91.255.1', '10.45.255.1']}}
+{'hostname': 'maa3-as04-w4', 'siteName': 'maa3', 'sources': {'data': ['10.91.255.1', '10.45.255.1']}}
+{'hostname': 'maa3-cs01', 'siteName': 'maa3', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'jnb-as09-srv', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as14-voice', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as17', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as15-voice', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as19-voice', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as12-voice', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as11-voice', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as10-voice', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as18-voice', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as07', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as06', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as04', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.2']}}
+{'hostname': 'jnb-as05', 'siteName': 'jnb', 'sources': {'data': ['10.31.0.132']}}
+{'hostname': 'jnb-as07', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as03', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as02', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as16', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as01', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-as08-srv', 'siteName': 'jnb', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'jnb-cs02', 'siteName': 'jnb', 'sources': {'data': ['10.31.0.132']}}
+{'hostname': 'jnb-cs01', 'siteName': 'jnb', 'sources': {'data': ['10.31.0.132']}}
+{'hostname': 'maa4-as02-f4', 'siteName': 'maa4', 'sources': {'data': []}}
+{'hostname': 'maa4-as01-Security', 'siteName': 'maa4', 'sources': {'data': ['10.91.255.1', '10.45.255.1']}}
+{'hostname': 'maa4-cs01', 'siteName': 'maa4', 'sources': {'data': ['10.45.255.2', '10.45.255.1']}}
+{'hostname': 'maa4-as01-F3', 'siteName': 'maa4', 'sources': {'data': ['10.91.255.1', '10.45.255.1']}}
+{'hostname': 'maa4-as01-f1', 'siteName': 'maa4', 'sources': {'data': ['10.91.255.1', '10.45.255.1']}}
+{'hostname': 'maa4-as03-f2', 'siteName': 'maa4', 'sources': {'data': ['10.91.255.1', '10.45.255.1']}}
+{'hostname': 'aqp-as02-main2', 'siteName': 'aqp', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'aqp-as06-sc02', 'siteName': 'aqp', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'aqp-as01-main1', 'siteName': 'aqp', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'aqp-as05-security1', 'siteName': 'aqp', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'aqp-as04-service2', 'siteName': 'aqp', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'aqp-as03-main3', 'siteName': 'aqp', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'aqp-cs02', 'siteName': 'aqp', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'aqp-cs01', 'siteName': 'aqp', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'lim5-as06', 'siteName': 'lim5', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'lim5-cs01', 'siteName': 'lim5', 'sources': {'data': ['10.45.255.1', '172.17.255.2', '10.45.255.2', '172.17.255.1']}}
+{'hostname': 'lim5-as01', 'siteName': 'lim5', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'lim5-as07', 'siteName': 'lim5', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'gru-as07-me', 'siteName': 'gru', 'sources': {'data': ['200.189.40.8', '10.45.255.1', '10.45.255.2']}}
+{'hostname': 'cph3-as02', 'siteName': 'cph3', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'brq-as05-sf2', 'siteName': 'brq', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'brq-as03-ext', 'siteName': 'brq', 'sources': {'data': ['10.45.255.2', '10.45.255.1']}}
+{'hostname': 'del3-as16-p1', 'siteName': 'del3', 'sources': {'data': []}}
+{'hostname': 'del3-as20-seccam10', 'siteName': 'del3', 'sources': {'data': []}}
+{'hostname': 'del3-as17-pm', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'del3-as15-seccam05', 'siteName': 'del3', 'sources': {'data': []}}
+{'hostname': 'abe-as03-fl01', 'siteName': 'abe', 'sources': {'data': []}}
+{'hostname': 'brq-as02-ext', 'siteName': 'brq', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'brq-as10-srv', 'siteName': 'brq', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'gdn-as02-a104vc', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'del3-as19-seccam09', 'siteName': 'del3', 'sources': {'data': []}}
+{'hostname': 'del3-as01-p1', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'del3-as12-sf01', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'del3-as13-pb3', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'del3-as22-p3', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'del3-as08-ul', 'siteName': 'del3', 'sources': {'data': ['10.45.255.1']}}
+{'hostname': 'del3-as05-p2', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'del3-as03-p2', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'abe-as04-legal', 'siteName': 'abe', 'sources': {'data': ['10.45.0.1', '10.31.0.132']}}
+{'hostname': 'abe-as05-fl02', 'siteName': 'abe', 'sources': {'data': ['10.45.0.1', '10.31.0.132']}}
+{'hostname': 'abe-as02-fl01', 'siteName': 'abe', 'sources': {'data': ['10.45.0.1', '172.16.193.116', '10.31.0.132']}}
+{'hostname': 'brq-as01-ext', 'siteName': 'brq', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'brq-as04-lab', 'siteName': 'brq', 'sources': {'data': ['10.45.255.2', '10.45.255.1']}}
+{'hostname': 'brq-as09-srv', 'siteName': 'brq', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'brq-as08-srv', 'siteName': 'brq', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'brq-as07-srv', 'siteName': 'brq', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'brq-as06-srv', 'siteName': 'brq', 'sources': {'data': ['10.45.255.1', '10.45.255.2']}}
+{'hostname': 'brq-cs01', 'siteName': 'brq', 'sources': {'data': ['10.45.0.1', '10.31.0.196']}}
+{'hostname': 'zrh-as09-b1f4', 'siteName': 'zrh', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'zrh-as08-b1f3', 'siteName': 'zrh', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'gdn-as15-a11b', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'gdn-as12-a3w', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'gdn-as07', 'siteName': 'gdn', 'sources': {'data': []}}
+{'hostname': 'gdn-as06-a10w3', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'gdn-as13-a104', 'siteName': 'gdn', 'sources': {'data': []}}
+{'hostname': 'gdn-as16-a104', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'gdn-as10-a104', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'gdn-as14-a104', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'gdn-as05-a10w2', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'del3-as02-p1', 'siteName': 'del3', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'del3-as14-dc', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'del3-as09-dc', 'siteName': 'del3', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'del3-as06-eo', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'del3-as07-dc', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'del3-as21-sf02dc', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'del3-cs01', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'abe-as01-fl01', 'siteName': 'abe', 'sources': {'data': ['10.45.0.1', '10.31.0.132']}}
+{'hostname': 'crw3-as05', 'siteName': 'crw3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'crw3-as20', 'siteName': 'crw3', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'brq-cs02', 'siteName': 'brq', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'zrh-cs01', 'siteName': 'zrh', 'sources': {'data': ['172.17.255.1', '172.17.255.2', '10.41.2.10']}}
+{'hostname': 'gdn-as08-a11', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'gdn-as09-a3w', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'gdn-as04-a10w1', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'gdn-as01-a104', 'siteName': 'gdn', 'sources': {'data': ['172.17.255.2', '172.17.255.1']}}
+{'hostname': 'del3-cs02', 'siteName': 'del3', 'sources': {'data': ['172.17.255.1', '172.17.255.2']}}
+{'hostname': 'abe-cs01', 'siteName': 'abe', 'sources': {'data': ['10.45.0.1', '10.31.0.132']}}
+{'hostname': 'abe-cs02', 'siteName': 'abe', 'sources': {'data': ['10.45.0.1', '10.31.0.132']}}
+{'hostname': 'aal2-as08-g', 'siteName': 'aal2', 'sources': {'data': ['10.31.134.5', '10.1.65.25']}}
+{'hostname': 'aal2-as12-i', 'siteName': 'aal2', 'sources': {'data': []}}
+{'hostname': 'aal2-as10-i', 'siteName': 'aal2', 'sources': {'data': []}}
+{'hostname': 'aal2-as04-d', 'siteName': 'aal2', 'sources': {'data': ['10.1.65.25']}}
+{'hostname': 'aal2-as13-h', 'siteName': 'aal2', 'sources': {'data': ['10.31.134.5', '10.1.65.25']}}
+{'hostname': 'aal2-as02-b', 'siteName': 'aal2', 'sources': {'data': ['10.31.134.5', '10.1.65.25']}}
+{'hostname': 'aal2-as05-f', 'siteName': 'aal2', 'sources': {'data': ['10.31.134.5', '10.1.65.25']}}
+{'hostname': 'aal2-as11-j', 'siteName': 'aal2', 'sources': {'data': ['10.1.65.25']}}
+{'hostname': 'aal2-as01-a', 'siteName': 'aal2', 'sources': {'data': ['10.31.134.5', '10.1.65.25']}}
+{'hostname': 'aal2-as14-c', 'siteName': 'aal2', 'sources': {'data': []}}
+{'hostname': 'aal2-as07-i', 'siteName': 'aal2', 'sources': {'data': []}}
+{'hostname': 'aal2-as06-g', 'siteName': 'aal2', 'sources': {'data': []}}

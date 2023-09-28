@@ -54,7 +54,7 @@ def get_dhcp_relay_ifs(ipf: IPFClient, filter_dict={}) -> list:
     
     return dhcp_relay_ifs
 
-def get_ntp_sources(ipf: IPFClient, filter_dict={}) -> list:
+def get_ntp_summary(ipf: IPFClient, filter_dict:dict={}) -> list:
     """Get device DHCP Relay data
 
     Args:
@@ -66,7 +66,7 @@ def get_ntp_sources(ipf: IPFClient, filter_dict={}) -> list:
     """
 
     
-    ntp_sources = ipf.technology.management.ntp_sources.all(filter_dict)
+    ntp_sources = ipf.technology.management.ntp_summary.all(filters=filter_dict)
     
     return ntp_sources
 
