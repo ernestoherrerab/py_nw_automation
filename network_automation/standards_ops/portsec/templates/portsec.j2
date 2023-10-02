@@ -1,0 +1,12 @@
+{% for port in port_dict["ports"]%}
+interface {{ port[0] }}
+description Access Port
+switchport mode access 
+switchport access vlan {{ port[1] }}
+switchport port-security
+switchport port-security maximum 2
+spanning-tree portfast 
+spanning-tree bpduguard enable
+!
+{% endfor %}
+do wr mem
