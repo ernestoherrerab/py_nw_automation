@@ -11,7 +11,7 @@ from nornir.core.filter import F
 from nornir_scrapli.tasks import send_configs
 from nornir_utils.plugins.functions import print_result
 from network_automation.libs import ipfabric_api as ipfabric
-from network_automation.standards_ops import build_inventory as inventory
+from network_automation.libs import build_inventory as inventory
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/standards_ops.log")
@@ -79,14 +79,16 @@ def build_staging_file(switchport_data: dict, host: str):
     
     ### WORK WITH JINJA2 TEMPLATES ###
     ### INPUT VARIABLES ORIGINATE FROM USER INPUT ###
+    ### LOAD JINJA2 TEMPLATE AND EXPORT DATA INTO TEMPLATE ###
     env = Environment(loader=FileSystemLoader(ACCESS_SWITCHPORT_GOLD_CONFIG), trim_blocks=True, lstrip_blocks=True)
     portsec_template = env.get_template("portsec.j2")
     portsec_config = portsec_template.render(port_dict = switchport_data[host])   
-        
+
+    ### BUILD STAGING FILE USING JINJA2 TEMPLATE AS INPUT ### 
     with open(STAGING_DIR / host , "a+") as add_gold:
         add_gold.write(f'\n{portsec_config}')
         logger.info(f'Nornir: Staged configuration to configure')
-#    #### REMOVE SPACES ###
+    #### REMOVE SPACES ###
     with open(STAGING_DIR / host) as filehandle:
         lines = filehandle.readlines()
     with open(STAGING_DIR / host, 'w') as filehandle:
@@ -131,7 +133,7 @@ def access_switchport_op(nr, switchport_data: dict):
     
     Args:
     nr (object): Nornir Object
-    dhcp_data: From user input
+    switchport_data: Collected and formatted from IPFabric
 
     """
     ### VARS ### 
@@ -139,10 +141,11 @@ def access_switchport_op(nr, switchport_data: dict):
     dry_run = True
     results_set = set()
     
-    ### BUILD PLATFORM CONFIGURATION FILE ###
+    ### GET LIST OF HOSTS ###
     platform_hosts = nr.inventory.hosts 
     print(platform_hosts)   
-        
+    
+    ### BUILD STAGING FILE PER DEVICE ###
     for platform_host in platform_hosts.keys():
         build_staging_file(switchport_data, platform_host)   
     
@@ -152,25 +155,25 @@ def access_switchport_op(nr, switchport_data: dict):
     print_result(platform_results)
     
     ### HANDLE RESULTS FOR PLATFORM ###
-#    for key in platform_results.keys():
-#        print(key)
-#        if not platform_results[key][0].failed:
-#            dry_run = False
-#        else:
-#            failed_hosts.append(key)
-#            del_files()
-#            print(f'{key} Failed')
-#            logger.error(f'Nornir: Hosts Failed {failed_hosts}')
-#            results_set.add(False)
-#    print(f'Failed Hosts: {failed_hosts}')
-#
-#    if not dry_run:
-#        platform_results = nr.run(ib_helper_send_config, dry_run=False)
-#        del_files()
-#        logger.info(f'Nornir: IP Helper Address configurations Applied')
-#        results_set.add(True)
-#
-#    return results_set, failed_hosts
+    for key in platform_results.keys():
+        print(key)
+        if not platform_results[key][0].failed:
+            dry_run = False
+        else:
+            failed_hosts.append(key)
+            del_files()
+            print(f'{key} Failed')
+            logger.error(f'Nornir: Hosts Failed {failed_hosts}')
+            results_set.add(False)
+    print(f'Failed Hosts: {failed_hosts}')
+
+    if not dry_run:
+        platform_results = nr.run(portsec_send_config, dry_run=False)
+        del_files()
+        logger.info(f'Nornir: Port Security configurations Applied')
+        results_set.add(True)
+
+    return results_set, failed_hosts
 
 def apply_portsec(site_code: str, username: str, password: str):
     """Build the inventory 
@@ -181,14 +184,13 @@ def apply_portsec(site_code: str, username: str, password: str):
     password (str) : From user input
     """
     ### VARS ###
-    INV_DIR = Path("network_automation/standards_ops/inventory/hosts.yml")
     site_code = site_code.lower()
     NORNIR_CONFIG_FILE = Path("network_automation/standards_ops/config/config.yml")
 
-    ### BUILD INVENTORY AND GET SITE INVENTORY ###
+    ### BUILD SITE INVENTORY ###
     site_inventory = inventory.build_inventory(site_code)
 
-    ### FORMAT SWITCH & SWITCHPORT DATA FOR NORNIR ###
+    ### FORMAT SWITCH & SWITCHPORT DATA FOR NORNIR TASKS ###
     switchport_data = format_ipf_data(site_inventory)
     
     ### INITIALIZE NORNIR ###
@@ -198,5 +200,8 @@ def apply_portsec(site_code: str, username: str, password: str):
     platform_devs = nr.filter(F(groups__contains="ios_devices"))
     logger.info("Nornir: Session Initiated")
 
+    ### RUN NORNIR TASKS ###
     results = access_switchport_op(platform_devs, switchport_data)
+
+    return results
 

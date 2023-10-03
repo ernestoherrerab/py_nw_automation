@@ -17,7 +17,7 @@ class DeviceAccessNxos(Device):
             "show port-channel summary",
         ]
         command_dict = {}
-        device = Device.set_transport(self, self.host, self.username, self.password)
+        device = Device.set_transport(self)
         try:
             with NXOSDriver(**device) as connection:
                 response = connection.send_commands(commands)

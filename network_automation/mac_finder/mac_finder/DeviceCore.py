@@ -18,7 +18,7 @@ class DeviceCore(Device):
             "show etherchannel summary",
         ]
         command_dict = {}
-        device = Device.set_transport(self, self.host, self.username, self.password)
+        device = Device.set_transport(self)
 
         try:
             with IOSXEDriver(**device) as connection:

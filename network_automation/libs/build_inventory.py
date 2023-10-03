@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Apply AAA standard configurations
+Build Nornir Inventory From IPFabric Data
 """
 import logging
 from pathlib import Path

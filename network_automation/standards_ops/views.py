@@ -15,7 +15,7 @@ import network_automation.standards_ops.ntp.build_inventory as do_ntp
 import network_automation.standards_ops.infoblox_helper.build_inventory as add_ib_helper
 import network_automation.standards_ops.portsec.add_portsec as add_portsec
 import network_automation.standards_ops.cli_configs.send_cli as send_cli_configs
-import network_automation.standards_ops.build_inventory as build_inventory
+import network_automation.libs.build_inventory as build_inventory
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/standards_ops.log")
