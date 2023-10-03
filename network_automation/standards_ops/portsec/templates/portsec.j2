@@ -2,8 +2,8 @@
 interface {{ port[0] }}
 switchport mode access 
 switchport access vlan {{ port[1] }}
-no switchport port-security
-no switchport port-security maximum 2
+switchport port-security
+switchport port-security maximum 2
 spanning-tree portfast 
 spanning-tree bpduguard enable
 no spanning-tree guard root
