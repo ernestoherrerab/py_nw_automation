@@ -113,6 +113,21 @@ def get_ntp_summary(ipf: IPFClient, filter_dict:dict={}) -> list:
     
     return ntp_sources
 
+def get_switchports(ipf: IPFClient, filter_dict={}) -> list:
+    """Get device switchports
+
+    Args:
+    ipf (IPFClient obj): From Authentication
+    filter_dict (dict): Dictionary to Filter Data 
+
+    Returns:
+    subnets_data (list): List of dictionaries of DHCP Relays data 
+    """
+
+    switchports = ipf.technology.interfaces.switchport.all(filters=filter_dict)
+    
+    return switchports
+
 def get_snapshot_diff(ipf: IPFClient, snapshot: str) -> list:
     """Get snapshot differential
 

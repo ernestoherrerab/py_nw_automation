@@ -13,8 +13,9 @@ import network_automation.standards_ops.audit_manager.audit as audit
 import network_automation.standards_ops.aaa.build_inventory as do_aaa
 import network_automation.standards_ops.ntp.build_inventory as do_ntp
 import network_automation.standards_ops.infoblox_helper.build_inventory as add_ib_helper
+import network_automation.standards_ops.portsec.add_portsec as add_portsec
 import network_automation.standards_ops.cli_configs.send_cli as send_cli_configs
-import network_automation.standards_ops.build_inventory as build_inventory
+import network_automation.libs.build_inventory as build_inventory
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/standards_ops.log")
@@ -71,6 +72,13 @@ def aaa():
     Apply AAA Standards Home Data input
     """
     return render_template(f"{TEMPLATE_DIR}/aaa_manager.html")
+
+@standards_ops.route("/portsec")
+def portsec():
+    """ 
+    Apply Port Security Standards Home Data input
+    """
+    return render_template(f"{TEMPLATE_DIR}/portsec_manager.html")
 
 @standards_ops.route("/ntp")
 def ntp():
@@ -197,6 +205,22 @@ def apply_ntp():
         password = session.get("cli_password")
         logger.info(f'Applying NTP standards to {site_code}')
         results, failed_hosts = do_ntp.build_inventory(ntp_dict, username, password)
+        print(results, failed_hosts)
+       
+        if results == {True}:
+            return render_template(f"{TEMPLATE_DIR}/results_success.html")
+        else:
+            return render_template(f"{TEMPLATE_DIR}/results_failure.html", failed_hosts=failed_hosts)
+
+@standards_ops.route("/apply_portsec", methods=["POST"])
+def apply_portsec():
+    if request.method == "POST":
+        Path(f"network_automation/standards_ops/staging").mkdir(exist_ok=True)
+        site_code = request.form["siteId"]
+        username = session.get("cli_username")
+        password = session.get("cli_password")
+        logger.info(f'Applying Port Security standards to {site_code}')
+        results, failed_hosts = add_portsec.apply_portsec(site_code, username, password)
         print(results, failed_hosts)
        
         if results == {True}:

@@ -21,11 +21,11 @@ class Device:
         self.password = password
 
     ### OBJECT TRANSPORT OPTIONS ###
-    def set_transport(self, host, username, password):
+    def set_transport(self):
         DEVICE = {
-            "host": host,
-            "auth_username": username,
-            "auth_password": password,
+            "host": self.host,
+            "auth_username": self.username,
+            "auth_password": self.password,
             "auth_strict_key": False,
             "transport_options": self.transport_options,
         }

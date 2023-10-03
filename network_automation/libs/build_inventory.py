@@ -1,13 +1,11 @@
 #! /usr/bin/env python
 """
-Apply AAA standard configurations
+Build Nornir Inventory From IPFabric Data
 """
 import logging
-from json import dumps
 from pathlib import Path
 from yaml import dump
 import network_automation.libs.ipfabric_api as ipfabric
-import network_automation.standards_ops.infoblox_helper.add_ib_helper as ib_helper
 
 ### LOGGING SETUP ###
 LOG_FILE = Path("logs/standards_ops.log")
@@ -19,7 +17,7 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 
-def build_inventory(site_code: str, username: str, password: str):
+def build_inventory(site_code: str):
     """Build the inventory 
 
     Args:
@@ -31,7 +29,6 @@ def build_inventory(site_code: str, username: str, password: str):
     INV_DIR = Path("network_automation/standards_ops/inventory/hosts.yml")
     site_code = site_code.lower()
     site_filter = {"hostname": ["like", site_code + "-"]}
-    mgmt_filter = {"or": []}
     nornir_inv_dict = {}
 
     ### GENERATE IPFABRIC SESSION ###
@@ -58,3 +55,5 @@ def build_inventory(site_code: str, username: str, password: str):
     ### DUMP INVENTORY DICTIONARY ###
     with open(INV_DIR, "w+") as open_file:
         open_file.write("\n" + dump(nornir_inv_dict, default_flow_style=False))
+    
+    return ipf_inv
