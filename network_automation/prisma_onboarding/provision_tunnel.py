@@ -51,19 +51,19 @@ def main():
     ### GET SUBNETS FOR REMOTE NETWORKS IN PRISMA ACCESS ###
     hostname_ip_set, remote_nw_subnets = ipfabric_ops.get_ipfabric_data(site_data)
     print(hostname_ip_set, remote_nw_subnets)
-#    
-#    ### PROVISION TUNNEL INTERFACES IN INFOBLOX ###
-#    infoblox_response = infoblox_ops.create_tunnel_ips(hostname_ip_set, site_data)
-#    
-#    ### CREATE REMOTE NETWORKS IN PRISMA ACCESS ###
-#    ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
-#    public_ip, bgp_asn, bgp_peers = prisma_access_ops.create_remote_networks(site_data, hostname_ip_set, remote_nw_subnets, infoblox_response)
-#
-#    ### CREATE IPSEC TUNNELS ON SDWAN VMANAGE ###
-#    summary_list = sdwan_ops.create_ipsec_tunnels(site_data, username, password, hostname_ip_set, public_ip, bgp_asn, bgp_peers, infoblox_response)
-#
-    return hostname_ip_set
-    #return summary_list
+    
+    ### PROVISION TUNNEL INTERFACES IN INFOBLOX ###
+    infoblox_response = infoblox_ops.create_tunnel_ips(hostname_ip_set, site_data)
+    
+    ### CREATE REMOTE NETWORKS IN PRISMA ACCESS ###
+    ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
+    public_ip, bgp_asn, bgp_peers = prisma_access_ops.create_remote_networks(site_data, hostname_ip_set, remote_nw_subnets, infoblox_response)
+
+    ### CREATE IPSEC TUNNELS ON SDWAN VMANAGE ###
+    summary_list = sdwan_ops.create_ipsec_tunnels(site_data, username, password, hostname_ip_set, public_ip, bgp_asn, bgp_peers, infoblox_response)
+
+    
+    return summary_list
 
 if __name__ == '__main__' :
     """
