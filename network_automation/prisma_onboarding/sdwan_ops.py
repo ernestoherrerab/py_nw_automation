@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 from rich import print as pprint
 from time import sleep
+from netaddr import IPAddress
 import libs.sdwan_api as sdwan
 
 
@@ -117,11 +118,21 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
     red_nw_list = ["10105","30117","30040","10123","10040"]
 
     ### CONVERT TUPLES TO LISTS ###
-    device_parameters = list(map(list, hostname_ip_set ))
+    staging_set = set()
+    for hostname_ip_tuple, tunnel_ip in zip(hostname_ip_set, tunnel_ips):
+        peer_id = IPAddress(hostname_ip_tuple[1])
+        if peer_id.is_unicast() and peer_id.is_private():
+            staging_set.add((hostname_ip_tuple[0], tunnel_ip, hostname_ip_tuple[2]))
+        else:
+            staging_set.add(hostname_ip_tuple)
 
+    device_parameters = list(map(list, hostname_ip_set ))
+    print(f'staging_set VAR: {staging_set}')
+    print(f'device_parameters VAR: {device_parameters}')
     ### ADD TUNNEL IP TO DEVICE PARAMETERS ###
     for hostname_ip, tunnel_ip in zip(device_parameters, tunnel_ips):
         hostname_ip.append(tunnel_ip)
+    print(f'hostname_ip VAR: {hostname_ip}')
 
     ### DEFINE IF A SECONDARY IPSEC TUNNEL IS NEEDED ###
     sec_tunnel = False

@@ -9,6 +9,8 @@ import logging
 from pathlib import Path
 from time import sleep
 import urllib3
+from sys import exit
+from netaddr import IPAddress
 import libs.prisma_api as prisma
 
 
@@ -68,9 +70,9 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
     remote_network = prisma.get_remote_nws(prisma_session, site_code)
     logger.info(f'Prisma: Checking if {site_code} remote network exists')
     if remote_network != None:
-        print(remote_network)
         logger.error(f'Prisma: Remote Network {site_code} already exists')
-        return False
+        print((f'Prisma: Remote Network {site_code} already exists!'))
+        exit(1)
     else:
         print(f'Remote Network {site_code} does not exist')
         logger.info(f'Prisma: Remote Network {site_code} does not exist')
@@ -81,7 +83,8 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
     if spn_location_dict == None:
         print("SPN Location not found, check region input is correct...")
         logger.error(f'Prisma: SPN Location for {location} not found')
-        return False
+        print(f'Prisma: SPN Location for {location} not found!!')
+        exit(1)
     else:
         spn_location = spn_location_dict["spn_name_list"][0]
         print(spn_location)
@@ -96,7 +99,14 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
 
     ### CREATE IKE GATEWAY(S) ###
     print("Creating IKE Gateways in Prisma...")
-    ike_gw_result, ike_gw_names = prisma.create_ike_gw(prisma_session, hostname_ip_set)
+    staging_set = set()
+    for hostname_ip_tuple, tunnel_ip in zip(hostname_ip_set, tunnel_ips):
+        peer_id = IPAddress(hostname_ip_tuple[1])
+        if peer_id.is_unicast() and peer_id.is_private():
+            staging_set.add((hostname_ip_tuple[0], tunnel_ip, hostname_ip_tuple[2]))
+        else:
+            staging_set.add(hostname_ip_tuple)
+    ike_gw_result, ike_gw_names = prisma.create_ike_gw(prisma_session, staging_set)
     if ike_gw_result != {201}:
         logger.error(f'Prisma: Could not create IKE Gateways')
         return False
