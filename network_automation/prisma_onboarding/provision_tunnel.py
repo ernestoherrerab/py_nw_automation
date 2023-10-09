@@ -56,7 +56,7 @@ def main():
     ### PROVISION TUNNEL INTERFACES IN INFOBLOX ###
     infoblox_response = infoblox_ops.create_tunnel_ips(hostname_ip_set, site_data)
     print(f'Infoblox Ops Result: {infoblox_response}\n')
-    
+
     ### CREATE REMOTE NETWORKS IN PRISMA ACCESS ###
     ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
     public_ip, bgp_asn, bgp_peers = prisma_access_ops.create_remote_networks(site_data, hostname_ip_set, remote_nw_subnets, infoblox_response)
