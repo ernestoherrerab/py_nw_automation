@@ -30,7 +30,7 @@
 - SDWAN Ops: Contains different tasks to automate the SDWAN environment:
 
   1. SDWAN hostname update hostname (deprecated)
-  2. Orchestration of Prisma Access and SDWAN Routers IPSec tunnels provisioning.
+  2. Orchestration of Prisma Access and SDWAN Routers IPSec tunnels provisioning (Removed from Frontend).
 
 - Panorama Ops: Contains different tasks to automate the Panorama operations:
   1. Address checker to quickly get all the dependencies from Address Group
@@ -124,9 +124,17 @@ You can enter data in two ways:
 
 ### SDWAN Ops Prisma Access Tunnels Provisioning
 
-1. Enter the vManage credentials
+This is no longer presented in the frontend due to unresolved issues with the reverse proxy timing out. 
 
-2. Enter input data: Site code, Region and Location as specified in the provided link.
+1. Activate the virtual environment: source automation/.venv/bin/activate  
+
+2. Navigate to the root directory of the repository: cd  automation/.venv/py_nw_automation/
+
+3. Execute the main program: python network_automation/prisma_onboarding/provision_tunnel.py
+
+4. Enter vManage credentials.
+
+5. Enter input data: Site code, Region and Location **EXACTLY** as specified in the Prisma Access GUI -> Remote Networks -> Bandwdith Management.
 
 ### Panorama Ops
 
