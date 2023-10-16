@@ -1,7 +1,7 @@
 {% for port in port_dict["ports"]%}
 interface {{ port[0] }}
 switchport port-security
-switchport port-security maximum 2
+switchport port-security maximum 3
 spanning-tree portfast 
 spanning-tree bpduguard enable
 no spanning-tree guard root

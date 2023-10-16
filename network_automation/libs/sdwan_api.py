@@ -48,6 +48,7 @@ def attach_dev_template(authentication: Authentication.login, vmanage: str, payl
     """
     device_template = DeviceTemplates(authentication, vmanage)
     response =  device_template.attach_to_template(payload, config_type)
+    
     return response
 
 
@@ -83,6 +84,7 @@ def get_all_templates_config(authentication: Authentication.login, vmanage: str,
     """
     device_template = DeviceTemplates(authentication, vmanage)
     device_templates_list = device_template.get_device_template_list(name_list=template_name)
+    
     return device_templates_list
 
 def get_dev_feature_template(authentication: Authentication.login, vmanage: str, factory_default: bool=False, name_list: list=None) -> list:
@@ -99,8 +101,41 @@ def get_dev_feature_template(authentication: Authentication.login, vmanage: str,
     """
     feature_template = FeatureTemplates(authentication, vmanage)
     feature_template_list = feature_template.get_feature_template_list(factory_default, name_list)
+    
     return feature_template_list
 
+def get_device_attached_to_dev_template(authentication: Authentication.login, vmanage: str, device_template_id: str ) -> list:
+    """Get list of devices attached to a device template 
+
+    Args:
+    authentication (Authentication.login): Session object
+    vmanage (str): vManage URL as an env variable
+    device_template_id (str): device id template id to evaluate
+    
+    Returns:
+    device_template_list (list): Device template list featuring feature template
+    """
+    device_template = DeviceTemplates(authentication, vmanage)
+    device_template_list = device_template.get_template_attachments(device_template_id)
+
+    return device_template_list
+
+def get_feature_template_list_of_dev_templates(authentication: Authentication.login, vmanage: str, feature_template_id: str ) -> list:
+    """Get list of device templates that uses a given feature template id
+
+    Args:
+    authentication (Authentication.login): Session object
+    vmanage (str): vManage URL as an env variable
+    feature_template_id (str): feature template id to evaluate
+    
+    Returns:
+    device_template_list (list): Device template list featuring feature template
+    """
+    feature_template = FeatureTemplates(authentication, vmanage)
+    device_template_list = feature_template.get_device_templates_for_feature(feature_template_id)
+
+    return device_template_list
+    
 def get_template_config(authentication: Authentication.login, vmanage: str, template_id: str) -> list:
     """Get Reachable vEdge Data
     
