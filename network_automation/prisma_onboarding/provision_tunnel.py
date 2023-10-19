@@ -31,38 +31,49 @@ def main():
     site_data = {}
 
 
-    print(
-        '''Welcome to the Prisma Access Onboarding Tool\n\n
-        * The compute location and Prisma Access location can be found in:
-          Prisma Access -> Service Setup -> Remote Networks -> Bandwidth Management\n
-        ** The locations must be exactly entered as displayed
-        *** BANDWIDTH MUST HAVE BEEN ALLOCATED TO THE REGION ALREADY\n
-        '''
-    )
-    username = input("vManage Username: ")
-    password = getpass("vManage Password: ")
-    site_code = input("Site code: ")
-    region_id = input("Compute Location: ")
-    location_id = input("Prisma Access Location: ")
-    site_data["site_code"] = site_code.lower()
-    site_data["region_id"] = region_id
-    site_data["location_id"] = location_id
+#    print(
+#        '''Welcome to the Prisma Access Onboarding Tool\n\n
+#        * The compute location and Prisma Access location can be found in:
+#          Prisma Access -> Service Setup -> Remote Networks -> Bandwidth Management\n
+#        ** The locations must be exactly entered as displayed
+#        *** BANDWIDTH MUST HAVE BEEN ALLOCATED TO THE REGION ALREADY\n
+#        '''
+#    )
+#    username = input("vManage Username: ")
+#    password = getpass("vManage Password: ")
+#    site_code = input("Site code: ")
+#    region_id = input("Compute Location: ")
+#    location_id = input("Prisma Access Location: ")
+#    site_data["site_code"] = site_code.lower()
+#    site_data["region_id"] = region_id
+#    site_data["location_id"] = location_id
+#
+#    ### GET SDWAN IPSEC FEATURE TEMPLATE VALUES ###
+#    ### GET SUBNETS FOR REMOTE NETWORKS IN PRISMA ACCESS ###
+#    hostname_ip_set, remote_nw_subnets = ipfabric_ops.get_ipfabric_data(site_data)
+#    print(f'IPFabric Ops Result: {hostname_ip_set}, {remote_nw_subnets}\n')
+#    
+#    ### PROVISION TUNNEL INTERFACES IN INFOBLOX ###
+#    infoblox_response = infoblox_ops.create_tunnel_ips(hostname_ip_set, site_data)
+#    print(f'Infoblox Ops Result: {infoblox_response}\n')
+#
+#    ### CREATE REMOTE NETWORKS IN PRISMA ACCESS ###
+#    ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
+#    public_ip, bgp_asn, bgp_peers = prisma_access_ops.create_remote_networks(site_data, hostname_ip_set, remote_nw_subnets, infoblox_response)
+#    print(f'Prisma Access Ops Result: {public_ip}, {bgp_asn}, {bgp_peers}\n')
+#
+#    ### CREATE IPSEC TUNNELS ON SDWAN VMANAGE ###
+#    summary_list = sdwan_ops.create_ipsec_tunnels(site_data, username, password, hostname_ip_set, public_ip, bgp_asn, bgp_peers, infoblox_response)
+#    print(f'SDWAN Ops Result: {summary_list} \n')
 
-    ### GET SDWAN IPSEC FEATURE TEMPLATE VALUES ###
-    ### GET SUBNETS FOR REMOTE NETWORKS IN PRISMA ACCESS ###
-    hostname_ip_set, remote_nw_subnets = ipfabric_ops.get_ipfabric_data(site_data)
-    print(f'IPFabric Ops Result: {hostname_ip_set}, {remote_nw_subnets}\n')
-    
-    ### PROVISION TUNNEL INTERFACES IN INFOBLOX ###
-    infoblox_response = infoblox_ops.create_tunnel_ips(hostname_ip_set, site_data)
-    print(f'Infoblox Ops Result: {infoblox_response}\n')
-
-    ### CREATE REMOTE NETWORKS IN PRISMA ACCESS ###
-    ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
-    public_ip, bgp_asn, bgp_peers = prisma_access_ops.create_remote_networks(site_data, hostname_ip_set, remote_nw_subnets, infoblox_response)
-    print(f'Prisma Access Ops Result: {public_ip}, {bgp_asn}, {bgp_peers}\n')
-
-    ### CREATE IPSEC TUNNELS ON SDWAN VMANAGE ###
+    public_ip = ['165.85.136.228']
+    bgp_asn = 64805
+    bgp_peers = ['10.253.1.74']
+    username = "admin"
+    password = "FLS!sgood4U"
+    hostname_ip_set = {('fteu1-r01-sdw', '172.17.0.15', 'GigabitEthernet0/0/0')}
+    infoblox_response = ['10.253.1.73']
+    site_data = {"site_code": "fteu1"}
     summary_list = sdwan_ops.create_ipsec_tunnels(site_data, username, password, hostname_ip_set, public_ip, bgp_asn, bgp_peers, infoblox_response)
     print(f'SDWAN Ops Result: {summary_list} \n')
 
