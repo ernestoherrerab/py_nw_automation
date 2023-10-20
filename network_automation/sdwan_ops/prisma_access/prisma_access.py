@@ -6,6 +6,7 @@ Script to Create Prisma Access Remote Networks
 from decouple import config
 from yaml import dump
 import logging
+from netaddr import IPAddress
 from pathlib import Path
 from time import sleep
 import urllib3
@@ -96,7 +97,14 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
 
     ### CREATE IKE GATEWAY(S) ###
     print("Creating IKE Gateways in Prisma...")
-    ike_gw_result, ike_gw_names = prisma.create_ike_gw(prisma_session, hostname_ip_set)
+    staging_set = set()
+    for hostname_ip_tuple, tunnel_ip in zip(hostname_ip_set, tunnel_ips):
+        peer_id = IPAddress(hostname_ip_tuple[1])
+        if peer_id.is_unicast() and peer_id.is_private():
+            staging_set.add((hostname_ip_tuple[0], tunnel_ip, hostname_ip_tuple[2]))
+        else:
+            staging_set.add(hostname_ip_tuple)
+    ike_gw_result, ike_gw_names = prisma.create_ike_gw(prisma_session, staging_set)
     if ike_gw_result != {201}:
         logger.error(f'Prisma: Could not create IKE Gateways')
         return False
@@ -163,7 +171,7 @@ def create_remote_networks(site_data: dict, hostname_ip_set: set, remote_nw_subn
             public_ips = prisma.get_public_ip(PRISMA_API_KEY)
             public_ip = [ip["address"] for item in public_ips for ip in item["address_details"] if ip["addressType"] == "service_ip" and site_code in ip["node_name"] ]
             sleep(20)
-        print(public_ip)
+        print(f'Prisma: The public IP is {public_ip}')
         logger.info(f'Prisma: The public IP is {public_ip}')
         
         return public_ip, peer_asn, bgp_peers

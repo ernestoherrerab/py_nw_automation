@@ -62,7 +62,7 @@ def get_ipfabric_data(site_data: dict) -> tuple:
                 hostname_ip_set.add((interface["hostname"], interface["primaryIp"], interface["nameOriginal"]))
             elif interface["intName"] == "Tunnel0":
                 tunnel_ip = [interface["hostname"], interface["primaryIp"], True]
-    
+
     ### GET WAN INTERFACE WITH PUBLIC IP IF IT EXISTS ###
     if True in tunnel_ip:
         key = "primaryIp" 
