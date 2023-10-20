@@ -28,14 +28,19 @@ def provision_tunnel(site_data, username, password):
     ### GET SDWAN IPSEC FEATURE TEMPLATE VALUES ###
     ### GET SUBNETS FOR REMOTE NETWORKS IN PRISMA ACCESS ###
     hostname_ip_set, remote_nw_subnets = ipfabric.get_ipfabric_data(site_data)
-    print(hostname_ip_set)
+    print(f'IPFabric Ops Result: {hostname_ip_set}, {remote_nw_subnets}\n')
+    logger.info(f'IPFabric Ops Result: {hostname_ip_set}, {remote_nw_subnets}\n')
     
     ### PROVISION TUNNEL INTERFACES IN INFOBLOX ###
     infoblox_response = infoblox.create_tunnel_ips(hostname_ip_set, site_data)
+    print(f'Prisma Access Ops Result: {public_ip}, {bgp_asn}, {bgp_peers}\n')
+    logger.info(f'Prisma Access Ops Result: {public_ip}, {bgp_asn}, {bgp_peers}\n')
     
     ### CREATE REMOTE NETWORKS IN PRISMA ACCESS ###
     ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###
     public_ip, bgp_asn, bgp_peers = prisma.create_remote_networks(site_data, hostname_ip_set, remote_nw_subnets, infoblox_response)
+    print(f'SDWAN Ops Result: {summary_list} \n')
+    logger.info(f'SDWAN Ops Result: {summary_list} \n')
 
     ### CREATE IPSEC TUNNELS ON SDWAN VMANAGE ###
     summary_list = sdwan.create_ipsec_tunnels(site_data, username, password, hostname_ip_set, public_ip, bgp_asn, bgp_peers, infoblox_response)

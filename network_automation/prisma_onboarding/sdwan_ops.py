@@ -61,7 +61,33 @@ def format_data_structure(template_id: str, dev_input: dict, auth_session: objec
         ### PUSH TEMPLATES TO DEVICES ###
         print("Pushing templates to devices...")
         print(feature_template_dict)
-        sdwan.attach_dev_template(auth_session, vmanage_url, feature_template_dict)
+        ops_id, summary_obj = sdwan.attach_dev_template(auth_session, vmanage_url, feature_template_dict)
+        summary = dict(summary_obj)
+        logger.info(f'vManage: {ops_id}') 
+
+        ### FORMAT SUMMARY FOR LOGGING ###
+        summary_status = summary["action_status"]
+        summary_activity = summary["action_activity"]
+        summary_config = loads(summary["action_config"])
+        summary_list.append(                {
+                "action_status": summary_status,
+                "action_activity": summary_activity,
+                "action_config": summary_config
+                })
+        if summary_status == "success":
+            logger.info(f'vManage: Provisioning was {summary_status}')
+            for activity in summary_activity:
+                logger.info(f'vManage:  {activity}')
+            for configuration in summary_config:
+                logger.info(f'vManage:  {configuration}')
+            return summary_list
+        else:
+            logger.error(f'vManage: Provisioning was {summary_status}') 
+            for activity in summary_activity:
+                logger.error(f'vManage:  {activity}')
+            for configuration in summary_config:
+                logger.error(f'vManage:  {configuration}')
+        return summary_list
     
 def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname_ip_set: set, public_ip: list, bgp_asn: str, bgp_peers: list, tunnel_ips: list) -> list:
     """ Create SDWAN IPSec Tunnels
@@ -253,7 +279,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             pprint(new_dev_input)
 
             #### FORMAT FINAL DATA STRUCTURE ###
-            format_data_structure(new_template_id, new_dev_input["data"], auth, VMANAGE_URL_VAR)  
+            summary_list = format_data_structure(new_template_id, new_dev_input["data"], auth, VMANAGE_URL_VAR)  
             sleep(240)
             if sdwan_site_id not in red_nw_list:
                 list_update = sdwan.update_site_list(auth, VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR, VMANAGE_VSMART_TEMPLATE_ID)
@@ -312,7 +338,7 @@ def create_ipsec_tunnels(site_data: dict, username: str, password: str, hostname
             print("The Template Input is:")
             pprint(prisma_dev_input)
             #### FORMAT FINAL DATA STRCUTURE ###
-            format_data_structure(prisma_template_id, prisma_dev_input["data"], auth, VMANAGE_URL_VAR)
+            summary_list = format_data_structure(prisma_template_id, prisma_dev_input["data"], auth, VMANAGE_URL_VAR)
             sleep(240)
             if sdwan_site_id not in red_nw_list:
                 list_update = sdwan.update_site_list(auth, VMANAGE_AZURE_LIST_ID, sdwan_site_id, VMANAGE_URL_VAR, VMANAGE_VSMART_TEMPLATE_ID)
