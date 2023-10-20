@@ -33,8 +33,8 @@ def provision_tunnel(site_data, username, password):
     
     ### PROVISION TUNNEL INTERFACES IN INFOBLOX ###
     infoblox_response = infoblox.create_tunnel_ips(hostname_ip_set, site_data)
-    print(f'Prisma Access Ops Result: {public_ip}, {bgp_asn}, {bgp_peers}\n')
-    logger.info(f'Prisma Access Ops Result: {public_ip}, {bgp_asn}, {bgp_peers}\n')
+    print(f'Infoblox Ops Result: {infoblox_response}\n')
+    logger.info(f'Infoblox Ops Result: {infoblox_response}\n')
     
     ### CREATE REMOTE NETWORKS IN PRISMA ACCESS ###
     ### GET PUBLIC IP FOR SDWAN TUNNEL DESTINATION ###

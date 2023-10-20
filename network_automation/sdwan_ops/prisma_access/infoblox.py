@@ -46,9 +46,7 @@ def create_tunnel_ips(num_nws: list, site_data: dict) -> list:
                     }
                   }
                 }
-    iterations = len(num_nws)
-    print(iterations)
-    
+    iterations = len(num_nws)  
     
     ### POST API CALL TO CREATE NEXT AVAILABLE /30 NETWORK ###
     print("Creating networks in Infoblox...")
